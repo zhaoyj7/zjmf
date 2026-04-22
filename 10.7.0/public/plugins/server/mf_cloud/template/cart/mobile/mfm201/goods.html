@@ -1,0 +1,1421 @@
+<!-- 页面引入样式位置 -->
+<link rel="stylesheet" href="/plugins/server/mf_cloud/template/clientarea/mobile/mfm201/css/cloud_goods.css">
+
+
+<div id="template2" v-cloak>
+  <top-menu onlynav>
+    <template #left>
+      <van-icon @click="goBack" class="left-icon" name="arrow-left"></van-icon>
+    </template>
+    <template #center>
+      <div class="nav-title">{{tit || lang.common_cloud_text43}}</div>
+    </template>
+  </top-menu>
+  <div class="buy-box">
+    <div class="select-type" @click="handleClick" v-if="baseConfig.only_sale_recommend_config !== 1 && showFast">
+      {{lang.switch_to}}
+      <span class="click-tip">
+        {{activeName === 'fast' ? lang.custom_config : lang.fast_config }}
+        <van-icon name="arrow"></van-icon>
+      </span>
+    </div>
+    <div class="fast-box" v-if="activeName === 'fast'">
+      <van-form ref="orderForm" scroll-to-error>
+        <template
+          v-if="productInfo.pay_type === 'on_demand' || productInfo.pay_type === 'recurring_prepayment_on_demand'">
+          <div class="custom-label">{{lang.mf_bill_way}}</div>
+          <cur-select v-model:firpick="params.billing_cycle" :text="billTypeName"
+            @change="getConfig(false, params.billing_cycle)" :label="lang.mf_bill_way" :columns="calcBillWayArr"
+            cur-class="mar-0" input-align="right" right-icon="arrow">
+          </cur-select>
+          <p class="s-tip" v-if="params.billing_cycle === 'on_demand'">
+            {{lang.mf_demand_tip1}}{{productInfo.on_demand?.min_usage_time}}{{timeObj[productInfo.on_demand?.min_usage_time_unit]}}，{{lang.mf_demand_tip2}}
+          </p>
+        </template>
+        <div class="custom-label">{{lang.basic_config}}</div>
+        <!-- 地区 -->
+        <cur-select :columns="dataList" :label="lang.common_cloud_label1" label-align="top"
+          :columns-names="{ text:'name',value: 'name',children:'city' }" right-icon="arrow"
+          cur-class="select-field  mar-0 primary-field" @change="changeCity">
+          <template #input>
+            <div class="select-input">
+              <img v-if="areImg" :src="`/upload/common/country/${areImg}.png`" alt="" class="country-icon">
+              {{countryName + '-' + city}}
+            </div>
+          </template>
+          <template #option="option">
+            <img v-if="option.iso" :src="`/upload/common/country/${option.iso}.png`" alt="" class="country-icon">
+            {{option.name}}
+          </template>
+        </cur-select>
+        <p class="s-tip">{{lang.mf_tip1}}&nbsp;<span>{{lang.mf_tip2}}</span>{{lang.mf_tip3}}</p>
+        <div class="custom-label">{{lang.package_config}}</div>
+        <!-- 套餐 -->
+        <van-field :label="lang.common_cloud_text7" label-align="top" class="select-field primary-field mar-0"
+          right-icon="arrow" @click="handleRecomend" readonly>
+          <template #input>
+            <div class="primary-color">
+              <span>{{recommendList[cloudIndex]?.name}}</span>
+              <span v-if="recommendList[cloudIndex]?.description">({{recommendList[cloudIndex].description}})</span>
+            </div>
+          </template>
+        </van-field>
+        <!-- 镜像 -->
+        <van-field :label="lang.cloud_menu_5" class="select-field primary-field " id="image" right-icon="arrow"
+          @click="isShowImage = true" readonly label-align="top">
+          <template #input>
+            <div class="primary-color">
+              <img
+                :src="`/plugins/server/mf_cloud/template/clientarea/mobile/mfm201/img/mf_cloud/${calcImageList[curImage].icon}.svg`"
+                alt="" class="image-icon" v-if="calcImageList[curImage]?.icon" />
+              {{imageName}}
+            </div>
+          </template>
+        </van-field>
+        <div class="van-field__error-message" v-if="showImage">{{lang.mf_tip6}}</div>
+        <!-- 网络配置 -->
+        <div class="custom-label" v-if="baseConfig.type === 'host'">{{lang.net_config}}</div>
+        <cur-select v-model:firpick="params.network_type" :text="netName" @change="changeNet" :label="lang.network_type"
+          :columns="calcNetTypeColumns" v-if="baseConfig.type === 'host'" cur-class="mar-0" input-align="right"
+          right-icon="arrow">
+        </cur-select>
+        <template v-if="params.network_type === 'vpc'">
+          <van-field model-value="172.16.0.0/12" :label="lang.cloud_menu_2" class="select-field " readonly
+            input-align="right" v-if="params.nat_web_limit_enable || params.nat_acl_limit_enable">
+          </van-field>
+          <template v-else>
+            <cur-select v-model:firpick="params.vpc.id" :label="lang.cloud_menu_2" :columns="calcVpcList"
+              :columns-names="{text:'name',value:'id'}" cur-class=" " right-icon="arrow" input-align="right">
+            </cur-select>
+            <p class="s-tip" v-show="!params.vpc.id">{{lang.vpc_tip}}</p>
+            <template v-if="params.vpc.id === ''">
+              <cur-select cur-class="" :label="lang.cloud_menu_2" v-model:firpick="plan_way" right-icon="arrow"
+                input-align="right" :columns-names="{text: 'name', value: 'id'}" :columns="planWayOptions">
+              </cur-select>
+            </template>
+            <div class="vpc-item ip-custom" v-if="plan_way === 1">
+              <!-- 自定义vpc -->
+              <div class="custom">
+                <cur-select cur-class="select-field" v-model:firpick="vpc_ips.vpc1.value" @change="changeVpcIp"
+                  :columns="vpc_ips.vpc1.select">
+                </cur-select>
+                <span class="ip-dot">·</span>
+                <van-popover placement="top">
+                  <div class="sure-remind">
+                    {{vpc_ips.vpc1.tips}}
+                  </div>
+                  <template #reference>
+                    <van-field :disabled="vpc_ips.vpc1.value === 192" v-model.number="vpc_ips.vpc2" :step="1"
+                      :formatter="vpcFormatter" format-trigger="onBlur" :controls="false" type="digit">
+                    </van-field>
+                  </template>
+                </van-popover>
+                <span class="ip-dot">·</span>
+                <van-popover placement="top">
+                  <div class="sure-remind">
+                    {{vpc_ips.vpc3Tips}}
+                  </div>
+                  <template #reference>
+                    <van-field :disabled="vpc_ips.vpc6.value === 16" @blur="changeVpc3" :formatter="vpc2Formatter"
+                      v-model="vpc_ips.vpc3" :step="1" :controls="false" :min="0" :max="255"></van-field>
+                  </template>
+                </van-popover>
+                <span class="ip-dot">·</span>
+                <van-popover placement="top">
+                  <div class="sure-remind">
+                    {{vpc_ips.vpc4Tips}}
+                  </div>
+                  <template #reference>
+                    <van-field :disabled="vpc_ips.vpc6.value < 25" @blur="changeVpc4" :formatter="vpc2Formatter"
+                      v-model="vpc_ips.vpc4" :step="1" :controls="false" :min="0" :max="255"></van-field>
+                  </template>
+                </van-popover>
+                <span class="ip-dot">/</span>
+                <cur-select cur-class="select-field" v-model:firpick="vpc_ips.vpc6.value" @change="changeVpcMask"
+                  :columns="vpc_ips.vpc6.select">
+                </cur-select>
+              </div>
+            </div>
+          </template>
+        </template>
+        <!-- 防御 -->
+        <template v-if="lineDetail.defence && lineDetail.defence.length >0 && lineDetail.sync_firewall_rule == 1">
+          <cur-select :columns="lineDetail.defence" v-model:firpick="defenseName"
+            :columns-names=" { text: 'desc', value: 'value' }" right-icon="arrow" :label="lang.mf_defense" cur-class=" "
+            @change="chooseDefence" input-align="right">
+          </cur-select>
+          <p class="s-tip" v-if="lineDetail?.sync_firewall_rule == 1">{{lang.defense_tip}}</p>
+        </template>
+        <!-- 2025.11.25 本地代理也支安全组 !isSync -->
+        <template v-if="isLogin">
+          <!-- 安全组 -->
+          <cur-select v-model:firpick="groupName"
+            :columns="[{value:lang.no_safe_group},{value:lang.create_group},{value:lang.exist_group}]"
+            :columns-names=" { text: 'value', value: 'value' }" right-icon="arrow" :label="lang.common_cloud_title26"
+            cur-class=" " input-align="right" @change="changeGroup">
+          </cur-select>
+          <p class="s-tip"
+            v-if="(baseConfig.nat_web_limit_enable || baseConfig.nat_acl_limit_enable)
+          && ( groupName === lang.no_safe_group && (params.network_type === 'vpc' || (params.network_type === 'normal' && baseConfig.type === 'lightHost')))">
+            {{lang.no_safe_group_tip}}
+          </p>
+          <div class="group-box">
+            <!-- 新增安全组 -->
+            <div class="group-select" v-if="groupName === lang.create_group">
+              <van-checkbox shape="square" v-model="item.check" v-for="(item,index) in groupSelect" :key="index">
+                <span class="check-text">{{item.name}}</span>
+              </van-checkbox>
+            </div>
+            <!-- 选择已有安全组 -->
+            <cur-select v-model:firpick="params.security_group_id" :label="lang.common_cloud_title26"
+              v-if="groupName === lang.exist_group" :columns="groupList" :columns-names=" { text: 'name', value: 'id' }"
+              right-icon="arrow" input-align="right" cur-class=" "
+              :placeholder="`${lang.placeholder_pre2}${lang.common_cloud_title26}`">
+            </cur-select>
+            <p class="s-tip" v-if="groupName === lang.create_group">{{lang.mf_tip24}}</p>
+          </div>
+        </template>
+        <!-- 其他配置 -->
+        <!-- 登录方式 -->
+        <div class="custom-label" id="ssh">{{lang.other_config}}</div>
+        <cur-select v-model:firpick="login_way" :columns="calcLoginWayList" @change="changeLogin"
+          :label="lang.login_way" right-icon="arrow" cur-class="mar-0" input-align="right"
+          :columns-names=" { text: 'value', value: 'value' }">
+          <template #input>
+            {{login_way}}
+          </template>
+        </cur-select>
+        <p class="s-tip" v-if="login_way === lang.auto_create">{{lang.mf_tip5}}</p>
+        <div class="login-box" v-else>
+          <van-field v-model="root_name" readonly :label="lang.login_name" input-align="right">
+          </van-field>
+          <!-- ssh -->
+          <template v-if="login_way === lang.security_tab1">
+            <cur-select v-model:firpick="params.ssh_key_id" :columns="sshList"
+              :columns-names=" { text: 'name', value: 'id' }" right-icon="arrow" :label="lang.ssh_key"
+              :placeholder="`${lang.placeholder_pre2}${lang.ssh_key}`" cur-class=" " input-align="right">
+            </cur-select>
+            <p class="s-tip p-30 jump-box" v-if="login_way === lang.security_tab1">{{lang.mf_tip17}}&nbsp;&nbsp;
+              <a href="/security.htm?active=1" target="_blank" class="add-ssh">
+                {{lang.mf_tip18}}
+                <img src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm201/img/cloudDetail/jump.svg" alt=""
+                  class="icon">
+              </a>
+            </p>
+            <div v-show="showSsh" class="p-30 van-field__error-message">
+              {{lang.placeholder_pre2}}{{lang.security_tab1}}
+            </div>
+          </template>
+          <!-- 密码 -->
+          <template v-if="login_way === lang.set_pas">
+            <van-field class="btn-field" v-model="params.password" :label="lang.login_password" type="password"
+              input-align="right" show-password @input="changeInput"
+              :placeholder="`${lang.placeholder_pre1}${lang.login_password}`">
+              <template #button>
+                <div class="pass-btn" slot="suffix" @click="createPassword">
+                  {{lang.common_cloud_btn1}}
+                </div>
+              </template>
+            </van-field>
+            <van-field v-model="params.re_password" :label="lang.sure_password" type="password" input-align="right"
+              show-password :placeholder="`${lang.placeholder_pre1}${lang.sure_password}`">
+            </van-field>
+            <div class="p-30 van-field__error-message" v-show="showPas">{{lang.mf_tip20}}</div>
+            <div class="p-30 van-field__error-message" v-show="showRepass">{{lang.mf_tip19}}</div>
+            <div class="test-password">
+              <div class="t-item">
+                * {{lang.mf_val1}}
+              </div>
+              <div class="t-item">
+                * {{lang.mf_val2}}
+              </div>
+              <div class="t-item">
+                * {{lang.mf_val3}}
+              </div>
+              <div class="t-item">
+                * {{lang.mf_val4}}
+              </div>
+            </div>
+          </template>
+        </div>
+        <!-- ssh端口设置 -->
+        <template v-if="baseConfig.rand_ssh_port === 3">
+          <cur-select v-model:firpick="ssh_port_type"
+            :text="ssh_port_type === 0 ? lang.mf_no : (ssh_port_type === 1 ? lang.random_port : lang.specify_port)"
+            :label="lang.ssh_port_setting"
+            :columns="[{value:0,text:lang.mf_no},{value:1,text:lang.random_port},{value:2,text:lang.specify_port}]"
+            :columns-names=" { text: 'text', value: 'value' }" right-icon="arrow" cur-class=" " input-align="right">
+          </cur-select>
+          <van-field v-if="ssh_port_type === 2" v-model.number="params.port" type="digit" :label="lang.specify_port"
+            :placeholder="lang.placeholder_pre1" input-align="right" @blur="changeSshPort">
+          </van-field>
+        </template>
+        <!-- 实例名称 -->
+        <van-field v-model="params.notes" :label="lang.cloud_name" :placeholder="lang.mf_tip15" input-align="right">
+        </van-field>
+        <!-- ssh端口 -->
+        <van-field class="btn-field" v-model="params.port" v-if="baseConfig.rand_ssh_port === 1"
+          :label="`SSH${lang.common_cloud_label13}`" :placeholder="lang.placeholder_pre1" input-align="right">
+          <template #button>
+            <div class="pass-btn" slot="suffix" @click="refreshPort">
+              {{lang.common_cloud_btn1}}
+            </div>
+          </template>
+        </van-field>
+        <div class="p-30 van-field__error-message" v-show="showPort">
+          {{lang.placeholder_pre1}}{{lang.common_cloud_label13}}
+        </div>
+        <!-- 自动续费 -->
+        <van-field :label="lang.auto_renew" input-align="right">
+          <template #input>
+            <van-switch v-model="params.auto_renew" size="16px"></van-switch>
+          </template>
+        </van-field>
+        <van-field :label="lang.ip_mac_bind_enable" v-if="baseConfig.ip_mac_bind_enable" input-align="right">
+          <template #input>
+            <van-switch v-model="params.ip_mac_bind_enable" size="16px"></van-switch>
+          </template>
+        </van-field>
+        <template v-if="baseConfig.nat_acl_limit_enable">
+          <van-field :label="lang.mf_support + lang.nat_acl_limit_enable"
+            v-if="params.network_type === 'vpc' || (params.network_type === 'normal' && baseConfig.type === 'lightHost')"
+            input-align="right">
+            <template #input>
+              <van-switch :disabled="baseConfig.default_nat_acl === 1" @change="changeNat"
+                v-model="params.nat_acl_limit_enable" size="16px">
+              </van-switch>
+            </template>
+          </van-field>
+        </template>
+        <template v-if="baseConfig.nat_web_limit_enable">
+          <van-field :label="lang.mf_support + lang.nat_web_limit_enable"
+            v-if="params.network_type === 'vpc' || (params.network_type === 'normal' && baseConfig.type === 'lightHost')"
+            input-align="right">
+            <template #input>
+              <van-switch @change="changeNat" v-model="params.nat_web_limit_enable" size="16px"
+                :disabled="baseConfig.default_nat_web === 1">
+              </van-switch>
+            </template>
+          </van-field>
+        </template>
+        <van-field v-if="params.network_type === 'normal' && baseConfig.ipv6_num_enable"
+          :label="lang.mf_allow + lang.ipv6_num_enable" input-align="right">
+          <template #input>
+            <van-switch @change="changeIpv6" v-model="params.ipv6_num_enable" size="16px"></van-switch>
+          </template>
+        </van-field>
+        <!-- 付费周期 -->
+        <cur-select cur-class=" " input-align="right" v-model:firpick="params.duration_id" :columns="calcCycleList"
+          @change="changeDuration" :columns-names=" { text: 'name', value: 'id' }"
+          :label="lang.order_duration || lang.mf_time" :placeholder="`${lang.placeholder_pre2}${lang.mf_duration}`"
+          right-icon="arrow" readonly>
+          <template #option="option">
+            <span class="txt">{{option.name}}</span>
+            <span class="tip" v-if="option.discount">{{option.discount}}{{lang.mf_tip25}}</span>
+          </template>
+        </cur-select>
+        <!-- 商品数量 -->
+        <van-field :label="lang.order_quantity || lang.shoppingCar_goodsNums" input-align="right">
+          <template #input>
+            <van-stepper v-model="qty" :min="1" :max="999" @change="changQty"></van-stepper>
+          </template>
+        </van-field>
+      </van-form>
+      <custom-goods :id="id" v-model:self_defined_field="self_defined_field" curclass="select-field "
+        class="custom-config" ref="customGoodRef">
+      </custom-goods>
+    </div>
+    <div class="custom-box" v-if="activeName === 'custom'">
+      <van-form ref="orderForm" scroll-to-error>
+        <template
+          v-if="productInfo.pay_type === 'on_demand' || productInfo.pay_type === 'recurring_prepayment_on_demand'">
+          <div class="custom-label">{{lang.mf_bill_way}}</div>
+          <cur-select v-model:firpick="params.billing_cycle" :text="billTypeName"
+            @change="getConfig(false, params.billing_cycle)" :label="lang.mf_bill_way" :columns="calcBillWayArr"
+            cur-class="mar-0" input-align="right" right-icon="arrow">
+          </cur-select>
+          <p class="s-tip" v-if="params.billing_cycle === 'on_demand'">
+            {{lang.mf_demand_tip1}}{{productInfo.on_demand?.min_usage_time}}{{timeObj[productInfo.on_demand?.min_usage_time_unit]}}，{{lang.mf_demand_tip2}}
+          </p>
+        </template>
+        <!-- 基础配置 -->
+        <div class="custom-label">{{lang.basic_config}}</div>
+        <!-- 资源包 -->
+        <cur-select v-model:firpick="ressourceName" v-if="resourceList.length > 1" :columns="resourceList"
+          label-align="top" cur-class="select-field  mar-0 primary-field"
+          :columns-names=" { text: 'name', value: 'name' }" right-icon="arrow" :label="lang.resource_package"
+          @change="changeResource">
+        </cur-select>
+        <!-- 地区 -->
+        <cur-select :columns="dataList" :label="lang.common_cloud_label1" label-align="top"
+          :columns-names="{text:'name',value:'name',children:'city' }" right-icon="arrow"
+          cur-class="select-field  mar-0 primary-field" @change="changeCity">
+          <template #input>
+            <div class="select-input">
+              <img v-if="areImg" :src="`/upload/common/country/${areImg}.png`" alt="" class="country-icon">
+              {{countryName + '-' + city}}
+            </div>
+          </template>
+          <template #option="option">
+            <img v-if="option.iso" :src="`/upload/common/country/${option.iso}.png`" alt="" class="country-icon">
+            {{option.name}}
+          </template>
+        </cur-select>
+        <p class="s-tip">{{lang.mf_tip1}}&nbsp;<span>{{lang.mf_tip2}}</span>{{lang.mf_tip3}}</p>
+        <!-- 可用区 -->
+        <cur-select :columns="calcAreaList" v-model:firpick="area_name"
+          :columns-names=" { text: 'name', value: 'name' }" right-icon="arrow" :label="lang.usable_area"
+          label-align="top" cur-class="select-field  mar-0 primary-field" @change="changeArea">
+        </cur-select>
+        <p class="s-tip">{{lang.mf_tip10}}</p>
+        <!-- 实例配置 -->
+        <div class="custom-label">{{lang.cloud_config}}</div>
+        <!-- cpu -->
+        <cur-select :columns="calcCpuList" :text="params.cpu + lang.mf_cores" v-model:firpick="params.cpu"
+          @change="changeCpu" input-align="right" :columns-names=" { text: 'value', value: 'value' }" right-icon="arrow"
+          label="CPU" cur-class=" ">
+          <template #option="option">
+            {{option.value + lang.mf_cores}}
+          </template>
+        </cur-select>
+        <!-- 内存 -->
+        <template
+          v-if="memoryList.length > 0  && activeName ==='custom' && (memoryType || (!memoryType && calaMemoryList.length > 0))">
+          <cur-select v-if="memoryType" v-model:firpick="params.memory" :columns="calaMemoryList"
+            :text="params.memory + baseConfig.memory_unit" :columns-names=" { text: 'value', value: 'value' }"
+            right-icon="arrow" input-align="right" :label="lang.cloud_memery" cur-class=" " @change="changeMemory">
+            <template #option="option">
+              {{option.value + baseConfig.memory_unit}}
+            </template>
+          </cur-select>
+          <van-field label-align="top" v-else>
+            <template #label>
+              <div class="lebal-box">
+                <span>{{lang.cloud_memery}}</span>
+                <van-popover placement="top" :offset="[0,25]">
+                  <div class="sure-remind">
+                    {{lang.mf_range + memoryTip}}
+                  </div>
+                  <template #reference>
+                    <van-stepper v-model="params.memory" :min="calaMemoryList[0] * 1"
+                      :max="calaMemoryList[calaMemoryList.length -1] * 1" :before-change="changeMem">
+                    </van-stepper>
+                  </template>
+                </van-popover>
+              </div>
+            </template>
+            <template #input>
+              <div class="slider-input">
+                <div class="slider-box">
+                  <van-slider v-model="params.memory" :min="calaMemoryList[0] * 1"
+                    :max="calaMemoryList[calaMemoryList.length -1] * 1" bar-height=".1067rem" @change="changeMem">
+                    <template #button>
+                      <div class="custom-button">{{ params.memory }}</div>
+                    </template>
+                  </van-slider>
+                  <div class="unit" v-if="!memoryType">{{baseConfig.memory_unit}}</div>
+
+                </div>
+                <div class="marks">
+                  <span class="item">{{calaMemoryList[0]}}{{baseConfig.memory_unit}}</span>
+                  <span class="item">{{calaMemoryList[calaMemoryList.length
+                    -1]}}{{baseConfig.memory_unit}}</span>
+                </div>
+              </div>
+            </template>
+          </van-field>
+        </template>
+        <van-field v-else :label="lang.cloud_memery" input-align="right" readonly
+          :model-value="lang.no_optional_memory">
+        </van-field>
+
+        <!-- gpu -->
+        <cur-select v-if="params.gpu_num" v-model:firpick="params.gpu_num" :text="params.gpu_num +  '*' +  gpu_name"
+          :columns="gpuList" :columns-names=" { text: 'value', value: 'value' }" right-icon="arrow" input-align="right"
+          label="GPU" cur-class=" " @change="getCycleList">
+          <template #option="option">
+            {{option.value + '*' +  gpu_name}}
+          </template>
+        </cur-select>
+        <!-- 镜像 -->
+        <van-field :label="lang.cloud_menu_5" class="select-field primary-field " id="image1" right-icon="arrow"
+          @click="isShowImage = true" readonly label-align="top">
+          <template #input>
+            <div class="primary-color">
+              <img
+                :src="`/plugins/server/mf_cloud/template/clientarea/mobile/mfm201/img/mf_cloud/${calcImageList[curImage].icon}.svg`"
+                alt="" class="image-icon" v-if="calcImageList[curImage]?.icon" />
+              {{imageName}}
+            </div>
+          </template>
+        </van-field>
+        <!-- 存储 -->
+        <van-field :label="lang.cloud_menu_3" readonly label-align="top">
+          <template #input>
+            <div class="disk-detail">
+              <template v-for="(item,index) in storeList">
+                <div class="disk-item" @click="editDataDisk(index)">
+                  <div class="system-Disk">
+                    <div v-if="index === 0">
+                      <span style="display: none;">{{calcSystemDiskList}}</span>
+                      <p> {{item.name}} | {{item?.disk_text || lang.mf_no}} </p>
+                      <p class="system-size">{{params.system_disk.size}} GB</p>
+                    </div>
+                    <div v-else>
+                      <p v-if="index === 1 && baseConfig.free_disk_switch === 1">
+                        {{item.name}} | {{baseConfig.free_disk_type || lang.mf_no}}
+                      </p>
+                      <p v-else> {{item.name}} | {{item?.disk_text || lang.mf_no}} </p>
+                      <p class="system-size">{{params.data_disk[index - 1].size}} GB</p>
+                    </div>
+                    <div class="system-icon">
+                      <van-icon name="arrow"></van-icon>
+                    </div>
+                  </div>
+                  <div class="del-icon" v-if="baseConfig.free_disk_switch ?  index + 1 > 2 :  index + 1 > 1 "
+                    @click.stop="delDataDisk(index)">
+                    <van-icon name="delete"></van-icon>
+                  </div>
+                </div>
+              </template>
+              <div class="store" @click="addDataDisk"
+                v-if="(storeList.length < baseConfig.disk_limit_num + 1) && dataDiskList.length > 0">
+                <span class="add-icon">
+                  <van-icon name="add"></van-icon>{{lang.mf_add_disk}}
+                </span>
+                {{lang.mf_tip11}}
+                <span class="num">{{baseConfig.disk_limit_num + 1 - storeList.length}}</span>
+                {{lang.mf_tip12}}
+              </div>
+            </div>
+          </template>
+        </van-field>
+        <!-- 网络配置 -->
+        <div class="custom-label">{{lang.net_config}}</div>
+        <cur-select :text="netName" v-model:firpick="params.network_type" @change="changeNet" :label="lang.network_type"
+          :columns="calcNetTypeColumns" v-if="baseConfig.type === 'host'" cur-class=" " input-align="right"
+          right-icon="arrow">
+        </cur-select>
+        <template v-if="params.network_type === 'vpc'">
+          <van-field model-value="172.16.0.0/12" :label="lang.cloud_menu_2" class="select-field " readonly
+            input-align="right" v-if="params.nat_web_limit_enable || params.nat_acl_limit_enable">
+          </van-field>
+          <template v-else>
+            <cur-select v-model:firpick="params.vpc.id" :label="lang.cloud_menu_2" :columns="calcVpcList"
+              :columns-names="{text:'name',value:'id'}" cur-class=" " right-icon="arrow" input-align="right">
+            </cur-select>
+            <p class="s-tip" v-show="!params.vpc.id">{{lang.vpc_tip}}</p>
+            <template v-if="params.vpc.id === ''">
+              <cur-select cur-class="" :label="lang.cloud_menu_2" v-model:firpick="plan_way" right-icon="arrow"
+                input-align="right" :columns-names="{text: 'name', value: 'id'}" :columns="planWayOptions">
+              </cur-select>
+            </template>
+            <div class="vpc-item ip-custom" v-if="plan_way === 1">
+              <!-- 自定义vpc -->
+              <div class="custom">
+                <cur-select cur-class="select-field" v-model:firpick="vpc_ips.vpc1.value" @change="changeVpcIp"
+                  :columns="vpc_ips.vpc1.select">
+                </cur-select>
+                <span class="ip-dot">·</span>
+                <van-popover placement="top">
+                  <div class="sure-remind">
+                    {{vpc_ips.vpc1.tips}}
+                  </div>
+                  <template #reference>
+                    <van-field :disabled="vpc_ips.vpc1.value === 192" v-model.number="vpc_ips.vpc2" :step="1"
+                      :formatter="vpcFormatter" format-trigger="onBlur" :controls="false" type="digit">
+                    </van-field>
+                  </template>
+                </van-popover>
+                <span class="ip-dot">·</span>
+                <van-popover placement="top">
+                  <div class="sure-remind">
+                    {{vpc_ips.vpc3Tips}}
+                  </div>
+                  <template #reference>
+                    <van-field :disabled="vpc_ips.vpc6.value === 16" @blur="changeVpc3" :formatter="vpc2Formatter"
+                      v-model="vpc_ips.vpc3" :step="1" :controls="false" :min="0" :max="255"></van-field>
+                  </template>
+                </van-popover>
+                <span class="ip-dot">·</span>
+                <van-popover placement="top">
+                  <div class="sure-remind">
+                    {{vpc_ips.vpc4Tips}}
+                  </div>
+                  <template #reference>
+                    <van-field :disabled="vpc_ips.vpc6.value < 25" @blur="changeVpc4" :formatter="vpc2Formatter"
+                      v-model="vpc_ips.vpc4" :step="1" :controls="false" :min="0" :max="255"></van-field>
+                  </template>
+                </van-popover>
+                <span class="ip-dot">/</span>
+                <cur-select cur-class="select-field" v-model:firpick="vpc_ips.vpc6.value" @change="changeVpcMask"
+                  :columns="vpc_ips.vpc6.select">
+                </cur-select>
+              </div>
+            </div>
+          </template>
+        </template>
+        <van-field :label="lang.common_cloud_title3"
+          v-if="!params.nat_acl_limit_enable && !params.nat_web_limit_enable && baseConfig.default_one_ipv4"
+          input-align="right" readonly :model-value="lang.mf_tip23">
+        </van-field>
+        <!-- 线路 -->
+        <cur-select :text="lineName" v-model:firpick="params.line_id" @change="changeLine" :label="lang.mf_line"
+          :columns="lineList" cur-class=" " :columns-names=" { text: 'name', value: 'id' }" input-align="right"
+          right-icon="arrow">
+        </cur-select>
+        <!-- 带宽 -->
+        <template v-if="lineDetail.bill_type === 'bw' && calcBwList && calcBwList.length > 0">
+          <cur-select v-if="lineDetail.bw[0].type === 'radio'" :text="bwName" :columns="calcBwList"
+            v-model:firpick="bwName" :columns-names=" { text: 'value', value: 'value' }" right-icon="arrow"
+            :label="lang.mf_bw" cur-class=" " input-align="right" @change="changeBw">
+            <template #option="option">
+              {{option.value + 'M'}}
+            </template>
+          </cur-select>
+          <van-field label-align="top" v-else>
+            <template #label>
+              <div class="lebal-box">
+                <span>{{lang.mf_bw}}</span>
+                <van-popover placement="top" :offset="[0,25]">
+                  <div class="sure-remind">
+                    {{lang.mf_range + bwTip}}
+                  </div>
+                  <template #reference>
+                    <van-stepper v-model="params.bw" :min="calcBwList[0]" :max="calcBwList[calcBwList.length - 1]"
+                      @change="changeBwNum">
+                    </van-stepper>
+                  </template>
+                </van-popover>
+              </div>
+            </template>
+            <template #input>
+              <div class="slider-input">
+                <div class="slider-box">
+                  <van-slider v-model="params.bw" :min="calcBwList[0]" :max="calcBwList[calcBwList.length - 1]"
+                    bar-height=".1067rem" @change="changeBwNum">
+                    <template #button>
+                      <div class="custom-button">{{ params.bw }}</div>
+                    </template>
+                  </van-slider>
+                  <div class="unit">M</div>
+                </div>
+                <div class="marks">
+                  <span class="item">{{calcBwList[0]}}M</span>
+                  <span class="item">{{calcBwList[calcBwList.length -1 ]}}M</span>
+                </div>
+              </div>
+            </template>
+          </van-field>
+        </template>
+        <!-- 流量 -->
+        <cur-select :text="params.flow > 0 ? params.flow + 'G' : lang.mf_tip28"
+          v-if="lineDetail.bill_type === 'flow' && calcFlowList && calcFlowList.length > 0 && params.billing_cycle !== 'on_demand'"
+          :columns="calcFlowList" :columns-names=" { text: 'value', value: 'value' }" right-icon="arrow"
+          :label="lang.mf_flow" cur-class=" " @change="changeFlow" input-align="right" v-model:firpick="params.flow">
+          <template #option="option">
+            {{option.value > 0 ? option.value + 'G' : lang.mf_tip28}}
+          </template>
+        </cur-select>
+        <van-field :label="lang.mf_flow"
+          v-if="lineDetail.bill_type === 'flow' && lineDetail.flow_on_demand.length > 0 && params.billing_cycle === 'on_demand'"
+          readonly input-align="right" :model-value="lang.mf_demand_fee">
+        </van-field>
+        <!-- 流量类型下面的带宽，显示线路里面的flow.other_config.out_bw -->
+        <!-- <van-field :label="lang.mf_bw" v-if="lineDetail.bill_type === 'flow'" readonly input-align="right"
+          :model-value="showFlowBw == 0 ? lang.not_limited : showFlowBw + 'M'">
+        </van-field> -->
+        <cur-select :text="bwName" v-model:firpick="params.bw" @change="getCycleList" :label="lang.mf_bw"
+          :columns="showFlowBw" v-if="lineDetail.bill_type === 'flow'" cur-class=" " input-align="right"
+          right-icon="arrow">
+        </cur-select>
+
+        <!-- IPV4 -->
+        <template v-if="calcIpv4List && calcIpv4List.length > 0">
+          <cur-select :text="params.ip_num === 0 ? lang.mf_none : params.ip_num + lang.common_cloud_title43"
+            v-if="lineDetail.ip[0].type === 'radio'" :columns="calcIpv4List" v-model:firpick="params.ip_num"
+            :columns-names=" { text: 'value', value: 'value' }" right-icon="arrow" :label="`${lang.mf_append}IPv4`"
+            cur-class=" " input-align="right" @change="changeIpv4">
+            <template #option="option">
+              {{option.value === 0 ? lang.mf_none : option.value + lang.common_cloud_title43}}
+            </template>
+          </cur-select>
+          <van-field label-align="top" v-else>
+            <template #label>
+              <div class="lebal-box">
+                <span>{{lang.mf_append}}IPv4</span>
+                <van-popover placement="top">
+                  <div class="sure-remind" :offset="[0,25]">
+                    {{lang.mf_range + ipv4Tip}}
+                  </div>
+                  <template #reference>
+                    <van-stepper v-model="params.ip_num" show-input :step="1" :min="calcIpv4List[0]"
+                      :max="calcIpv4List[calcIpv4List.length - 1]" @change="changeIpNum('ipv4', $event)">
+                    </van-stepper>
+                  </template>
+                </van-popover>
+              </div>
+            </template>
+            <template #input>
+              <div class="slider-input">
+                <div class="slider-box">
+                  <van-slider v-model="params.ip_num" :min="calcIpv4List[0]"
+                    :max="calcIpv4List[calcIpv4List.length - 1]" bar-height=".1067rem"
+                    @change="changeIpNum('ipv4', $event)">
+                    <template #button>
+                      <div class="custom-button">{{ params.ip_num }}</div>
+                    </template>
+                  </van-slider>
+                </div>
+                <div class="marks">
+                  <span class="item">{{calcIpv4List[0]}}</span>
+                  <span class="item">{{calcIpv4List[calcIpv4List.length - 1]}}</span>
+                </div>
+              </div>
+            </template>
+          </van-field>
+        </template>
+        <!-- IPV6 -->
+        <template v-if="lineDetail.ipv6 && lineDetail.ipv6.length >0 && params.network_type !== 'vpc'">
+          <cur-select v-if="lineDetail.ipv6[0].type === 'radio'" :columns="lineDetail.ipv6"
+            v-model:firpick="params.ipv6_num"
+            :text="params.ipv6_num === 0 ? lang.mf_none : params.ipv6_num + lang.common_cloud_title43"
+            :columns-names=" { text: 'value', value: 'value' }" right-icon="arrow" :label="`${lang.mf_append}ipv6`"
+            cur-class=" " input-align="right" @change="changeIpv6">
+            <template #option="option">
+              {{option.value === 0 ? lang.mf_none : option.value + lang.common_cloud_title43}}
+            </template>
+          </cur-select>
+          <van-field label-align="top" v-else>
+            <template #label>
+              <div class="lebal-box">
+                <span>{{lang.mf_append}}ipv6</span>
+                <van-popover placement="top">
+                  <div class="sure-remind" :offset="[0,25]">
+                    {{lang.mf_range + ipv6Tip}}
+                  </div>
+                  <template #reference>
+                    <van-stepper v-model="params.ipv6_num" show-input :step="1" :min="lineDetail.ipv6[0].min_value"
+                      :max="lineDetail.ipv6[lineDetail.ipv6.length - 1].max_value"
+                      @change="changeIpNum('ipv6', $event)">
+                    </van-stepper>
+                  </template>
+                </van-popover>
+              </div>
+            </template>
+            <template #input>
+              <div class="slider-input">
+                <div class="slider-box">
+                  <van-slider v-model="params.ipv6_num" :min="lineDetail.ipv6[0].min_value"
+                    :max="lineDetail.ipv6[lineDetail.ipv6.length - 1].max_value" bar-height=".1067rem"
+                    @change="changeIpNum('ipv6', $event)">
+                    <template #button>
+                      <div class="custom-button">{{ params.ipv6_num }}</div>
+                    </template>
+                  </van-slider>
+                </div>
+                <div class="marks">
+                  <span class="item">{{lineDetail.ipv6[0].min_value}}</span>
+                  <span class="item">{{lineDetail.ipv6[lineDetail.ipv6.length - 1].max_value}}</span>
+                </div>
+              </div>
+            </template>
+          </van-field>
+        </template>
+        <!-- 防御 -->
+        <template v-if="lineDetail.defence && lineDetail.defence.length >0">
+          <cur-select :columns="lineDetail.defence" v-model:firpick="defenseName"
+            :columns-names=" { text: 'desc', value: 'value' }" right-icon="arrow" :label="lang.mf_defense" cur-class=" "
+            @change="chooseDefence" input-align="right">
+          </cur-select>
+          <p class="s-tip" v-if="lineDetail?.sync_firewall_rule == 1">{{lang.defense_tip}}</p>
+        </template>
+
+        <template v-if="isLogin">
+          <!-- 安全组 -->
+          <cur-select v-model:firpick="groupName"
+            :columns="[{value:lang.no_safe_group},{value:lang.create_group},{value:lang.exist_group}]"
+            :columns-names=" { text: 'value', value: 'value' }" right-icon="arrow" :label="lang.common_cloud_title26"
+            cur-class=" " input-align="right" @change="changeGroup">
+          </cur-select>
+          <p class="s-tip"
+            v-if="(baseConfig.nat_web_limit_enable || baseConfig.nat_acl_limit_enable)
+          && ( groupName === lang.no_safe_group && (params.network_type === 'vpc' || (params.network_type === 'normal' && baseConfig.type === 'lightHost')))">
+            {{lang.no_safe_group_tip}}
+          </p>
+          <div class="group-box">
+            <!-- 新增安全组 -->
+            <div class="group-select" v-if="groupName === lang.create_group">
+              <van-checkbox shape="square" v-model="item.check" v-for="(item,index) in groupSelect" :key="index">
+                <span class="check-text">{{item.name}}</span>
+              </van-checkbox>
+            </div>
+            <!-- 选择已有安全组 -->
+            <cur-select v-model:firpick="params.security_group_id" :label="lang.common_cloud_title26"
+              v-if="groupName === lang.exist_group" :columns="groupList" :columns-names=" { text: 'name', value: 'id' }"
+              right-icon="arrow" input-align="right" cur-class=" "
+              :placeholder="`${lang.placeholder_pre2}${lang.common_cloud_title26}`">
+            </cur-select>
+            <p class="s-tip" v-if="groupName === lang.create_group">{{lang.mf_tip24}}</p>
+          </div>
+        </template>
+
+        <!-- 其他配置 -->
+        <!-- 登录方式 -->
+        <div class="custom-label" id="ssh">{{lang.other_config}}</div>
+        <cur-select v-model:firpick="login_way" :columns="calcLoginWayList" @change="changeLogin"
+          :label="lang.login_way" right-icon="arrow" cur-class="mar-0" input-align="right"
+          :columns-names=" { text: 'value', value: 'value' }">
+          <template #input>
+            {{login_way}}
+          </template>
+        </cur-select>
+        <p class="s-tip" v-if="login_way === lang.auto_create">{{lang.mf_tip5}}</p>
+        <div class="login-box" v-else>
+          <van-field v-model="root_name" readonly :label="lang.login_name" input-align="right">
+          </van-field>
+          <!-- ssh -->
+          <template v-if="login_way === lang.security_tab1">
+            <cur-select v-model:firpick="params.ssh_key_id" :columns="sshList"
+              :columns-names=" { text: 'name', value: 'id' }" right-icon="arrow" :label="lang.ssh_key"
+              :placeholder="`${lang.placeholder_pre2}${lang.ssh_key}`" cur-class=" " input-align="right">
+            </cur-select>
+            <p class="s-tip p-30 jump-box" v-if="login_way === lang.security_tab1">{{lang.mf_tip17}}&nbsp;&nbsp;
+              <a href="/security.htm?active=1" target="_blank" class="add-ssh">
+                {{lang.mf_tip18}}
+                <img src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm201/img/cloudDetail/jump.svg" alt=""
+                  class="icon">
+              </a>
+            </p>
+            <div v-show="showSsh" class="p-30 van-field__error-message">
+              {{lang.placeholder_pre2}}{{lang.security_tab1}}
+            </div>
+          </template>
+          <!-- 密码 -->
+          <template v-if="login_way === lang.set_pas">
+            <van-field class="btn-field" v-model="params.password" :label="lang.login_password" type="password"
+              input-align="right" show-password @input="changeInput"
+              :placeholder="`${lang.placeholder_pre1}${lang.login_password}`">
+              <template #button>
+                <div class="pass-btn" slot="suffix" @click="createPassword">
+                  {{lang.common_cloud_btn1}}
+                </div>
+              </template>
+            </van-field>
+            <van-field v-model="params.re_password" :label="lang.sure_password" type="password" input-align="right"
+              show-password :placeholder="`${lang.placeholder_pre1}${lang.sure_password}`">
+            </van-field>
+            <div class="p-30 van-field__error-message" v-show="showPas">{{lang.mf_tip20}}</div>
+            <div class="p-30 van-field__error-message" v-show="showRepass">{{lang.mf_tip19}}</div>
+            <div class="test-password">
+              <div class="t-item">
+                {{lang.mf_val1}}
+              </div>
+              <div class="t-item">
+                {{lang.mf_val2}}
+              </div>
+              <div class="t-item">
+                {{lang.mf_val3}}
+              </div>
+              <div class="t-item">
+                {{lang.mf_val4}}
+              </div>
+            </div>
+          </template>
+        </div>
+        <!-- ssh端口设置 -->
+        <template v-if="baseConfig.rand_ssh_port === 3">
+          <cur-select v-model:firpick="ssh_port_type"
+            :text="ssh_port_type === 0 ? lang.mf_no : (ssh_port_type === 1 ? lang.random_port : lang.specify_port)"
+            :label="lang.ssh_port_setting"
+            :columns="[{value:0,text:lang.mf_no},{value:1,text:lang.random_port},{value:2,text:lang.specify_port}]"
+            :columns-names=" { text: 'text', value: 'value' }" right-icon="arrow" cur-class=" " input-align="right">
+          </cur-select>
+          <van-field v-if="ssh_port_type === 2" v-model.number="params.port" type="digit" :label="lang.specify_port"
+            :placeholder="lang.placeholder_pre1" input-align="right" @blur="changeSshPort">
+          </van-field>
+        </template>
+        <!-- 实例名称 -->
+        <van-field v-model="params.notes" :label="lang.cloud_name" :placeholder="lang.mf_tip15" input-align="right">
+        </van-field>
+        <!-- ssh端口 -->
+        <van-field class="btn-field" v-model="params.port" v-if="baseConfig.rand_ssh_port === 1"
+          :label="`SSH${lang.common_cloud_label13}`" :placeholder="lang.placeholder_pre1" input-align="right">
+          <template #button>
+            <div class="pass-btn" slot="suffix" @click="refreshPort">
+              {{lang.common_cloud_btn1}}
+            </div>
+          </template>
+        </van-field>
+        <div class="p-30 van-field__error-message" v-show="showPort">
+          {{lang.placeholder_pre1}}{{lang.common_cloud_label13}}
+        </div>
+        <!-- 自动续费 -->
+        <van-field :label="lang.auto_renew" input-align="right">
+          <template #input>
+            <van-switch v-model="params.auto_renew" size="16px"></van-switch>
+          </template>
+        </van-field>
+        <van-field :label="lang.ip_mac_bind_enable" v-if="baseConfig.ip_mac_bind_enable" input-align="right">
+          <template #input>
+            <van-switch v-model="params.ip_mac_bind_enable" size="16px"></van-switch>
+          </template>
+        </van-field>
+        <template v-if="baseConfig.nat_acl_limit_enable">
+          <van-field :label="lang.mf_support + lang.nat_acl_limit_enable"
+            v-if="params.network_type === 'vpc' || (params.network_type === 'normal' && baseConfig.type === 'lightHost')"
+            input-align="right">
+            <template #input>
+              <van-switch :disabled="baseConfig.default_nat_acl === 1" @change="changeNat"
+                v-model="params.nat_acl_limit_enable" size="16px">
+              </van-switch>
+            </template>
+          </van-field>
+        </template>
+        <template v-if="baseConfig.nat_web_limit_enable">
+          <van-field :label="lang.mf_support + lang.nat_web_limit_enable"
+            v-if="params.network_type === 'vpc' || (params.network_type === 'normal' && baseConfig.type === 'lightHost')"
+            input-align="right">
+            <template #input>
+              <van-switch @change="changeNat" v-model="params.nat_web_limit_enable" size="16px"
+                :disabled="baseConfig.default_nat_web === 1">
+              </van-switch>
+            </template>
+          </van-field>
+        </template>
+        <van-field v-if="params.network_type === 'normal' && baseConfig.ipv6_num_enable"
+          :label="lang.mf_allow + lang.ipv6_num_enable" input-align="right">
+          <template #input>
+            <van-switch @change="changeIpv6" v-model="params.ipv6_num_enable" size="16px"></van-switch>
+          </template>
+        </van-field>
+        <!-- 付费周期 -->
+        <cur-select cur-class=" " input-align="right" v-model:firpick="params.duration_id" :columns="calcCycleList"
+          @change="changeDuration" :columns-names=" { text: 'name', value: 'id' }"
+          :label="lang.order_duration || lang.mf_time" :placeholder="`${lang.placeholder_pre2}${lang.mf_duration}`"
+          right-icon="arrow" readonly>
+          <template #option="option">
+            <span class="txt">{{option.name}}</span>
+            <span class="tip" v-if="option.discount">{{option.discount}}{{lang.mf_tip25}}</span>
+          </template>
+        </cur-select>
+        <!-- 商品数量 -->
+        <van-field :label="lang.shoppingCar_goodsNums" input-align="right">
+          <template #input>
+            <van-stepper v-model="qty" :min="1" :max="999" @change="changQty"></van-stepper>
+          </template>
+        </van-field>
+      </van-form>
+      <custom-goods :id="id" v-model:self_defined_field="self_defined_field" curclass="select-field "
+        class="custom-config" ref="customGoodRef">
+      </custom-goods>
+    </div>
+    <div class="botton-buy-btn">
+      <div class="price-box">
+        <div class="pre-color">
+          <div class="total-price">
+            {{lang.mf_total}}：
+            <template v-if="!loadingPrice">
+              <span class="price-num"
+                v-if="params.billing_cycle !== 'on_demand'">{{commonData.currency_prefix}}{{filterMoney(calcTotalPrice)}}</span>
+              <span class="price-num" v-else>
+                {{commonData.currency_prefix}}<span class="price">{{filterMoney(calcTotalPrice)}}</span>
+                <el-popover :content="lang.mf_demand_tip3" placement="top" trigger="hover">
+                  <span class="default-color" slot="reference">{{lang.mf_config_fee}}</span>
+                </el-popover>
+              </span>
+              <van-popover placement="top" v-if="calcTotalPrice *1 !== totalPrice * 1">
+                <div class="sure-remind">
+                  <p v-if="levelNum">{{lang.shoppingCar_tip_text2}}：{{commonData.currency_prefix}} {{
+                  filterMoney(levelNum) }}</p>
+                  <p v-if="discount">{{lang.shoppingCar_tip_text4}}：{{commonData.currency_prefix}} {{
+                  filterMoney(discount)}}</p>
+                  <p v-if="promo.event_promotion">{{lang.goods_text4}}：{{commonData.currency_prefix}} {{
+                  filterMoney(eventData.discount)}}</p>
+                </div>
+                <template #reference>
+                  <van-icon name="info-o" class="help"></van-icon>
+                </template>
+              </van-popover>
+              <div class="original-price" v-if="calcTotalPrice *1 !== totalPrice * 1">
+                {{commonData.currency_prefix}} {{filterMoney(totalPrice * 1)}}
+              </div>
+            </template>
+            <van-loading size="24px" v-show="loadingPrice"></van-loading>
+          </div>
+          <!-- 按需价格 -->
+          <p class="demand-fee" v-if="params.billing_cycle === 'on_demand'">
+            <span class="price">{{commonData.currency_prefix}}{{calcFilterPrice(demandPrice.renew_price * 1)}}<span
+                class="small">/{{lang.mf_hour}}</span></span>
+            <template
+              v-if="demandPrice.renew_price_total * 1 > 0 && demandPrice.renew_price_total * 1 !== demandPrice.renew_price * 1">
+              <van-popover placement="top" v-if="demandPrice.renew_price_client_level_discount * 1 > 0">
+                <div class="sure-remind">
+                  <span>{{lang.mf_demand_tip28}}：{{commonData.currency_prefix}}{{calcFilterPrice(demandPrice.renew_price_client_level_discount)}}</span>
+                </div>
+                <template #reference>
+                  <van-icon name="info-o" class="help"></van-icon>
+                </template>
+              </van-popover>
+              <span
+                class="discount">({{commonData.currency_prefix}}{{calcFilterPrice(demandPrice.renew_price_total)}}<span
+                  class="small gray">/{{lang.mf_hour}}</span>)</span>
+            </template>
+            <template v-if="lineDetail.bill_type === 'flow'">
+              <span class="price">+{{commonData.currency_prefix}}{{calcFilterPrice(demandPrice.on_demand_flow_price *
+                1)}}<span class="small">/GB</span></span>
+              <template
+                v-if="demandPrice.base_on_demand_flow_price * 1 > 0 && demandPrice.base_on_demand_flow_price * 1 !== demandPrice.on_demand_flow_price * 1">
+                <van-popover placement="top" v-if="demandPrice.on_demand_flow_price_client_level_discount * 1 > 0">
+                  <div class="sure-remind">
+                    <span>{{lang.mf_demand_tip29}}：{{commonData.currency_prefix}}{{calcFilterPrice(demandPrice.on_demand_flow_price_client_level_discount)}}</span>
+                  </div>
+                  <template #reference>
+                    <van-icon name="info-o" class="help"></van-icon>
+                  </template>
+                </van-popover>
+                <span
+                  class="discount">({{commonData.currency_prefix}}{{calcFilterPrice(demandPrice.base_on_demand_flow_price)}}<span
+                    class="small gray">/GB</span>)</span>
+              </template>
+            </template>
+          </p>
+          <!-- 优惠码 -->
+          <div class="discount-box">
+            <template v-if="hasDiscount">
+              <discount-code @get-discount="getDiscount" @remove-discount="removeDiscountCode" scene="new"
+                :product_id="id" :qty="qty" :amount="totalPrice" :billing_cycle_time="duration">
+              </discount-code>
+              <!-- <div class="discount-codeNumber" v-else>{{promo.promo_code}}
+                <van-icon name="close" class="remove-discountCode" @click="removeDiscountCode"></van-icon>
+              </div> -->
+            </template>
+            <!-- 活动插件 -->
+            <event-code v-if="isShowFull" :product_id='id' :qty="qty" :amount="totalPrice"
+              :billing_cycle_time="duration" @change="eventChange">
+            </event-code>
+          </div>
+        </div>
+        <span class="pre-text" @click="showConfigPage = !showConfigPage">{{lang.config_free}}
+          <van-icon :name=" showConfigPage ? 'arrow-up' : 'arrow-down'" />
+        </span>
+      </div>
+      <div class="buy-btn-box">
+        <van-button @click="handlerCart" block class="can-btn">{{lang.product_add_cart}}
+        </van-button>
+        <van-button @click="submitOrder" :loading="submitLoading" type="primary" block
+          class="sub-btn">{{lang.product_buy_now}}
+        </van-button>
+      </div>
+    </div>
+  </div>
+  <!-- 套餐选择弹窗 -->
+  <van-popup v-model:show="isShowRecommend" round closeable style="width: 90%;">
+    <div class="common-pop-box">
+      <div class="common-pop-title">{{lang.common_cloud_text7}}</div>
+      <div class="common-pop-body">
+        <div class="cloud-box area-radio" v-if="recommendList.length > 0">
+          <div class="cloud-item" :class="{active: index=== clickIndex}" v-for="(item,index) in recommendList"
+            :key="index" @click="clickRecommend(index)">
+            <div class="info-title">
+              {{item.name}}({{item.description}})
+            </div>
+            <div class="top-tag" v-if="item?.ontrial === 1 && params.billing_cycle !== 'on_demand'"
+              :title="lang.support_trial">
+              {{lang.support_trial}}
+            </div>
+            <div class="info">
+              <p><span class="name">{{lang.mf_specs}}：</span>{{item.cpu}}{{lang.mf_cores}}{{item.memory}}G
+              </p>
+              <p>
+                <span class="name">{{lang.mf_system}}：</span>{{item.system_disk_size}}GB<span
+                  v-if="item.system_disk_type">，{{item.system_disk_type}}</span>
+              </p>
+              <p v-if="item.data_disk_size * 1">
+                <span class="name">{{lang.common_cloud_text1}}：</span>{{item.data_disk_size}}GB<span
+                  v-if="item.data_disk_type">，{{item.data_disk_type}}</span>
+              </p>
+              <p><span class="name">{{lang.mf_bw}}：</span>{{item.bw}}M</p>
+              <template v-if="item.bill_type === 'flow'">
+                <p v-if="params.billing_cycle === 'on_demand'"><span
+                    class="name">{{lang.mf_flow}}：</span>{{lang.mf_demand_fee}}</p>
+                <template v-else>
+                  <p v-if="item.flow"><span class="name">{{lang.mf_flow}}：</span>{{item.flow}}GB</p>
+                  <p v-if="item.flow===0"><span class="name">{{lang.mf_flow}}：</span>{{lang.mf_tip28}}</p>
+                </template>
+              </template>
+              <p v-if="baseConfig.free_disk_switch">
+                <span class="name">{{lang.mf_tip37}}：</span>{{baseConfig.free_disk_size}}GB
+              </p>
+              <p v-if="item.peak_defence">
+                <span class="name">{{lang.peak_defence}}：</span>{{ item.peak_defence + 'G'}}
+              </p>
+              <p>
+                <span class="name">IPv4{{lang.shoppingCar_goodsNums}}：</span>{{item.ip_num === 0 ?
+                  lang.mf_none : item.ip_num + lang.common_cloud_title43}}
+              </p>
+              <p>
+                <span class="name">IPv6{{lang.shoppingCar_goodsNums}}：</span>{{item.ipv6_num === 0 ?
+                  lang.mf_none : item.ipv6_num + lang.common_cloud_title43}}
+              </p>
+              <p v-if="item.gpu_num"><span class="name">GPU{{lang.shoppingCar_goodsNums}}：</span>
+                <span :title="`${item.gpu_num}*${item.gpu_name}`">{{item.gpu_num}}*{{item.gpu_name}}</span>
+              </p>
+            </div>
+            <div style="text-align: right;" v-if="item.upgrade_range === 0 && baseConfig.no_upgrade_tip_show === 1">
+              <van-popover placement="top-end">
+                <div class="sure-remind">
+                  {{lang.no_upgrade}}
+                </div>
+                <template #reference>
+                  <p class="no-up" v-if="item.upgrade_range === 0 && baseConfig.no_upgrade_tip_show === 1">
+                    <img src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm201/img/mf_cloud/no-upgrade.svg"
+                      alt="">
+                  </p>
+                </template>
+              </van-popover>
+            </div>
+          </div>
+        </div>
+        <div class="empty" v-else>
+          {{lang.mf_tip9}}
+        </div>
+      </div>
+      <div class="common-pop-fotter">
+        <van-button class="can-btn" block @click="isShowRecommend = false">{{lang.common_cloud_btn29}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="changeRecommend">{{lang.ticket_btn6}}</van-button>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 镜像选择弹窗 -->
+  <van-popup v-model:show="showImgPick" round position="bottom" teleport="body">
+    <van-picker option-height=".96rem" visible-option-num="8" :columns="calcOsImgList"
+      :columns-field-names="{ text: 'name', value: 'id' }" ref="selectPopRef">
+      <template #toolbar>
+        <div class="tool-bar">
+          <img class="cancel-btn" @click="showSelect = false"
+            src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm201/img/cancel.svg" alt="">
+          <span class="tool-confirm" @click="handelSelectImg">{{lang.template_text135}}</span>
+        </div>
+      </template>
+    </van-picker>
+  </van-popup>
+  <!-- 镜像选择弹窗 -->
+  <van-action-sheet v-model:show="isShowImage" round>
+    <div class="action-select">
+      <div class="action-title">
+        <div class="left-icon">
+          <img class="cancel-btn" @click="isShowImage = false"
+            src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm201/img/cancel.svg" alt="">
+        </div>
+        <div class="title-text">{{lang.cloud_menu_5}}</div>
+        <div></div>
+      </div>
+      <!-- 公共镜像|镜像市场选择 -->
+      <van-tabs v-model:active="imageType" @change="getIamgeList(1)" class="image-tabs">
+        <van-tab :title="lang.public_image" name="public"></van-tab>
+        <van-tab :title="lang.image_market" name="market" v-if="marketImageCount"></van-tab>
+      </van-tabs>
+      <div class="action-conctet image-action">
+        <div class="image-action-item" v-for="item in calcImageList" @click="changeImage(item)">
+          <div class="select-name">
+            <img :src="`/plugins/server/mf_cloud/template/clientarea/mobile/mfm201/img/mf_cloud/${item.icon}.svg`"
+              alt="" class="image-icon" />
+            <span>{{item.name}}</span>
+          </div>
+          <van-icon name="arrow"></van-icon>
+        </div>
+      </div>
+    </div>
+  </van-action-sheet>
+
+  <!-- 已选配置弹窗 -->
+  <van-popup v-model:show="showConfigPage" closeable round position="bottom" :style="{ width: '100%' }">
+    <div class="config-detail">
+      <div class="config-top">
+        {{lang.mf_tip7}}
+      </div>
+      <div class="config-mid">
+        <div class="right-top">
+          <div class="info">
+            <p class="des" v-for="(item,index) in preview" :key="index">
+              <span class="name">{{item.name}}：<span class="value" :title="item.value">{{item.value}}</span></span>
+              <span class="price">{{commonData.currency_prefix}}{{ filterMoney(item.price)}}</span>
+            </p>
+            <template v-if="sonPreview.length > 0">
+              <p class="des" v-for="(item,index) in sonPreview[0]">
+                <span class="name">{{item.name}}：<span class="value" :title="item.value">{{item.value}}</span></span>
+                <span
+                  class="price">{{commonData.currency_prefix}}{{filterMoney(Number(item.price) * sonPreview.length)}}</span>
+              </p>
+            </template>
+            <p class="des" v-if="discount || levelNum || eventData.discount">
+              <span class="name">{{lang.mf_discount}}</span>
+              <span class="price">-{{commonData.currency_prefix}}{{(discount * 1 + levelNum * 1 + eventData.discount *
+                1).toFixed(2)}}</span>
+            </p>
+            <p class="des">
+              <span class="name">{{lang.mf_total}}</span>
+              <span class="price">{{commonData.currency_prefix}}{{filterMoney(calcTotalPrice)}}</span>
+            </p>
+          </div>
+        </div>
+        <div class="botton-buy-btn">
+          <div class="price-box">
+            <div class="pre-color">
+              <div class="total-price">
+                {{lang.mf_total}}：
+                <template v-if="!loadingPrice">
+                  <span class="price-num">{{commonData.currency_prefix}}{{filterMoney(calcTotalPrice)}}</span>
+                  <van-popover placement="top" v-if="calcTotalPrice *1 !== totalPrice * 1">
+                    <div class="sure-remind">
+                      <p v-if="levelNum">{{lang.shoppingCar_tip_text2}}：{{commonData.currency_prefix}} {{
+                      filterMoney(levelNum) }}</p>
+                      <p v-if="discount">{{lang.shoppingCar_tip_text4}}：{{commonData.currency_prefix}} {{
+                      filterMoney(discount)}}</p>
+                      <p v-if="promo.event_promotion">{{lang.goods_text4}}：{{commonData.currency_prefix}} {{
+                      filterMoney(eventData.discount)}}</p>
+                    </div>
+                    <template #reference>
+                      <van-icon name="info-o" class="help"></van-icon>
+                    </template>
+                  </van-popover>
+                  <div class="original-price" v-if="calcTotalPrice *1 !== totalPrice * 1">
+                    {{commonData.currency_prefix}} {{filterMoney(totalPrice * 1)}}
+                  </div>
+                </template>
+                <van-loading size="24px" v-show="loadingPrice"></van-loading>
+              </div>
+              <!-- 按需价格 -->
+              <p class="demand-fee" v-if="params.billing_cycle === 'on_demand'">
+                <span class="price">{{commonData.currency_prefix}}{{calcFilterPrice(demandPrice.renew_price * 1)}}<span
+                    class="small">/{{lang.mf_hour}}</span></span>
+                <template
+                  v-if="demandPrice.renew_price_total * 1 > 0 && demandPrice.renew_price_total * 1 !== demandPrice.renew_price * 1">
+                  <van-popover placement="top" v-if="demandPrice.renew_price_client_level_discount * 1 > 0">
+                    <div class="sure-remind">
+                      <span>{{lang.mf_demand_tip28}}：{{commonData.currency_prefix}}{{calcFilterPrice(demandPrice.renew_price_client_level_discount)}}</span>
+                    </div>
+                    <template #reference>
+                      <van-icon name="info-o" class="help"></van-icon>
+                    </template>
+                  </van-popover>
+                  <span
+                    class="discount">({{commonData.currency_prefix}}{{calcFilterPrice(demandPrice.renew_price_total)}}<span
+                      class="small gray">/{{lang.mf_hour}}</span>)</span>
+                </template>
+                <template v-if="lineDetail.bill_type === 'flow'">
+                  <span class="price">+{{commonData.currency_prefix}}{{calcFilterPrice(demandPrice.on_demand_flow_price
+                    * 1)}}<span class="small">/GB</span></span>
+                  <template
+                    v-if="demandPrice.base_on_demand_flow_price * 1 > 0 && demandPrice.base_on_demand_flow_price * 1 !== demandPrice.on_demand_flow_price * 1">
+                    <van-popover placement="top" v-if="demandPrice.on_demand_flow_price_client_level_discount * 1 > 0">
+                      <div class="sure-remind">
+                        <span>{{lang.mf_demand_tip29}}：{{commonData.currency_prefix}}{{calcFilterPrice(demandPrice.on_demand_flow_price_client_level_discount)}}</span>
+                      </div>
+                      <template #reference>
+                        <van-icon name="info-o" class="help"></van-icon>
+                      </template>
+                    </van-popover>
+                    <span
+                      class="discount">({{commonData.currency_prefix}}{{calcFilterPrice(demandPrice.base_on_demand_flow_price)}}<span
+                        class="small gray">/GB</span>)</span>
+                  </template>
+                </template>
+              </p>
+              <!-- 优惠码 -->
+              <div class="discount-box">
+                <template v-if="hasDiscount">
+                  <discount-code @get-discount="getDiscount" @remove-discount="removeDiscountCode" scene="new"
+                    :product_id="id" :qty="qty" :amount="totalPrice" :billing_cycle_time="duration">
+                  </discount-code>
+                  <!-- <div class="discount-codeNumber" v-else>{{promo.promo_code}}
+                    <van-icon name="close" class="remove-discountCode" @click="removeDiscountCode"></van-icon>
+                  </div> -->
+                </template>
+                <!-- 活动插件 -->
+                <event-code v-if="isShowFull" :product_id='id' :qty="qty" :amount="totalPrice"
+                  :billing_cycle_time="duration" @change="eventChange">
+                </event-code>
+              </div>
+            </div>
+            <span class="pre-text" @click="showConfigPage = !showConfigPage">{{lang.config_free}}
+              <van-icon :name=" showConfigPage ? 'arrow-up' : 'arrow-down'" />
+            </span>
+          </div>
+          <div class="buy-btn-box">
+            <van-button @click="handlerCart" block class="can-btn">{{lang.product_add_cart}}
+            </van-button>
+            <van-button @click="submitOrder" :loading="submitLoading" type="primary" block
+              class="sub-btn">{{lang.product_buy_now}}
+            </van-button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </van-popup>
+
+  <!-- 磁盘更改 -->
+  <van-popup v-model:show="showSystemDisk" round style="width: 90%;" closeable>
+    <div class="common-pop-box">
+      <div class="common-pop-title">{{storeList[editDiskIndex].name}}</div>
+      <div class="common-pop-body">
+        <van-form>
+          <van-cell-group inset>
+            <template v-for="(item,index) in storeList">
+              <template v-if="editDiskIndex === index">
+                <template v-if="index === 0">
+                  <cur-select v-model:firpick="params.system_disk.disk_type" :label="lang.disk_type"
+                    @change="(e)=>changeDataType(item,e)" :placeholder="lang.placeholder_pre2"
+                    :disabled="systemType.length === 1 && systemType[0].value === ''" cur-class=" " right-icon="arrow"
+                    input-align="right" :columns="systemType" :columns-names=" { text: 'label', value: 'value' }">
+                    <template #option="option">
+                      <span v-if="option.value === ''">{{lang.mf_no}}</span>
+                      <span v-else>{{option.label}}</span>
+                    </template>
+                  </cur-select>
+                  <van-field :label="lang.disk_size" input-align="right" v-if="item.type !== 'radio'">
+                    <template #input>
+                      <van-popover placement="top">
+                        <div class="sure-remind" :offset="[0,25]">
+                          {{lang.mf_range + systemDiskTip}}
+                        </div>
+                        <template #reference>
+                          <van-stepper v-model="params.system_disk.size" :min="calcSystemDiskList[0]"
+                            :max="calcSystemDiskList[calcSystemDiskList.length - 1]" @change="changeSysNum"
+                            :step="diskStep">
+                          </van-stepper>
+                          GB
+                        </template>
+                      </van-popover>
+                    </template>
+                  </van-field>
+                  <cur-select v-else v-model:firpick="params.system_disk.size" :text="params.system_disk.size + 'GB'"
+                    :label="lang.disk_size" cur-class=" " right-icon="arrow" input-align="right"
+                    :columns="calcSystemDiskList" :columns-names=" { text: 'label', value: 'value' }"
+                    :placeholder="lang.placeholder_pre2" @change="getCycleList">
+                    <template #option="option">
+                      <span v-if="option.value === ''">{{lang.mf_no}}</span>
+                      <span v-else>{{option.value}}GB</span>
+                    </template>
+                  </cur-select>
+                </template>
+                <!-- 免费盘 -->
+                <template v-else-if="index === 1 && baseConfig.free_disk_switch === 1">
+                  <van-field :label="lang.disk_type" input-align="right" disabled readonly
+                    :model-value="baseConfig.free_disk_type || lang.mf_no">
+                  </van-field>
+                  <van-field :label="lang.disk_size" input-align="right" v-if="item.type !== 'radio'">
+                    <template #input>
+                      <van-popover placement="top">
+                        <div class="sure-remind" :offset="[0,25]">
+                          {{lang.mf_range + calcFreeDataDiskTip}}
+                        </div>
+                        <template #reference>
+                          <van-stepper v-model="params.data_disk[index - 1].size" :min="item?.min" :max="item?.max"
+                            @change="changeDataNum($event,index, 1)" :step="diskStep">
+                          </van-stepper>
+                          GB
+                        </template>
+                      </van-popover>
+                    </template>
+                  </van-field>
+                  <cur-select v-else v-model:firpick="params.data_disk[index - 1].size"
+                    :text="params.data_disk[index - 1].size + 'GB'" :label="lang.disk_size" cur-class=" "
+                    right-icon="arrow" input-align="right" :columns="calcDataSelect"
+                    :columns-names=" { text: 'label', value: 'value' }" :placeholder="lang.placeholder_pre2"
+                    @change="getCycleList">
+                    <template #option="option">
+                      <span v-if="option.value === ''">{{lang.mf_no}}</span>
+                      <span v-else>{{option.value}}GB</span>
+                    </template>
+                  </cur-select>
+                </template>
+                <template v-else>
+                  <cur-select v-if="params.data_disk && params.data_disk.length > 0" :label="lang.disk_type"
+                    v-model:firpick="params.data_disk[index - 1].disk_type" :placeholder="lang.placeholder_pre2"
+                    cur-class=" " right-icon="arrow" input-align="right" :columns="dataType"
+                    @change="(e)=>changeDataDisk(e,index)" :columns-names=" { text: 'label', value: 'value' }">
+                    <template #option="option">
+                      <span v-if="option.value === ''">{{lang.mf_no}}</span>
+                      <span v-else>{{option.label}}</span>
+                    </template>
+                  </cur-select>
+                  <van-field :label="lang.disk_size" input-align="right" v-if="item.type !== 'radio'">
+                    <template #input>
+                      <van-popover placement="top">
+                        <div class="sure-remind" :offset="[0,25]">
+                          {{lang.mf_range + dataRangTip[params.data_disk[index - 1].disk_type]}}
+                        </div>
+                        <template #reference>
+                          <van-stepper v-model="params.data_disk[index - 1].size" :min="item?.min" :max="item?.max"
+                            @change="changeDataNum($event,index)" :step="diskStep">
+                          </van-stepper>
+                          GB
+                        </template>
+                      </van-popover>
+
+                    </template>
+                  </van-field>
+                  <cur-select v-else v-model:firpick="params.data_disk[index - 1].size"
+                    :text="params.data_disk[index - 1].size + 'GB'" :label="lang.disk_size" cur-class=" "
+                    right-icon="arrow" input-align="right" :columns="dataNumObj[params.data_disk[index - 1].disk_type]"
+                    :columns-names=" { text: 'label', value: 'value' }" :placeholder="lang.placeholder_pre2"
+                    @change="getCycleList">
+                    <template #option="option">
+                      <span v-if="option.value === ''">{{lang.mf_no}}</span>
+                      <span v-else>{{option.value}}GB</span>
+                    </template>
+                  </cur-select>
+                </template>
+              </template>
+            </template>
+          </van-cell-group>
+        </van-form>
+      </div>
+      <div class="common-pop-fotter">
+        <van-button class="sub-btn" block type="primary" @click="showSystemDisk = false">
+          {{lang.ticket_btn6}}
+        </van-button>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 购物车弹窗 -->
+  <van-popup v-model:show="cartDialog" round closeable style="width: 90%;">
+    <div class="common-pop-box">
+      <div class="common-pop-title">{{lang.product_tip}}</div>
+      <div class="common-pop-body">
+        <div class="goods-cart-tip" v-if="product_related_list.length !== 0">
+          <div class="tip-title">{{lang.cart_tip_text1}}</div>
+          <div class="related-box">
+            <div class="related-item" v-for="item in product_related_list">
+              <div class="related-name">
+                <span class="related-value">{{item.name}}</span>
+              </div>
+              <div class="related-address">
+                <span class="related-value buy-text" v-if="item.in_cart === 0"
+                  @click="goBuy(item.id)">{{lang.cart_tip_text2}}
+                </span>
+                <span v-else class="related-lebal tips-text">{{lang.cart_tip_text5}}</span>
+              </div>
+            </div>
+          </div>
+          <div class="tip-des"><span
+              style="color: var(--base-color-danger); margin-right: 3px;">*</span>{{lang.cart_tip_text6}}
+          </div>
+        </div>
+      </div>
+      <div class="common-pop-fotter">
+        <van-button class="can-btn" block @click="cartDialog = false">{{lang.product_continue}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="goToCart">{{lang.product_settlement}}</van-button>
+      </div>
+    </div>
+  </van-popup>
+
+</div>
+
+
+<!-- =======页面引入js和相关组件位置======= -->
+<script src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm201/api/mf_cloud.js"></script>
+<script src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm201/lang/index.js"></script>
+<script src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm201/js/cloud_goods.js"> </script>

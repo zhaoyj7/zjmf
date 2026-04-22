@@ -1,0 +1,93 @@
+<!-- 页面引入样式位置 -->
+<link rel="stylesheet" href="/plugins/addon/idcsmart_ticket/template/clientarea/mobile/mfm301/css/ticket.css">
+
+</head>
+
+<body>
+  <div id="template" v-cloak>
+    <van-sticky>
+      <div class="tick-top-title">
+        <div class="tick-top-title-left">
+          <span>{{lang.ticket_title}}</span>
+        </div>
+        <div class="tick-top-title-right">
+          <van-button @click="openAddTicket" icon="plus" size="small"></van-button>
+          <van-button icon="setting-o" size="small" @click="handleMore"></van-button>
+        </div>
+      </div>
+      <form action="/">
+        <van-search class="search-input" v-model="params.keywords" :placeholder="lang.ticket_tips1" @search="initPage">
+        </van-search>
+      </form>
+    </van-sticky>
+    <div class="ticket-box">
+      <common-list :loading="tableLoading" :finished="tableFinished" :list="dataList" @load="getTicketList"
+        empty-image="./img/empty.png" :empty-text="lang.ticket_empty">
+        <!-- 默认插槽 -->
+        <template #default="{item}">
+          <van-swipe-cell :disabled="item.status_id === 4">
+            <div class="ticket-item" @click="itemReply(item)">
+              <div class="ticket-header">
+                <img src="/plugins/addon/idcsmart_ticket/template/clientarea/mobile/mfm301/img/header.png" alt="">
+              </div>
+              <div class="ticket-info">
+                <div class="ticket-title-num">
+                  <span>#{{ item.ticket_num }}-{{item.name}}</span>
+                  <span v-time="item.last_reply_time" class="ticket-time"></span>
+                </div>
+                <div class="ticket-title">
+                  {{item.title}}
+                </div>
+              </div>
+            </div>
+            <template #right>
+              <van-button style="height: 100%;" square type="primary" @click.stop="itemUrge(item)">
+                {{lang.ticket_btn4}}
+              </van-button>
+              <van-button style="height: 100%;" @click.stop="itemClose(item)" square type="danger">
+                {{lang.ticket_btn5}}
+              </van-button>
+            </template>
+          </van-swipe-cell>
+        </template>
+      </common-list>
+    </div>
+    <tab-bar page="order"></tab-bar>
+    <van-popup v-model:show="showMenuSelect" position="right" :style="{ width: '100%', height: '100%' }">
+      <div class="menu-select-box">
+        <van-nav-bar :title="lang.menu_filter" safe-area-inset-top left-arrow @click-left="handleCancel">
+        </van-nav-bar>
+        <div class="menu-box">
+          <div class="menu-first">
+            <template v-for="item in calcTicketType" :key="item.value">
+              <div class="menu-item" @click="selectTicketType(item.value)"
+                :class="{active: params.ticket_type_id === item.value}">
+                {{item.text}}
+              </div>
+            </template>
+          </div>
+          <div class="menu-radio-box">
+            <template v-for="item in ticketStatus" :key="item.value">
+              <div class="menu-radio-item" :class="{active: params.status.includes(item.value)}"
+                @click="selectStatus(item.value)">
+                {{item.name}}
+              </div>
+            </template>
+          </div>
+
+        </div>
+        <div class="menu-footer">
+          <van-button @click="handleCancel" color="#F5F5F5"
+            style="color: #999999; width: 2.56rem;">{{lang.menu_cancel}}</van-button>
+          <van-button type="primary" block @click="handleConfirm">{{lang.menu_confirm}}</van-button>
+        </div>
+      </div>
+    </van-popup>
+  </div>
+
+  <!-- =======页面独有======= -->
+  <script src="/{$template_catalog}/template/{$themes}/components/tabBar/tabBar.js"></script>
+  <script src="/{$template_catalog}/template/{$themes}/components/commonList/commonList.js"></script>
+  <script src="/plugins/addon/idcsmart_ticket/template/clientarea/mobile/mfm301/api/ticket.js"></script>
+  <script src="/plugins/addon/idcsmart_ticket/template/clientarea/mobile/mfm301/lang/index.js"></script>
+  <script src="/plugins/addon/idcsmart_ticket/template/clientarea/mobile/mfm301/js/ticket.js"></script>

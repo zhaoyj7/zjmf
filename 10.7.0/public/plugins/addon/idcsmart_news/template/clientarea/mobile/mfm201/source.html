@@ -1,0 +1,75 @@
+<!-- 页面独有样式 -->
+<link rel="stylesheet" href="/plugins/addon/idcsmart_news/template/clientarea/mobile/mfm201/css/news.css">
+</head>
+
+<body>
+  <!-- mounted之前显示 -->
+  <div id="mainLoading">
+    <div class="ddr ddr1"></div>
+    <div class="ddr ddr2"></div>
+    <div class="ddr ddr3"></div>
+    <div class="ddr ddr4"></div>
+    <div class="ddr ddr5"></div>
+  </div>
+  <div id="template" v-cloak class="help-page">
+    <top-menu neednav>
+      <template #left>
+        <van-icon @click="goBack" class="left-icon" name="arrow-left"></van-icon>
+      </template>
+      <template #center>
+        <div class="nav-title">{{lang.source_title}}</div>
+      </template>
+      <template #right>
+      </template>
+    </top-menu>
+    <van-tabs class="tab-box" v-model:active="activeIndex" @change="handleClick" line-width="16px"
+      title-active-color="var(--van-primary-color)">
+      <van-tab :title="lang.source_text6" name="1" v-if="havePlugin('IdcsmartHelp')">
+      </van-tab>
+      <van-tab :title="lang.source_text7" name="4" v-if="havePlugin('IdcsmartHelp')">
+      </van-tab>
+      <van-tab :title="lang.source_tab2" name="2" v-if="havePlugin('IdcsmartNews')">
+        <form action="/">
+          <van-search class="search-input fillter-search" v-model="newParams.keywords" :placeholder="lang.cloud_tip_2"
+            @search="initNewList" @clear="initNewList">
+            <template #left>
+              <van-dropdown-menu>
+                <van-dropdown-item :title="newTypeText" @change="initNewList" v-model="selectNewType"
+                  :options="newType">
+                </van-dropdown-item>
+              </van-dropdown-menu>
+            </template>
+          </van-search>
+        </form>
+        <div class="new-main">
+          <template v-if="newsList.length > 0">
+            <van-list v-model:loading="newLoading" :finished="newsFinished" @load="getNewList" :immediate-check="false">
+              <div v-for="(item,index) in newsList" class="new-item" @click="goNewDetail(item.id)">
+                <div class="item-left">
+                  <img v-if="item.img" :src="item.img" class="item-img">
+                  <img
+                    :src="`/plugins/addon/idcsmart_news/template/clientarea/mobile/mfm201/img/news_0${Math.floor(Math.random() * 4) + 1}.png`"
+                    alt="" v-else class="item-img">
+                </div>
+                <div class="item-right">
+                  <p class="title">{{item.title}}</p>
+                  <p class="info">
+                    <van-icon name="clock-o" class="el-icon-time"></van-icon>
+                    <span v-time="item.create_time"></span>
+                  </p>
+                </div>
+              </div>
+            </van-list>
+          </template>
+          <van-empty v-else></van-empty>
+        </div>
+      </van-tab>
+      <van-tab :title="lang.source_tab3" name="3" v-if="havePlugin('IdcsmartFileDownload')">
+      </van-tab>
+    </van-tabs>
+
+  </div>
+  <!-- =======页面独有======= -->
+  <script src="/plugins/addon/idcsmart_news/template/clientarea/mobile/mfm201/lang/index.js"></script>
+  <script src="/plugins/addon/idcsmart_news/template/clientarea/mobile/mfm201/api/news.js"></script>
+  <script src="/plugins/addon/idcsmart_news/template/clientarea/mobile/mfm201/js/news.js"></script>

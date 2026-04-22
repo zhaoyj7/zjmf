@@ -1,0 +1,30 @@
+<!-- 页面引入样式位置 -->
+<link rel="stylesheet"
+  href="/plugins/addon/idcsmart_certification/template/clientarea/mobile/mfm201/css/authentication_select.css">
+</head>
+
+<body>
+  <div id="template" v-cloak class="authentication-select">
+    <top-menu neednav>
+      <template #left>
+        <van-icon @click="goBack" class="left-icon" name="arrow-left"></van-icon>
+      </template>
+      <template #center>
+        <div class="nav-title">{{lang.realname_text1}}</div>
+      </template>
+      <template #right>
+      </template>
+    </top-menu>
+    <div class="main-page">
+      <div class="third-box" id="third-box"></div>
+    </div>
+  </div>
+
+
+  <!-- =======页面引入js和相关组件位置======= -->
+  <script src="/{$template_catalog}/template/{$themes}/lib/jquery@2.14.min.js"></script>
+
+  <script src="/plugins/addon/idcsmart_certification/template/clientarea/mobile/mfm201/lang/index.js"></script>
+  <script src="/plugins/addon/idcsmart_certification/template/clientarea/mobile/mfm201/api/certification.js"></script>
+  <script
+    src="/plugins/addon/idcsmart_certification/template/clientarea/mobile/mfm201/js/authentication_thrid.js"></script>

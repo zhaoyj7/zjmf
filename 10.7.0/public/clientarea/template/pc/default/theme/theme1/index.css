@@ -1,0 +1,33 @@
+@import url("element-ui.css");
+/* default */
+:root[theme='theme1'] {
+  /* 主色 */
+  --color-primary: #0058ff;
+  /* 成功色 */
+  --color-success: #059669;
+  /* 警告色 */
+  --color-warning: #FAAD10;
+  /* 危险色 */
+  --color-danger: #F13939;
+  /* 信息色 */
+  --color-info: #8C8C8C;
+  /* 提示文字颜色 */
+  --color-text-tips: #606266;
+  /* 菜单栏背景色 */
+  --color-menu-bg: #fff;
+  /* 菜单栏选中背景色 */
+  --color-menu-active-bg: rgba(0, 88, 255, 0.9);
+  /* 菜单栏hover背景色 */
+  --color-menu-hover-bg: rgba(0, 88, 255, 0.6);
+  /* 菜单栏文字颜色 */
+  --color-menu-text: #2B2B2B;
+  /* 菜单栏文字选中颜色 */
+  --color-menu-text-active: #fff;
+  --color-price-text: #f0142f;
+  --color-discount-num: #F99600;
+  --color-cash-num: #F0142F;
+}
+:root[theme='theme1'] .line {
+  border: 1px solid #d9d9d9;
+  opacity: 1;
+}

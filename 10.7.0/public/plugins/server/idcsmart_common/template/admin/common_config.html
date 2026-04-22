@@ -1,0 +1,703 @@
+<link rel="stylesheet" href="/plugins/server/idcsmart_common/template/admin/css/common_config.css" />
+
+<div class="common_config" v-cloak>
+  <com-config>
+    <div class="t-card">
+      <t-tabs v-model="tabs" @change="changeTab">
+        <!-- 基础设置 -->
+        <t-tab-panel value="basic" :label="lang.basic_config">
+          <div class="box basic">
+            <t-form :data="commonConfig" ref="commonConfig" @submit="submitConfig" :rules="dataRules" class="data-form" label-align="left">
+              <t-form-item :label="lang.buy_page_des" name="order_page_description" label-Align="top">
+                <t-textarea v-model="commonConfig.order_page_description" class="top-text" :placeholder="`${lang.com_tip5}${multiliTip}`"></t-textarea>
+              </t-form-item>
+              <t-form-item>
+                <span>{{lang.pro_qty}}</span>
+                <t-switch size="large" :custom-value="[1,0]" v-model="commonConfig.allow_qty"></t-switch>
+                <span class="third-text-color">{{lang.com_tip1}}</span>
+              </t-form-item>
+              <!-- <t-form-item>
+                <span>{{lang.auto_support}}</span>
+                <t-switch :custom-value="[1,0]" v-model="commonConfig.auto_support">
+                </t-switch>
+                <span>{{lang.com_tip2}}</span>
+              </t-form-item> -->
+              <t-form-item class="edition" label-Align="top" :label="`${lang.choose}${lang.child_interface}`" :required-mark="false">
+                <t-select v-model="commonConfig.server_id" @change="serverIdChange" :disabled="isAgent" :placeholder="`${lang.select}${lang.child_interface}`" class="server_id" clearable>
+                  <t-option key="free" :label="item.name" :value="item.id" v-for="item in childInterface" :key="item.id"></t-option>
+                </t-select>
+                <!-- <a style="margin-left: 10px;" class="common-look" v-if="module_meta.HelpDoc" :href="module_meta.HelpDoc"
+                  target="_blank">
+                  {{lang.help_document}}
+                </a> -->
+              </t-form-item>
+              <div class="con-box">
+                <div class="con-item" v-for="(item,index) in commonConfigoption" :key="index">
+                  <t-form-item :label="item.name">
+                    <t-input
+                      v-if="item.type ==='text' || item.type ==='password'"
+                      :type="item.type ==='password' ? 'password' : 'text'"
+                      autocomplete="off"
+                      v-model="item.default"
+                      :placeholder="item.placeholder"
+                      :disabled="isAgent"></t-input>
+                    <!-- 是否 -->
+                    <t-switch v-if="item.type ==='yesno'" size="large" v-model="item.default" :disabled="isAgent" :custom-value="['1','0']"></t-switch>
+                  </t-form-item>
+                  <span style="margin-left: 10px">{{item.description}}</span>
+                </div>
+              </div>
+              <div class="f-btn">
+                <t-button theme="primary" type="submit" :loading="submitLoading">{{lang.hold}}</t-button>
+              </div>
+            </t-form>
+          </div>
+        </t-tab-panel>
+        <!-- 费用设置 -->
+        <t-tab-panel value="cost" :label="lang.cost_setting">
+          <div class="box">
+            <!-- 一次性 -->
+            <template v-if="payType === 'onetime'">
+              <t-form :data="commonConfig" ref="commonConfig" @submit="submitConfig" :rules="dataRules" class="data-form">
+                <t-form-item :label="lang.onetime" name="onetime" label-Align="top" :rules="commonConfig.onetime * 1 ? dataRules.onetime : [{ required: false}]">
+                  <t-input v-model="commonConfig.onetime" :placeholder="lang.input+lang.money" class="onetime" :label="currency_prefix"></t-input>
+                </t-form-item>
+                <div class="f-btn">
+                  <t-button theme="primary" type="submit" :loading="submitLoading">{{lang.hold}}</t-button>
+                </div>
+              </t-form>
+            </template>
+            <!-- 周期 -->
+            <div class="cycle-box" v-if="payType === 'recurring_prepayment' || payType === 'recurring_postpaid' ">
+              <!-- <div class="item">
+              <div class="com-top">
+                <p class="tit">{{lang.default + lang.cycle}}</p>
+                <div class="add-btn" @click='changeDefault'>{{
+                  defaultBol ? lang.hold : lang.update
+                  }}</div>
+              </div>
+              <t-table row-key="id" :data="defaultCycle" size="medium" :columns="defaultColumns" :hover="hover"
+                :loading="dataLoading" :table-layout="tableLayout ? 'auto' : 'fixed'" display-type="fixed-width"
+                :hide-sort-tips="true" class="cycle-table" bordered>
+                <template slot="sortIcon">
+                  <t-icon name="caret-down-small"></t-icon>
+                </template>
+                <template #amount="{row}">
+                  <span v-if="defaultBol">
+                    <t-input :lable="currency_prefix" v-model="row.amount" :format="formatPrice"></t-input>
+                  </span>
+                  <span v-else>
+                    {{ Number(row.amount) < 0 ? '--' : currency_prefix + row.amount}} </span>
+                </template>
+              </t-table>
+            </div> -->
+              <div class="item">
+                <div class="com-top">
+                  <p class="tit">
+                    {{lang.custom_cycle}}
+                    <span class="cycle-tip" v-if="isShowCycleTip">({{lang.empty_cycle_tip}})</span>
+                  </p>
+                  <div class="right">
+                    <t-button class="add-btn" @click="addCycle" :disabled="isAgent" :class="{'server-disabled': isAgent}">{{lang.add_cycle}}</t-button>
+                    <t-button class="add-btn com-gray-btn" theme="default" @click="changeRadio">{{lang.cycle_ratio}}</t-button>
+                    <t-button class="add-btn com-gray-btn" theme="default" variant="base" @click="openNaturalModal">
+                      <i :class="{active: isNatural, dot: true}"></i>
+                      {{lang.natural_month_prepaid}}
+                      <t-tooltip placement="top-left" theme="light" :show-arrow="false">
+                        <template slot="content">
+                          {{lang.natural_month_tip3}}
+                          <br />
+                          {{lang.natural_month_tip4}}
+                          <br />
+                          {{lang.natural_month_tip5}}
+                          <br />
+                          {{lang.natural_month_tip6}}
+                          <br />
+                          {{lang.natural_month_tip7}}
+                          <br />
+                          {{lang.natural_month_tip8}}
+                        </template>
+                        <t-icon name="help-circle-filled" class="help"></t-icon>
+                      </t-tooltip>
+                    </t-button>
+                  </div>
+                </div>
+                <t-table
+                  row-key="id"
+                  :data="cycleData"
+                  size="medium"
+                  :columns="computedCycleColumns"
+                  :hover="hover"
+                  :loading="dataLoading"
+                  :table-layout="tableLayout ? 'auto' : 'fixed'"
+                  display-type="fixed-width"
+                  :hide-sort-tips="true"
+                  class="cycle-table">
+                  <template slot="sortIcon">
+                    <t-icon name="caret-down-small"></t-icon>
+                  </template>
+                  <template #cycle_time="{row}">{{row.cycle_time+lang[row.cycle_unit]}}</template>
+                  <template #amount="{row}">{{currency_prefix + row.amount}}</template>
+                  <!-- <template #price_factor="{row}">
+                    {{row.price_factor.toFixed(2)}}
+                  </template> -->
+                  <template #ratio="{row}">
+                    <span>{{row.ratio || '--'}}</span>
+                  </template>
+                  <template #status="{row}">
+                    <t-switch :custom-value="[1,0]" v-model="row.status" @change="changeCycleStatus(row)"></t-switch>
+                  </template>
+                  <template #op="{row}">
+                    <div class="com-opt">
+                      <t-icon name="edit-1" @click="editCycle(row)"></t-icon>
+                      <t-icon name="delete" @click="comDel('cycle',row)" :class="{'server-disabled': isAgent}" v-if="!isNatural"></t-icon>
+                    </div>
+                  </template>
+                </t-table>
+              </div>
+            </div>
+          </div>
+        </t-tab-panel>
+        <!-- 配置选项 -->
+        <t-tab-panel value="config" :label="lang.config_option">
+          <div class="config-option box">
+            <div class="com-top">
+              <p class="com-des">{{lang.config_tip}}</p>
+              <t-button class="add-btn" @click="addConfig" :disabled="isAgent" :class="{'server-disabled': isAgent}">{{lang.add_config}}</t-button>
+            </div>
+            <t-table
+              row-key="id"
+              :data="configData"
+              size="medium"
+              :columns="configColumns"
+              :hover="hover"
+              :loading="dataLoading"
+              :table-layout="tableLayout ? 'auto' : 'fixed'"
+              display-type="fixed-width"
+              :hide-sort-tips="true"
+              drag-sort="row-handler"
+              @drag-sort="onDragSort">
+              <template #drag="{row}">
+                <t-icon name="move" style="cursor: move"></t-icon>
+              </template>
+              <template slot="sortIcon">
+                <t-icon name="caret-down-small"></t-icon>
+              </template>
+              <template #option_type="{row}">{{lang.configOption[row.option_type]}}</template>
+              <template #upgrade="{row}">
+                <t-switch :custom-value="[1,0]" :disabled="isAgent" v-model="row.upgrade" @change="changeUpgrade(row)"></t-switch>
+              </template>
+              <template #hidden="{row}">
+                <t-switch :custom-value="[0,1]" :disabled="isAgent" v-model="row.hidden" @change="changeHidden(row)"></t-switch>
+              </template>
+              <template #op="{row}">
+                <div class="com-opt">
+                  <t-icon name="edit-1" @click="editConfig(row)"></t-icon>
+                  <t-icon name="delete" @click="comDel('config',row)" :class="{'server-disabled': isAgent}"></t-icon>
+                </div>
+              </template>
+            </t-table>
+          </div>
+        </t-tab-panel>
+        <!-- 自定义字段 -->
+        <!-- <t-tab-panel value="custom" :label="lang.custom_fields">
+          <div class="custom-fields box">
+            <div class="com-top">
+              <p class="com-des">{{lang.custom_tip}}</p>
+              <div class="add-btn" @click="addCustom">{{lang.add_config}}</div>
+            </div>
+            <t-table row-key="id" :data="cycleData" size="medium" :columns="customColumns" :hover="hover"
+              :loading="dataLoading" :table-layout="tableLayout ? 'auto' : 'fixed'" display-type="fixed-width"
+              :hide-sort-tips="true" bordered>
+              <template slot="sortIcon">
+                <t-icon name="caret-down-small"></t-icon>
+              </template>
+              <template #price="{row}">
+                {{currency_prefix + row.price}}
+              </template>
+              <template #op="{row}">
+                <div class="com-opt">
+                  <t-icon name="edit-1" @click="editPackage(row)"></t-icon>
+                  <t-icon name="delete" @click="comDel('package',row)"></t-icon>
+                </div>
+              </template>
+            </t-table>
+          </div>
+        </t-tab-panel> -->
+      </t-tabs>
+    </div>
+    <!-- 周期比例 -->
+    <t-dialog :header="lang.cycle_ratio" :visible.sync="ratioModel" :footer="false" width="600" :close-on-overlay-click="false">
+      <t-table
+        row-key="id"
+        :data="ratioData"
+        size="medium"
+        :columns="ratioColumns"
+        :hover="hover"
+        :loading="loading"
+        :table-layout="tableLayout ? 'auto' : 'fixed'"
+        display-type="fixed-width"
+        :hide-sort-tips="true">
+        <template #unit="{row}">
+          <span>{{row.num}}{{lang[row.unit]}}</span>
+        </template>
+        <template #ratio="{row}">
+          <t-input-number v-model="row.ratio" :placeholder="lang.input+lang.mf_ratio" theme="normal" :decimal-places="2" :min="0.01"></t-input-number>
+        </template>
+      </t-table>
+      <div class="ratio-tip">
+        <p>*{{lang.mf_notes}}</p>
+        <p>{{lang.mf_ratio_tip1}}</p>
+        <p>{{lang.mf_ratio_tip2}}</p>
+        <p>{{lang.mf_ratio_tip3}}</p>
+        <p>{{lang.mf_ratio_tip4}}</p>
+      </div>
+      <div class="com-f-btn">
+        <t-button theme="primary" @click="saveRatio" :loading="submitLoading">{{lang.hold}}</t-button>
+        <t-button theme="default" variant="base" @click="ratioModel=false">{{lang.cancel}}</t-button>
+      </div>
+    </t-dialog>
+    <!-- 新增/修改 周期 -->
+    <t-dialog :header="comTitle" :visible.sync="cycleModel" :footer="false" width="600" @close="closeData" :close-on-overlay-click="false">
+      <t-form :data="cycleForm" ref="cycleForm" @submit="submitCycle" :rules="cycleRules" class="cycle-form" v-if="cycleModel">
+        <t-form-item :label="lang.cycle_name" name="name">
+          <t-input v-model="cycleForm.name" :placeholder="`${lang.input}${lang.cycle_name}${multiliTip}`" :disabled="isAgent || natural_month_prepaid === 1"></t-input>
+        </t-form-item>
+        <t-form-item :label="lang.cycle_time" class="required">
+          <t-form-item class="cycle_time" name="cycle_time" style="margin-bottom: 0">
+            <t-input v-model="cycleForm.cycle_time" :placeholder="lang.input+lang.cycle_time" :disabled="isAgent || isNatural"></t-input>
+          </t-form-item>
+          <t-form-item>
+            <t-select v-model="cycleForm.cycle_unit" :placeholder="lang+lang.country" :disabled="isAgent || isNatural">
+              <t-option :key="item.value" :value="item.value" :label="item.label" v-for="item in cycleTime"></t-option>
+            </t-select>
+          </t-form-item>
+        </t-form-item>
+        <!-- <t-form-item :label="lang.price_factor" name="price_factor">
+          <t-input-number v-model="cycleForm.price_factor" :placeholder="lang.input+lang.factor" theme="normal"
+            :decimal-places="2" :min="0" :max="9999">
+          </t-input-number>
+        </t-form-item>
+        <t-form-item label=" " class="empty-item">
+          <span>{{lang.mf_tip39}}</span>
+        </t-form-item> -->
+        <t-form-item :label="lang.money" name="amount" :rules="cycleRules.amount">
+          <t-input v-model="cycleForm.amount" :placeholder="lang.input+lang.money"></t-input>
+        </t-form-item>
+        <div class="com-f-btn">
+          <t-button theme="primary" type="submit" :loading="submitLoading">{{lang.hold}}</t-button>
+          <t-button theme="default" variant="base" @click="cycleModel=false">{{lang.cancel}}</t-button>
+        </div>
+      </t-form>
+    </t-dialog>
+    <!-- 新增/修改 自定义字段 -->
+    <t-dialog :header="comTitle" :visible.sync="customModel" :footer="false" width="600" @close="closeData" :close-on-overlay-click="false">
+      <t-form :data="customForm" ref="customForm" @submit="submitCustom" :rules="cycleRules" class="cycle-form" v-if="customModel">
+        <t-form-item :label="lang.fields_name" name="fields_name">
+          <t-input v-model="customForm.cycle_name" :placeholder="lang.input+lang.cycle_name"></t-input>
+        </t-form-item>
+        <t-form-item :label="lang.parameter" name="parameter">
+          <t-input v-model="customForm.money" :placeholder="lang.input+lang.parameter"></t-input>
+        </t-form-item>
+        <t-form-item class="cycle_time" :label="lang.fields_type" name="cycle_time">
+          <t-input v-model="customForm.cycle_time" :placeholder="lang.input+lang.cycle_time"></t-input>
+        </t-form-item>
+        <div class="com-f-btn">
+          <t-button theme="primary" type="submit" :loading="submitLoading">{{lang.hold}}</t-button>
+          <t-button theme="default" variant="base" @click="cycleModel=false">{{lang.cancel}}</t-button>
+        </div>
+      </t-form>
+    </t-dialog>
+    <!-- 删除提示框 -->
+    <t-dialog theme="warning" :header="delTit" :visible.sync="delVisible" class="deleteDialog">
+      <p class="des" v-if="delDesc">{{delDesc}}</p>
+      <p class="des" v-if="delType==='cycle'">{{lang.delete_tip}}</p>
+      <template slot="footer">
+        <t-button theme="primary" @click="sureDelete" :loading="submitLoading">{{lang.sure}}</t-button>
+        <t-button theme="default" @click="delVisible=false">{{lang.cancel}}</t-button>
+      </template>
+    </t-dialog>
+
+    <!-- 自然月预付费弹窗 -->
+    <t-dialog :header="lang.natural_month_prepaid" :visible.sync="naturalModel" :footer="false" width="500" :close-on-overlay-click="false">
+      <div class="first-text-color natural-des">
+        {{lang.natural_month_tip1}}
+        <br />
+        {{lang.natural_month_tip2}}
+      </div>
+      <div class="first-text-color natural-radio">
+        <span>{{lang.natural_month_mode}}</span>
+        <t-radio-group v-model="natural_month_prepaid">
+          <t-radio :value="1">{{lang.open}}</t-radio>
+          <t-radio :value="0">{{lang.close}}</t-radio>
+        </t-radio-group>
+      </div>
+      <div class="com-f-btn">
+        <t-button theme="primary" @click="submitNaturalSwitch" :loading="submitLoading">{{lang.hold}}</t-button>
+        <t-button theme="default" variant="base" @click="naturalModel=false">{{lang.cancel}}</t-button>
+      </div>
+    </t-dialog>
+
+    <!-- 新增/修改 配置选项 -->
+    <t-dialog :header="comTitle" :visible.sync="configModel" :footer="false" @close="closeConfig" :close-on-overlay-click="false" class="configModel" placement="center">
+      <!-- 基础信息 -->
+      <t-form :data="configDetail" ref="configDetail" @submit="submitConfigDetail" :rules="configRules" class="config-form" v-if="configModel" label-align="top">
+        <p class="com-tit"><span>{{ lang.basic_setting }}</span></p>
+        <t-row :gutter="{ xs: 0, sm: 20, md: 24, lg: 24, xl: 24, xxl: 24 }">
+          <t-col :xs="12" :xl="6">
+            <t-form-item :label="lang.option_name" name="option_name">
+              <t-input v-model="configDetail.option_name" :placeholder="`${lang.input}${lang.option_name}${multiliTip}`" :disabled="isAgent"></t-input>
+            </t-form-item>
+            <t-form-item :label="lang.option_type" name="option_type">
+              <t-select v-model="configDetail.option_type" :placeholder="lang.select+lang.option_type" :disabled="isAgent">
+                <t-option v-for="item in configOption" :value="item.value" :label="item.label" :key="item.value"></t-option>
+              </t-select>
+            </t-form-item>
+          </t-col>
+          <t-col :xs="12" :xl="6">
+            <!-- 步长 -->
+            <t-form-item name="qty_change" v-if="configDetail.option_type === 'quantity_range'">
+              <template slot="label">
+                {{lang.drag_step}}
+                <t-tooltip :content="lang.drag_step_tip" placement="top-left" theme="light" :show-arrow="false">
+                  <t-icon name="help-circle-filled" class="help"></t-icon>
+                </t-tooltip>
+              </template>
+              <t-input-number v-model="configDetail.qty_change" theme="normal" :min="1" :decimal-places="0" :placeholder="lang.drag_step" @blur="blurRange" :disabled="isAgent"></t-input-number>
+            </t-form-item>
+            <t-form-item :label="lang.trailing_text" name="unit">
+              <t-input v-model="configDetail.unit" :placeholder="`${lang.com_tip6}${multiliTip}`" :disabled="isAgent"></t-input>
+            </t-form-item>
+            <t-form-item :label="lang.parameter" name="option_param" :help="lang.com_tip3" v-show="configDetail.option_type !== 'quantity_range'">
+              <t-input v-model="configDetail.option_param" :placeholder="lang.input+lang.parameter" :disabled="isAgent"></t-input>
+            </t-form-item>
+          </t-col>
+        </t-row>
+        <t-row :gutter="{ xs: 0, sm: 20, md: 24, lg: 24, xl: 24, xxl: 24 }" style="margin-bottom: 24px" v-show="configDetail.option_type === 'quantity_range'">
+          <t-col :xs="12" :xl="6">
+            <t-form-item :label="lang.parameter" name="option_param" :help="lang.com_tip3">
+              <t-input v-model="configDetail.option_param" :placeholder="lang.input+lang.parameter" :disabled="isAgent"></t-input>
+            </t-form-item>
+          </t-col>
+        </t-row>
+        <t-row :gutter="{ xs: 0, sm: 20, md: 24, lg: 24, xl: 24, xxl: 24 }">
+          <t-col :xs="12" :xl="6" style="margin-bottom: 24px">
+            <t-form-item :label="lang.option_explain" name="description">
+              <t-textarea v-model="configDetail.description" :placeholder="`${lang.com_tip7}${multiliTip}`" :disabled="isAgent"></t-textarea>
+            </t-form-item>
+          </t-col>
+          <t-col :xs="12" :xl="6" v-if="configDetail.option_type !== 'quantity' && configDetail.option_type !== 'quantity_range'">
+            <t-button theme="primary" type="submit" :loading="submitLoading" class="save-config" style="margin-top: 70px">{{lang.hold}}</t-button>
+          </t-col>
+        </t-row>
+        <!-- 费用类型 -->
+        <t-row :gutter="{ xs: 0, sm: 20, md: 24, lg: 24, xl: 24, xxl: 24 }" v-if="configDetail.option_type === 'quantity' || configDetail.option_type === 'quantity_range'">
+          <t-col :xs="12" :xl="6">
+            <t-form-item :label="lang.cost_type" name="fee_type">
+              <t-select v-model="configDetail.fee_type" :placeholder="lang.select+lang.cost_type" :disabled="isAgent">
+                <t-option v-for="item in freeType" :value="item.value" :label="item.label" :key="item.value"></t-option>
+              </t-select>
+            </t-form-item>
+            <div class="half">
+              <t-form-item :label="lang.allow_repeat" name="allow_repeat" label-align="left" class="frre-switch">
+                <t-switch :custom-value="[1,0]" v-model="configDetail.allow_repeat" :disabled="isAgent"></t-switch>
+                <t-tooltip :content="lang.data_tip" :show-arrow="false" theme="light" placement="top-right" v-if="optType ==='add'">
+                  <t-icon name="help-circle" class="pack-tip"></t-icon>
+                </t-tooltip>
+              </t-form-item>
+              <t-form-item
+                :label="lang.max_repeat"
+                name="max_repeat"
+                :rules="configDetail.allow_repeat ?
+              [
+              { required: true, message: lang.input + lang.max_repeat, type: 'error' },
+              {
+                pattern: /^[0-9]*$/, message: lang.input + lang.verify16, type: 'warning'
+              },
+              {
+                validator: val => val >= 1, message: lang.input + lang.verify16, type: 'warning'
+              }
+              ]:
+               [{ required: false},]
+              ">
+                <t-input v-model="configDetail.max_repeat" :placeholder="lang.input+lang.max_repeat" :disabled="isAgent"></t-input>
+              </t-form-item>
+            </div>
+          </t-col>
+          <t-col :xs="12" :xl="6">
+            <t-button theme="primary" type="submit" :loading="submitLoading" class="save-config">{{lang.hold}}</t-button>
+          </t-col>
+        </t-row>
+      </t-form>
+      <!-- 配置子选项 -->
+      <template v-if="configDetail.id  && payType !== 'free'">
+        <p class="com-tit"><span>{{ lang.option_value }}</span></p>
+        <div class="com-top" v-if="configDetail.option_type !== 'yes_no'">
+          <p class="com-des"></p>
+          <t-button class="add-btn" @click="addConfigSub"
+            v-if="configDetail.option_type !== 'cascade'"
+            :disabled="isAgent" :class="{'server-disabled': isAgent}">
+            {{lang.add}}
+          </t-button>
+        </div>
+        <!-- 普通动态表格 -->
+        <t-table
+          row-key="id"
+          :data="configSub"
+          size="medium"
+          :columns="subColumns"
+          v-if="configSub.length >0 && configDetail.option_type !== 'cascade'"
+          :hover="hover"
+          table-layout="auto"
+          :hide-sort-tips="true"
+          class="config-sub"
+          drag-sort="row-handler"
+          @drag-sort="onSubDragSort"
+          :loading="subLoading">
+          <template #drag="{row}">
+            <t-icon name="move" style="cursor: move"></t-icon>
+          </template>
+          <template #title-slot-drag>
+            <span class="config-tit">{{lang.sort }}</span>
+          </template>
+          <template #title>
+            {{backupConfig.option_name}}
+            <span v-if="backupConfig.unit">({{backupConfig.unit}})</span>
+          </template>
+          <template #option_name="{row}">
+            <span v-if="backupConfig.option_type === 'quantity' || backupConfig.option_type === 'quantity_range'">{{row.qty_min}}-{{row.qty_max}}</span>
+            <span v-else>{{row.option_name}}</span>
+          </template>
+          <template #title-slot-area>
+            <!-- 根据方式显示 一次性/ 周期 -->
+            <template v-if="payType === 'onetime'">
+              <span class="config-tit">{{lang.onetime }}</span>
+            </template>
+            <template v-else>
+              <span v-for="item in configSub[0].custom_cycle" class="config-tit" :key="item.id">{{item.name}}</span>
+            </template>
+          </template>
+          <!-- <template #title="{row}">
+
+          </template> -->
+          <template #area="{row}">
+            <div class="config-box">
+              <template v-if="payType === 'onetime'">
+                <span class="config-body">{{row.onetime === '-1.00' ? '' : row.onetime}}</span>
+              </template>
+              <template v-else>
+                <span v-for="item in row.custom_cycle" :key="item.id" class="config-body">{{item.amount === '-1.00' ? '' : item.amount}}</span>
+              </template>
+            </div>
+          </template>
+          <template #op="{row}">
+            <div class="com-opt">
+              <t-icon name="edit-1" @click="editSub(row)"></t-icon>
+              <t-icon name="delete" @click="comDel('sub',row)" v-if="configDetail.option_type !== 'yes_no'" :class="{'server-disabled': isAgent}"></t-icon>
+            </div>
+          </template>
+        </t-table>
+
+        <!-- 级联专用 -->
+        <template v-if="configDetail.option_type === 'cascade'">
+          <div class="cascade-table-wrapper" v-if="cascadeTableData.length > 0">
+            <t-table
+              row-key="id"
+              bordered
+              :data="cascadeTableData"
+              :columns="cascadeColumns"
+              size="medium"
+              :hover="hover"
+              table-layout="auto"
+              :hide-sort-tips="true"
+              class="cascade-table"
+              :loading="subLoading"
+              :key="cascadeKey"
+              :rowspan-and-colspan="getCascadeRowspanAndColspan">
+              <template v-for="group in cascadeGroups" :slot="`title-slot-group_${group.id}`">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px">
+                  <template v-if="editingGroupId === group.id">
+                    <t-input v-model="editingGroupName" size="small" style="width: 120px"></t-input>
+                    <div class="com-opt cascade-opt" v-if="!isAgent">
+                      <t-icon name="check" @click="saveCascadeGroup(group)"></t-icon>
+                      <t-icon name="close" @click="cancelEditCascadeGroup"></t-icon>
+                    </div>
+                  </template>
+                  <template v-else>
+                    <span>{{ group.group_name }}</span>
+                    <div class="com-opt cascade-opt" v-if="!isAgent">
+                      <t-tooltip :content="lang.cascade_edit" :show-arrow="false" theme="light">
+                        <t-icon name="edit-1" @click="startEditCascadeGroup(group)"></t-icon>
+                      </t-tooltip>
+                      <t-tooltip :content="lang.cascade_delete" :show-arrow="false" theme="light">
+                        <t-icon name="delete" @click="requestDeleteCascadeGroup(group)"></t-icon>
+                      </t-tooltip>
+                    </div>
+                  </template>
+                </div>
+              </template>
+              <template v-for="group in cascadeGroups" :slot="`group_${group.id}`" slot-scope="{row}">
+                <template v-if="row[`__item_${group.id}`]">
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px">
+                    <template v-if="editingItemId === row[`__item_${group.id}`] && row[`__item_${group.id}`] === -1">
+                      <t-input v-model="tempNewItemName" size="small" style="width: 120px"></t-input>
+                      <div class="com-opt cascade-opt">
+                        <t-icon name="check" @click="saveTempNewItem()"></t-icon>
+                        <t-icon name="close" @click="cancelTempNewItem()"></t-icon>
+                      </div>
+                    </template>
+                    <template v-else-if="editingItemId === row[`__item_${group.id}`]">
+                      <t-input v-model="editingItemName" size="small" style="width: 120px"></t-input>
+                      <div class="com-opt cascade-opt">
+                        <t-icon name="check" @click="saveCascadeItem(row[`__item_${group.id}`])"></t-icon>
+                        <t-icon name="close" @click="cancelEditCascadeItem()"></t-icon>
+                      </div>
+                    </template>
+                    <template v-else>
+                      <span>{{ row[`group_${group.id}`] }}</span>
+                      <div class="com-opt cascade-opt" v-if="!isAgent">
+                        <t-tooltip :content="lang.cascade_edit" :show-arrow="false" theme="light">
+                          <t-icon name="edit-1" @click="startEditCascadeItem(row[`__item_${group.id}`])"></t-icon>
+                        </t-tooltip>
+                        <t-tooltip :content="lang.cascade_add_sibling" :show-arrow="false" theme="light">
+                          <t-icon name="add" @click="createCascadeSibling(row[`__item_${group.id}`])"></t-icon>
+                        </t-tooltip>
+                        <t-tooltip :content="lang.cascade_add_child" :show-arrow="false" theme="light">
+                          <t-icon name="menu-fold" @click="createCascadeChild(row[`__item_${group.id}`])"></t-icon>
+                        </t-tooltip>
+                        <t-tooltip :content="lang.cascade_delete" :show-arrow="false" theme="light">
+                          <t-icon name="delete" @click="requestDeleteCascadeItem(row[`__item_${group.id}`])"></t-icon>
+                        </t-tooltip>
+                      </div>
+                    </template>
+                  </div>
+                </template>
+                <template v-else>
+                  <!-- 编辑空单元格状态 -->
+                  <template v-if="tempNewItem && tempNewItem.isEditingEmptyCell && tempNewItem.editingGroupId === group.id && tempNewItem.editingRowId === row.id">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px">
+                      <t-input v-model="tempNewItemName" size="small" style="width: 120px"></t-input>
+                      <div class="com-opt cascade-opt">
+                        <t-icon name="check" @click="saveTempNewItem()"></t-icon>
+                        <t-icon name="close" @click="cancelTempNewItem()"></t-icon>
+                      </div>
+                    </div>
+                  </template>
+                  <!-- 空单元格 -->
+                  <span v-else class="cascade-empty-cell">-</span>
+                </template>
+              </template>
+              <template #op="{row}">
+                <div class="com-opt" v-if="row.is_leaf">
+                  <template v-if="row.first_cycle_name">{{currency_prefix}}{{ row.first_cycle_amount || '-' }}/{{row.first_cycle_name}}起</template>
+                  <span v-else>-</span>
+                  <t-tooltip :content="lang.cascade_config" :show-arrow="false" theme="light">
+                    <t-icon name="setting" @click="editCascadeItem(row)" v-if="row.item_id > 0"></t-icon>
+                  </t-tooltip>
+                </div>
+              </template>
+            </t-table>
+          </div>
+        </template>
+      </template>
+      <div style="text-align: right; margin-top: 20px">
+        <t-button theme="default" @click="closeConfig">{{lang.close}}</t-button>
+      </div>
+    </t-dialog>
+    <!-- 新增/修改 子配置弹窗 -->
+    <t-dialog :header="subTit" :visible.sync="configSubModel" :footer="false" :width="isCascadeType ? 935 : 600" @close="closeSubData" :close-on-overlay-click="false" class="configSubModel">
+      <!-- 级联时选择配置项计费类型： fixed固定价格 qty数量计费 stage阶梯计费 -->
+      <t-tabs v-model="cascadeFeeType" v-if="isCascadeType && !isAgent" @change="changeFeeType">
+        <t-tab-panel value="fixed" :label="lang.cascade_fixed"></t-tab-panel>
+        <t-tab-panel value="qty" :label="lang.cascade_qty"></t-tab-panel>
+        <t-tab-panel value="stage" :label="lang.cascade_stage"></t-tab-panel>
+      </t-tabs>
+      <div class="bot-price flex">
+        <!-- 数量范围 -->
+        <div class="left-nav" v-if="isCascadeType && cascadeFeeType !== 'fixed'">
+          <div class="tit">
+            <span class="name">{{lang.cascade_history_interval}}</span>
+            <span class="btn" @click="addCascadeSub" v-if="!isAgent"><t-icon name="add-rectangle"></t-icon>{{lang.cascade_add_interval}}</span>
+          </div>
+          <ul>
+            <li class="item"
+                v-for="(item, index) in cascadeEditRow.price"
+                :key="item.id"
+                :class="{ active: currentEditingSubIndex === index }"
+                @click="switchCascadeSub(index)">
+               <span>{{lang.cascade_interval}}{{item.qty_min}}-{{item.qty_max}}</span>
+               <t-icon name="delete" @click="deleteCascadeRangeItem(item.id)" v-if="!isAgent"></t-icon>
+            </li>
+          </ul>
+        </div>
+        <t-form style="flex: 1;" :data="configSubForm" ref="configSubForm" @submit="submitConfigSub" :rules="subRules" v-if="configSubModel">
+          <!-- 国家 area时才有 -->
+          <t-form-item :label="lang.country" name="country" v-if="configDetail.option_type === 'area'">
+            <t-select v-model="configSubForm.country" :placeholder="lang.select+lang.country" filterable :disabled="isAgent">
+              <t-option v-for="item in countryList" :value="item.iso" :label="item.name_zh" :key="item.id"></t-option>
+            </t-select>
+          </t-form-item>
+          <!-- 选项值 (为数量类型的时候无选项值，级联配置时也不显示)-->
+          <t-form-item :label="lang.option_value" name="option_name"
+            v-if="configDetail.option_type !== 'quantity' && configDetail.option_type !== 'quantity_range' && !isCascadeType">
+            <!-- 正常情况 -->
+            <t-input v-model="configSubForm.option_name" :placeholder="`${lang.input}${lang.option_value}${multiliTip}`"
+              v-if="configDetail.option_type !== 'yes_no'" :disabled="isAgent">
+            </t-input>
+            <t-select v-model="configSubForm.option_name" :placeholder="lang.select" v-else :disabled="optType === 'update'" :disabled="isAgent">
+              <t-option :value="lang.yes" :label="lang.yes" :key="1"></t-option>
+              <t-option :value="lang.login_no" :label="lang.login_no" :key="0"></t-option>
+            </t-select>
+            <!-- yes_no -->
+          </t-form-item>
+          <!-- quantity,quantity_range 显示（级联配置且非fixed模式时也显示） -->
+          <t-form-item :label="lang.step_range" class="required"
+            v-if="(configDetail.option_type === 'quantity' || configDetail.option_type === 'quantity_range') || (isCascadeType && cascadeFeeType !== 'fixed')">
+            <t-form-item class="cycle_time" name="qty_min" style="margin-right: 0; margin-bottom: 0">
+              <t-input v-model="configSubForm.qty_min" :placeholder="lang.input+lang.number" :disabled="isAgent"></t-input>
+            </t-form-item>
+            <span class="interval">-</span>
+            <t-form-item class="cycle_time" name="qty_max">
+              <t-input v-model="configSubForm.qty_max" :placeholder="lang.input+lang.number" :disabled="isAgent"></t-input>
+            </t-form-item>
+          </t-form-item>
+          <t-form-item :label="lang.parameter" class="option_param">
+            <t-input v-model="configSubForm.option_param" :placeholder="lang.input+lang.parameter" :disabled="isAgent"></t-input>
+            <span class="tip">{{lang.com_tip3}}</span>
+          </t-form-item>
+          <!-- 周期价格 -->
+          <t-form-item :label="lang.cost" v-if="payType === 'onetime'" name="onetime" :rules="configSubForm.onetime ? subRules.amount : [{ required: false }]">
+            <t-input v-model="configSubForm.onetime" :placeholder="lang.input+lang.cost"></t-input>
+          </t-form-item>
+          <template v-else-if="payType === 'recurring_prepayment' || payType === 'recurring_postpaid'">
+            <p class="free-tip">
+              {{lang.charging}}
+              <template v-if="configDetail.option_type === 'quantity' || configDetail.option_type === 'quantity_range' ">({{lang.com_tip4}})</template>
+              <t-button
+                size="small"
+                :disabled="configSubForm.custom_cycle[0]?.amount === '' || configSubForm.custom_cycle[0]?.amount *1 < 0"
+                @click="autoFill('configSubForm',configSubForm.custom_cycle)"
+                style="margin-left: 10px">
+                {{lang.auto_fill_price}}
+              </t-button>
+              <t-tooltip :content="lang.cloud_tip4" :show-arrow="false" theme="light" placement="top-right">
+                <t-icon name="help-circle"></t-icon>
+              </t-tooltip>
+            </p>
+            <t-form-item :label="item.name" :name="`custom_cycle[${index}].amount`" v-for="(item,index) in configSubForm.custom_cycle" :key="item.id">
+              <!-- @blur="changeMonth($event,item)" -->
+              <t-input v-model="item.amount" :placeholder="lang.input+lang.money"></t-input>
+            </t-form-item>
+          </template>
+          <div class="com-f-btn">
+            <t-button theme="primary" type="submit" :loading="submitLoading">{{lang.hold}}</t-button>
+            <t-button theme="default" variant="base" @click="closeSubData">{{lang.cancel}}</t-button>
+          </div>
+        </t-form>
+      </div>
+    </t-dialog>
+  </com-config>
+</div>
+<script src="/plugins/server/idcsmart_common/template/admin/lang/index.js"></script>
+<script src="/plugins/server/idcsmart_common/template/admin/api/common_config.js"></script>
+<script src="/plugins/server/idcsmart_common/template/admin/js/common_config.js"></script>

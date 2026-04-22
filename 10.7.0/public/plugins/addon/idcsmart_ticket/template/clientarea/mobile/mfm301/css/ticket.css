@@ -1,0 +1,173 @@
+.tick-top-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.32rem 0.4rem;
+  color: #333333;
+  background: #fff;
+  font-weight: 600;
+}
+.tick-top-title .tick-top-title-left {
+  font-size: 0.3733rem;
+}
+.tick-top-title .tick-top-title-right {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 0.5067rem;
+}
+.tick-top-title .tick-top-title-right .van-button {
+  border: none;
+  font-size: 0.4267rem;
+  font-weight: 600;
+}
+.ticket-box {
+  padding-bottom: 2.1333rem;
+}
+.ticket-box .ticket-item {
+  display: flex;
+  align-items: center;
+  column-gap: 0.4267rem;
+  padding: 0.2667rem 0.4rem;
+  margin-bottom: 0.4rem;
+}
+.ticket-box .ticket-item .ticket-header {
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.ticket-box .ticket-item .ticket-header img {
+  border-radius: 0.2667rem;
+  width: 1.3333rem;
+  height: 1.3333rem;
+}
+.ticket-box .ticket-item .ticket-info {
+  flex: 1;
+}
+.ticket-box .ticket-item .ticket-info .ticket-title-num {
+  font-size: 0.4267rem;
+  font-weight: 600;
+  color: #333333;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  column-gap: 0.2rem;
+}
+.ticket-box .ticket-item .ticket-info .ticket-title-num .ticket-time {
+  flex-shrink: 0;
+  font-size: 0.2933rem;
+  color: #DEDEDE;
+  font-weight: 400;
+}
+.ticket-box .ticket-item .ticket-info .ticket-title {
+  margin-top: 0.1333rem;
+  font-size: 0.3733rem;
+  color: #666666;
+}
+.create-box {
+  min-height: 100vh;
+  background-color: #F4F4F4;
+  display: flex;
+  flex-direction: column;
+}
+.create-box .ticket-create {
+  flex: 1;
+}
+.create-box .ticket-create .dis-item {
+  color: rgba(0, 0, 0, 0.4);
+}
+.create-box .ticket-create .renew {
+  margin-left: 0.08rem;
+  color: var(--base-color-primary);
+}
+.create-box .ticket-create .wai-filed .code-select {
+  padding: 0.6933rem;
+  background-color: #F3F3F3;
+  font-size: 28px;
+  color: rgba(0, 0, 0, 0.4);
+}
+.create-box .ticket-create .wai-filed::after {
+  display: none;
+}
+.create-box .ticket-create .file-box {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0.2667rem;
+  column-gap: 0.2667rem;
+  row-gap: 0.1333rem;
+  background-color: #fff;
+}
+.create-box .create-btn {
+  padding: 0.32rem 0.4rem;
+  background-color: #fff;
+}
+.menu-select-box {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.menu-select-box .menu-box {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+}
+.menu-select-box .menu-box .menu-first {
+  flex-shrink: 0;
+  height: 100%;
+  overflow-y: auto;
+  background-color: #F5F5F5;
+}
+.menu-select-box .menu-box .menu-item {
+  color: #333333;
+  font-size: 0.3733rem;
+  padding: 0.32rem 0.6667rem;
+  max-width: 4rem;
+}
+.menu-select-box .menu-box .menu-item.active {
+  font-weight: 600;
+  color: var(--base-color-primary);
+}
+.menu-select-box .menu-box .menu-radio-box {
+  margin-top: 0.32rem;
+  margin-left: 0.5333rem;
+  height: fit-content;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.32rem;
+  background-color: #fff;
+}
+.menu-select-box .menu-box .menu-radio-box .menu-radio-item {
+  box-sizing: border-box;
+  font-size: 0.32rem;
+  padding: 0.1333rem 0.32rem;
+  border-radius: 0.1067rem;
+  background-color: #F5F5F5;
+  border: 1px solid #F5F5F5;
+}
+.menu-select-box .menu-box .menu-radio-box .menu-radio-item.active {
+  overflow: hidden;
+  position: relative;
+  color: var(--base-color-primary);
+  border: 1px solid var(--base-color-primary);
+  background-color: var(--base-color-primary-bg);
+}
+.menu-select-box .menu-box .menu-radio-box .menu-radio-item.active::after {
+  position: absolute;
+  content: "✔";
+  display: block;
+  width: 0.3733rem;
+  height: 0.32rem;
+  background-color: var(--base-color-primary);
+  clip-path: polygon(0 100%, 100% 0, 100% 100%);
+  color: #fff;
+  font-size: 0.2133rem;
+  line-height: 2;
+  text-align: right;
+  right: 0;
+  bottom: 0;
+}
+.menu-select-box .menu-footer {
+  display: flex;
+  column-gap: 0.4267rem;
+  padding: 0.32rem 0.4rem;
+  background-color: #fff;
+}

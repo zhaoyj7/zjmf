@@ -1,0 +1,275 @@
+/* 优惠码 */
+.promo-code {
+  .client-search {
+    display: flex;
+
+    .t-input,
+    .t-select {
+      width: 240px;
+      margin-right: 16px;
+    }
+
+    .t-select__wrap,
+    .t-input__wrap {
+      width: auto;
+    }
+  }
+  .t-table__body {
+    .used {
+      color: var(--td-brand-color-active);
+      cursor: pointer;
+    }
+    tr {
+      cursor: pointer;
+    }
+  }
+
+  .code {
+    opacity: 0;
+    position: absolute;
+    z-index: -1;
+    left: 0;
+  }
+
+  .code-item {
+    position: relative;
+  }
+
+  .jump {
+    color: var(--td-brand-color-active);
+    cursor: pointer;
+  }
+  .bottom-box {
+    display: flex;
+    justify-content: space-between;
+    .batch {
+      display: flex;
+      align-items: center;
+      .t-button {
+        margin-right: 10px;
+      }
+    }
+    .t-pagination__total {
+      flex: none;
+      margin-right: 20px;
+    }
+  }
+}
+
+/* promo-detail */
+.promo-detail {
+  .tit {
+    padding: 24px 0;
+    font-size: 16px;
+    font-weight: 600;
+    position: relative;
+    margin: 0 0 24px 0;
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: -24px;
+      right: -24px;
+      width: calc(100% + 48px);
+      height: 1px;
+      background: #f9f9fc;
+    }
+  }
+  // .t-input,
+  // .t-select {
+  //   width: 320px;
+  // }
+  .s-tip {
+    margin-top: -20px;
+    color: #666;
+    &.error {
+      margin-top: 0;
+    }
+  }
+  .t-input__wrap,.t-date-picker {
+    flex: 1;
+  }
+
+  .random {
+    padding: 0 14px;
+    background: var(--td-brand-color-1);
+    color: var(--td-brand-color);
+    border-radius: 4px;
+    line-height: 32px;
+    margin-left: 10px;
+    cursor: pointer;
+  }
+
+  .type {
+    margin-bottom: 0;
+    width: auto !important;
+    margin-right: 20px;
+
+    .t-form__controls {
+      display: block;
+    }
+  }
+
+  .t-form__label {
+    width: auto !important;
+    padding-right: 10px !important;
+  }
+
+  .t-form__controls {
+    margin-left: auto !important;
+  }
+
+  .time-item {
+    display: flex;
+    align-items: flex-start;
+  }
+
+  .s-item {
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    .t-form__item,
+    .t-select__wrap {
+      display: inline-block;
+      width: auto;
+      margin-right: 20px;
+    }
+  }
+
+  .t-textarea {
+    width: 100%;
+    height: 210px;
+
+    textarea {
+      height: 100%;
+    }
+  }
+
+  .f-btn {
+    text-align: right;
+    width: 100%;
+  }
+
+  .switch {
+    .t-form__label {
+      width: auto !important;
+      padding-right: 10px;
+    }
+
+    .t-form__controls {
+      margin-left: auto !important;
+    }
+
+    .pack-tip {
+      font-size: 16px;
+      margin-right: 32px;
+    }
+  }
+
+  .time-diff {
+    position: relative;
+    top: 15px;
+    height: 32px;
+    line-height: 32px;
+    margin-left: 10px;
+  }
+
+  .t-input__extra {
+    color: var(--td-error-color) !important;
+  }
+
+  .p-tip {
+    margin-left: 10px;
+    color: rgba(51, 51, 51, 1);
+    font-size: 14px;
+
+    .tip {
+      color: rgba(255, 0, 0, 1);
+    }
+  }
+  .box{
+    margin-top: -24px;
+    padding-top: 1px;
+  }
+  .t-row {
+    width: auto;
+    margin-top: 24px;
+  }
+  .type-lable{
+    flex: 1;
+    margin-top: -32px !important;
+  }
+  .custom-label{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .switch {
+    .t-col{
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      column-gap: 72px;
+      row-gap: 10px;
+    }
+    .t-form__item{
+      display: inline-block;
+      margin-bottom: 0;
+      .t-form__label{
+        margin-right: 0;
+        padding-right: 0 !important;
+      }
+    }
+  }
+}
+
+.flow-packet{
+  label{
+    margin-right: 32px;
+  }
+}
+@media screen and (max-width: 1600px) {
+  .promo-detail {
+    .time-item {
+      display: block;
+    }
+  }
+}
+
+// @media screen and (max-width: 1360px) {
+//   .promo-detail {
+//     .type-box {
+//       .t-form__controls-content {
+//         display: block;
+//       }
+
+//       .type-lable {
+//         margin-top: 10px !important;
+
+//         .t-form__controls-content {
+//           display: flex;
+//         }
+//       }
+//     }
+
+//     .t-input,
+//     .t-select {
+//       width: 250px !important;
+//     }
+//   }
+
+//   .promo-code {
+//     .client-search {
+//       .t-input,
+//       .t-select {
+//         width: 150px;
+//       }
+//     }
+//   }
+// }
+
+:root[theme-mode='dark'] {
+  .promo-detail .p-tip {
+    color: rgba(255, 255, 255, 0.4);
+  }
+}

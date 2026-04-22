@@ -1,0 +1,48 @@
+<?php
+
+return [
+	'success_message' => 'Request successful',
+    'host_is_not_exist' => 'The product does not exist',
+    'host_cannot_renew' => 'The product is not renewable',
+    'get_fail' => 'Acquisition failed',
+    'host_billing_cycle_is_invalid' => 'Invalid period',
+    'host_renew' => 'Product renewal',
+    'host_renew_description' => 'Renewal - {product_name}({name}), purchase duration: {billing_cycle_name}({time})',
+    'renew_success' => 'Renewal successful',
+    'renew_fail' => 'Renewal failed',
+    'param_error' => 'Parameter error',
+    'renew' => 'Renew',
+    'renew_batch' => 'Batch renewal',
+    'renew_promo' => 'Discount code',
+    'renew_client_renew' => '{client} Renewal product: {host}, renewal amount: {currency_prefix} {amount} {currency_suffix}',
+    'renew_admin_renew' => '{admin} Renewal product: {host}, renewal amount: {currency_prefix} {amount} {currency_suffix}',
+    'email_template_is_not_exist' => 'The email template does not exist',
+    'sms_template_is_not_exist' => 'The sms template does not exist',
+    'id_error' => 'ID error',
+    'host_auto_renew_fail_send_email' => 'Automatic renewal payment failure notification, send email',
+    'host_auto_renew_fail_send_sms' => 'Automatic renewal payment failure notification via SMS',
+
+    'idcsmart_renew_configuration_log_renew_sms_template' => 'Renewal sms template',
+    'idcsmart_renew_configuration_log_renew_email_template' => 'Renewal email template',
+    'log_admin_configuration_idcsmart_renew' => '{admin} will set the {description} for renewal',
+    'admin_old_to_new' => 'Change {field} from {old} to {new}',
+    'log_admin_open_auto_renew' => '{admin} opens auto-renewal for product {host}',
+    'log_admin_close_auto_renew' => '{admin} closes auto-renewal for product {host}',
+    'log_client_open_auto_renew' => '{client} opens auto-renewal for product {host}',
+    'log_client_close_auto_renew' => '{client} closes auto-renewal for product {host}',
+    'log_addon_renew_paid_fail' => 'Product#host#{host}# payment for the subsequent fee ({id}) failed, error message: {msg}',
+
+    'host_renew_send_mail' => 'Product renewal, send mail',
+    'host_renew_send_sms' => 'Product renewal, send SMS',
+    'addon_renew_batch_renew' => 'Batch renewal order (ID#{order_id}#), current product:#{host_id}#',
+    'addon_renew_batch_renew_upstream_error' => 'Upstream returned error:',
+    'renew_credit_limit_auto_renew_success' => 'Automatic credit renewal for product #{host_id}#, order #{order_id}#, amount {amount}',
+    'renew_credit_limit_auto_renew_fail' => 'Automatic credit renewal for product #{host_id}#, order #{order_id}#, reason: {msg}',
+    'renew_credit_limit_auto_renew_exception' => 'Automatic credit renewal for product #{host_id}#, order #{order_id}#, exception: {msg}',
+    
+    // Auto-renewal order reuse related
+    'renew_auto_renew_reuse_order_success' => 'Product #{host_id}# auto-renewal reused order #{order_id}# payment successful, amount {amount}',
+    'renew_auto_renew_reuse_order_fail' => 'Product #{host_id}# auto-renewal reused order #{order_id}# payment failed, amount {amount}, insufficient balance',
+    'renew_auto_renew_fail_insufficient_balance' => 'Auto-renewal failed, insufficient account balance',
+    'order_not_exist' => 'Order does not exist or status is abnormal',
+];

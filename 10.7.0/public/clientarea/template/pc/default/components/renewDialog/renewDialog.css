@@ -1,0 +1,89 @@
+.common-renew-dialog .dialog-main .renew-content {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+  margin-bottom: 0.2rem;
+}
+.common-renew-dialog .dialog-main .renew-content .renew-item {
+  width: 1.6rem;
+  min-height: 0.83rem;
+  border: 1px solid #e6e7eb;
+  border-radius: 3px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  box-sizing: border-box;
+}
+.common-renew-dialog .dialog-main .renew-content .renew-item .item-top {
+  font-size: 0.15rem;
+  color: #1e2736;
+  margin-top: 0.08rem;
+}
+.common-renew-dialog .dialog-main .renew-content .renew-item .item-bottom {
+  font-size: 0.15rem;
+  color: var(--color-primary);
+  margin-top: 0.04rem;
+}
+.common-renew-dialog .dialog-main .renew-content .renew-item .check {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  color: #fff;
+}
+.common-renew-dialog .dialog-main .renew-content .renew-item .item-origin-price {
+  text-decoration: line-through;
+  font-size: 0.15rem;
+  color: #8692b0;
+}
+.common-renew-dialog .dialog-main .renew-content .renew-active {
+  box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.12);
+}
+.common-renew-dialog .dialog-main .renew-content .renew-active::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  z-index: 2;
+  width: 0;
+  height: 0;
+  border-bottom: 0.24rem solid var(--color-primary);
+  border-left: 0.24rem solid transparent;
+}
+.common-renew-dialog .dialog-main .pay-content {
+  border: 1px solid #e6e7eb;
+  border-radius: 3px;
+  padding: 0.2rem 0;
+  padding-right: 0.3rem;
+}
+.common-renew-dialog .dialog-main .pay-content .pay-price {
+  display: flex;
+  text-align: right;
+  flex-direction: row;
+}
+.common-renew-dialog .dialog-main .pay-content .pay-price .text {
+  font-size: 0.14rem;
+  margin-top: 0.1rem;
+  color: #1e2736;
+  margin-right: 1.43rem;
+}
+.common-renew-dialog .dialog-main .pay-content .pay-price .money {
+  width: 100%;
+  font-size: 0.28rem;
+  font-weight: bold;
+  color: var(--color-price-text);
+  text-align: right;
+}
+.common-renew-dialog .dialog-main .pay-content .pay-price .total-icon {
+  font-size: 0.16rem;
+  color: #1e2736;
+}
+.common-renew-dialog .dialog-main .pay-content .pay-price .original-price {
+  text-decoration: line-through;
+  font-size: 0.2rem;
+  font-weight: 500;
+  color: #999999;
+}

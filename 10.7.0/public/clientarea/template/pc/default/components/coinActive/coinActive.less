@@ -1,0 +1,190 @@
+// 变量定义
+@primary-color: var(--color-primary);
+@text-primary: #2B2B2B;
+@text-secondary: #A2A2A2;
+@border-color: #EAEAEA;
+
+
+
+
+.coin-active-popover {
+    padding: 0 !important;
+}
+
+// 主容器
+.coin-active-btn {
+    position: fixed;
+    right: 3px;
+    top: 35vh;
+    z-index: 99;
+
+    // 悬浮触发按钮
+    .coin-active-trigger {
+        position: relative;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 5px;
+        border-radius: 99px;
+        color: #fff;
+        background: @primary-color;
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(26, 97, 214, 0.2);
+
+        &:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 16px rgba(26, 97, 214, 0.4);
+            /* 由于@primary-color是CSS变量，less的lighten函数无法直接处理，改为使用filter实现亮色效果 */
+            background: @primary-color;
+            filter: brightness(1.08);
+
+            .trigger-icon {
+                transform: rotate(5deg);
+                background-color: #f8f9ff;
+            }
+
+            .trigger-text {
+                letter-spacing: 6px;
+            }
+        }
+
+        .trigger-icon {
+            font-size: 0;
+            padding: 7px;
+            border-radius: 50%;
+            background-color: #fff;
+            transition: all 0.3s ease;
+
+            .icon-svg {
+                width: 16px;
+                height: 16px;
+            }
+        }
+
+        .trigger-text {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            letter-spacing: 5px;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+    }
+}
+
+.coin-active-box {
+
+
+    .coin-title {
+        padding: 16px 24px;
+        font-size: 16px;
+        font-weight: 600;
+        color: @text-primary;
+        border-bottom: 1px solid @border-color;
+    }
+
+    .coin-active-tabs {
+        .el-tabs__nav-wrap {
+            padding-left: 24px;
+        }
+    }
+
+    .coin-list {
+        padding: 0 24px;
+        max-height: 5rem;
+        overflow-y: auto;
+        width: 5rem;
+
+        .coin-list-item {
+            box-sizing: border-box;
+            padding: 16px 0;
+            border-bottom: 1px dashed @border-color;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+
+            &:nth-last-of-type(1) {
+                border-bottom: none;
+            }
+
+            .coin-item-icon {
+                border-radius: 50%;
+                background-color: #F3F3F3;
+                padding: 11px;
+                font-size: 0;
+
+                .item-icon {
+                    width: 24px;
+                    height: 24px;
+                }
+            }
+
+            .coin-item-content {
+                flex: 1;
+
+                .coin-item-content-top {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    column-gap: .3rem;
+
+                    .coin-item-content-title-text {
+                        font-size: 14px;
+                        font-weight: 600;
+                        color: @text-primary;
+                    }
+
+                    .coin-item-content-time {
+                        font-size: 12px;
+                        color: @text-secondary;
+                    }
+                }
+
+                .coin-item-content-desc {
+                    text-align: right;
+                    margin-top: 8px;
+                    font-size: 14px;
+                    cursor: pointer;
+                    color: @primary-color;
+                }
+
+                .coin-item-detail {
+
+                    .coin-detail-active-limit,
+                    .coin-detail-use-limit {
+                        font-size: 14px;
+                        font-weight: 600;
+                        color: @text-primary;
+                        margin-bottom: 5px;
+                    }
+
+                    .coin-detail-use-limit {
+                        margin-top: 10px;
+                    }
+                }
+            }
+
+
+            // &:hover {
+            //     cursor: pointer;
+
+
+
+            //     .coin-item-content-top {
+            //         .coin-item-content-title-text {
+            //             color: @primary-color;
+            //         }
+            //     }
+
+            //     .coin-item-content {
+            //         background-color: #F3F3F3;
+            //     }
+            // }
+
+
+
+        }
+    }
+}

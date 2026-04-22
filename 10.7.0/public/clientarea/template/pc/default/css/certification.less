@@ -1,0 +1,57 @@
+// Variables
+@text-color: #1E2736;
+@font-size-small: 0.14rem;
+@font-size-medium: 0.16rem;
+@font-size-large: 0.28rem;
+
+// Mixins
+.flex-center() {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.flex-between() {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+// Styles
+.dialag-content {
+    padding: 1.79rem 1.94rem 2rem 1.94rem;
+    text-align: center;
+}
+
+.tips-title {
+    font-size: @font-size-large;
+    font-weight: 400;
+    color: @text-color;
+}
+
+.tips-text {
+    margin-top: 0.3rem;
+    font-size: @font-size-small;
+    font-weight: 400;
+    color: @text-color;
+}
+
+.button-box {
+    margin-top: 0.8rem;
+    .flex-center();
+    align-items: flex-end;
+
+    .el-button {
+        width: 1.8rem;
+        height: 0.46rem;
+        background: var(--color-primary);
+        color: #FFFFFF;
+        font-size: @font-size-medium;
+        margin-right: 0.1rem;
+    }
+
+    .el-link {
+        color: var(--color-primary);
+        font-size: @font-size-small;
+    }
+}

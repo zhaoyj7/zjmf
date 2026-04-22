@@ -1,0 +1,94 @@
+<link rel="stylesheet" href="/plugins/reserver/idcsmart_common/template/clientarea/mobile/mfm301/css/common_list.css">
+
+<div id="product-template" v-cloak class="product-list-page">
+  <van-sticky>
+    <van-nav-bar :title="lang.cloud_title" safe-area-inset-top left-arrow @click-left="goBack">
+    </van-nav-bar>
+    <form action="/">
+      <van-search class="search-input" v-model="params.keywords" :placeholder="lang.cloud_tip_2" @search="inputChange"
+        show-action @clear="inputChange" clearable>
+        <template #action>
+          <van-dropdown-menu>
+            <van-dropdown-item @change="inputChange" :title="params.status === '' ? lang.finance_label4 : null"
+              v-model="params.status" :options="statusSelect">
+            </van-dropdown-item>
+          </van-dropdown-menu>
+        </template>
+      </van-search>
+    </form>
+    <product-filter v-model:tab="params.tab" @change="inputChange" :count="countData"></product-filter>
+  </van-sticky>
+  <div class="list-box">
+    <common-list :loading="loading" :list="commonList" @load="getList" :finished="finished">
+      <template #default="{item}">
+        <div class="list-item" @click="toDetail(item)">
+          <div class="item-fir">
+            <div class="cloud-name">
+              <div class="status"
+                :style="'color:'+status[item.status].color + ';background:' + status[item.status].bgColor">
+                {{status[item.status].text }}
+              </div>
+              <span class="packge-name">{{ item.product_name }}</span>
+              <span class="name" v-if="item.name">({{ item.name }})</span>
+            </div>
+          </div>
+          <div class="info-other">
+            <div class="info-item">
+              <div class="info-label">ID:</div>
+              <div class="info-text">
+                {{item.id}}
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">{{lang.auto_renew}}:</div>
+              <div class="info-text">
+                <span>{{item.is_auto_renew === 1 ? lang.com_config.yes : lang.com_config.no}}</span>
+              </div>
+            </div>
+            <div class="info-item notes-item">
+              <div class="info-label">{{lang.cloud_re_btn + lang.money_cycle}}:</div>
+              <div class="info-text">
+                <template v-if="item.billing_cycle">
+                  {{commonData.currency_prefix}}{{item.renew_amount}}/{{item.billing_cycle}}
+                </template>
+                <template v-else>
+                  {{commonData.currency_prefix}}{{item.first_payment_amount}}/{{lang.common_cloud_text6}}
+                </template>
+              </div>
+            </div>
+            <div class="info-item notes-item">
+              <div class="info-label">{{lang.cloud_table_head_4}}:</div>
+              <div class="info-text">
+                <span v-time="item.due_time"></span>
+              </div>
+            </div>
+            <template v-for="items in self_defined_field">
+              <div class="info-item notes-item"
+                v-if="item.self_defined_field[items.id] && item.self_defined_field[items.id] !== ''">
+                <div class="info-label">{{items.field_name}}:</div>
+                <div class="info-text">
+                  <span
+                    :class="item.field_type === 'textarea' ? 'word-pre' : ''">{{item.self_defined_field[items.id] ||  '--'}}</span>
+                </div>
+              </div>
+            </template>
+            <div class="info-item notes-item" v-if="item.client_notes">
+              <div class="info-label">{{lang.invoice_text139}}:</div>
+              <div class="info-text">
+                <span>{{item.client_notes}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </common-list>
+  </div>
+</div>
+
+
+<!-- =======页面引入js和相关组件位置======= -->
+
+
+<script src="/plugins/reserver/idcsmart_common/template/clientarea/mobile/mfm301/api/common_product.js"></script>
+<script src="/plugins/reserver/idcsmart_common/template/clientarea/mobile/mfm301/lang/index.js"></script>
+<script src="/plugins/reserver/idcsmart_common/template/clientarea/mobile/mfm301/js/common_list.js"></script>

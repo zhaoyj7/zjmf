@@ -1,0 +1,73 @@
+<!-- 页面独有样式 -->
+<link rel="stylesheet" href="/plugins/addon/idcsmart_help/template/clientarea/mobile/mfm301/css/news.css">
+</head>
+
+<body>
+  <div id="template" v-cloak class="help-page">
+    <van-sticky>
+      <van-nav-bar :title="lang.source_title" safe-area-inset-top left-arrow @click-left="goBack">
+      </van-nav-bar>
+      <form action="/">
+        <van-search class="search-input" v-model="params.keywords" :placeholder="lang.cloud_tip_2" @search="inputChange"
+          @clear="getHelpIndex">
+        </van-search>
+      </form>
+    </van-sticky>
+    <van-tabs class="tab-box" sticky :offset-top="100" v-model:active="activeIndex" @change="handleClick"
+      line-width="16px" title-active-color="var(--van-primary-color)">
+      <van-tab :title="lang.source_tab1" name="1" v-if="havePlugin('IdcsmartHelp')">
+        <div class="all-help-box">
+          <van-collapse v-model="activeNames">
+            <van-collapse-item :disabled="item.helps.length === 0" :title="item.name" :name="item.id"
+              v-for="(item,index) in allHelpList">
+              <div class="help-item" :class="{'active':docItem.id  === defaultActiveItem.id }"
+                v-for="docItem in item.helps" @click="itemClick(docItem.id)">
+                {{docItem.title}}
+              </div>
+            </van-collapse-item>
+          </van-collapse>
+        </div>
+      </van-tab>
+      <van-tab :title="lang.source_tab2" name="2" v-if="havePlugin('IdcsmartNews')">
+      </van-tab>
+      <van-tab :title="lang.source_tab3" name="3" v-if="havePlugin('IdcsmartFileDownload')">
+      </van-tab>
+    </van-tabs>
+
+    <van-popup v-model:show="showRight" position="right" :style="{ width: '100%', height: '100%' }">
+      <div class="right-box">
+        <van-nav-bar class="top-nav" :title="lang.source_title" left-arrow @click-left="showRight = false">
+        </van-nav-bar>
+        <!-- 文章内容 -->
+        <div class="news-main">
+          <div class="news-title">{{defaultActiveItem.title}}</div>
+          <div class="news-time">
+            <span class="time-text">
+              {{lang.source_text1}}：<span v-time="detailData.update_time || detailData.create_time"></span>
+            </span>
+            <span class="time-keyworld">{{lang.source_text2}}：{{detailData.keywords || '--'}}</span>
+          </div>
+          <shadow-content class="news-content" :content="calStr(detailData.content)"></shadow-content>
+          <!-- 附件 -->
+          <div class="right-attachment" v-if="detailData.attachment?.length > 0">
+            <div>
+              {{lang.source_text3}}：
+            </div>
+            <div class="attachment-box">
+              <div class="right-attachment-item" v-for="(f,i) in detailData.attachment" :key="i"
+                @click="downloadfile(f.url)">
+                <span :title="f.name">
+                  <van-icon name="orders-o"></van-icon><span>{{f.name}}</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </van-popup>
+  </div>
+  <!-- =======页面独有======= -->
+  <script src="/plugins/addon/idcsmart_help/template/clientarea/mobile/mfm301/lang/index.js"></script>
+  <script src="/{$template_catalog}/template/{$themes}/components/shadowContent/shadowContent.js"></script>
+  <script src="/plugins/addon/idcsmart_help/template/clientarea/mobile/mfm301/api/news.js"></script>
+  <script src="/plugins/addon/idcsmart_help/template/clientarea/mobile/mfm301/js/news.js"></script>

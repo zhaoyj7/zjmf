@@ -1,0 +1,144 @@
+<!-- 页面引入样式位置 -->
+<link rel="stylesheet" href="/plugins/addon/idcsmart_ticket/template/clientarea/mobile/mfm201/css/ticket.css">
+
+</head>
+
+<body>
+  <div id="template" v-cloak>
+    <top-menu neednav>
+      <template #left>
+        <van-icon @click="goBack" class="left-icon" name="arrow-left"></van-icon>
+      </template>
+      <template #center>
+        <div class="nav-title">{{lang.ticket_title}}</div>
+      </template>
+      <template #right>
+      </template>
+    </top-menu>
+    <form action="/">
+      <van-search class="search-input" v-model="params.keywords" :placeholder="lang.ticket_tips1" @search="initPage">
+        <template #left>
+          <van-dropdown-menu>
+            <van-dropdown-item :title="params.ticket_type_id ? '': lang.type" @change="initPage"
+              v-model="params.ticket_type_id" :options="calcTicketType">
+            </van-dropdown-item>
+            <van-dropdown-item @close="statusClose"
+              :title="params.status.length !== 0 ? calcStatus : lang.ticket_label4" ref="statusDropdown">
+              <van-cell v-for="(item, index) in ticketStatus" @click="clickStatus(item.id)">
+                <template #title>
+                  <span
+                    :style="{'color': params.status.includes(item.id) ? 'var(--base-color-primary)' : ''}">{{item.name}}</span>
+                </template>
+                <template #right-icon v-if="params.status.includes(item.id)">
+                  <van-icon name="success" style="color: var(--base-color-primary);">
+                </template>
+              </van-cell>
+            </van-dropdown-item>
+          </van-dropdown-menu>
+        </template>
+      </van-search>
+      <div class="ticket-box">
+        <template v-if="dataList.length !== 0">
+          <van-list v-model:loading="tableLoading" :finished="tableFinished" @load="getTicketList"
+            :immediate-check="false">
+            <div v-for="(item,index) in dataList" class="ticket-item" @click="itemReply(item)">
+              <div class="ticket-title">
+                <div class="title-box">
+                  <span>{{'#' + item.ticket_num + "-" + item.title }}</span>
+                  <span class="status-text"
+                    :style="{background:hexToRgb(item.color),color:item.color}">{{item.status}}</span>
+                </div>
+                <div class="op-box">
+                  <span class="op-text" @click.stop="itemUrge(item)"
+                    v-if="item.status_id !== 4">{{lang.ticket_btn4}}</span>
+                  <span class="op-text danger" @click.stop="itemClose(item)"
+                    v-if="item.status_id !== 4">{{lang.ticket_btn5}}</span>
+                </div>
+              </div>
+              <div class="ticket-des">
+                <span class="ticket-lebal">{{lang.ticket_label2}}：</span>
+                <span class="ticket-value">{{item.name || '--'}}</span>
+              </div>
+              <div class="ticket-des">
+                <span class="ticket-lebal">{{lang.ticket_label3}}：</span>
+                <span class="ticket-value" v-time="item.last_reply_time">{{item.last_reply_time || '--'}}</span>
+              </div>
+            </div>
+          </van-list>
+        </template>
+        <van-empty v-else></van-empty>
+      </div>
+      <van-sticky position="bottom">
+        <div class="all-btn-box">
+          <van-button @click="openAddTicket" type="primary" block>{{lang.ticket_btn1}}</van-button>
+        </div>
+      </van-sticky>
+    </form>
+    <!-- 新建工单 -->
+    <van-popup v-model:show="isShowDialog" round closeable style="width: 90%;" @close="closeDialog">
+      <div class="common-pop-box">
+        <div class="common-pop-title">{{lang.ticket_btn1}}</div>
+        <div class="common-pop-body">
+          <van-form ref="ticketForm">
+            <cur-select label-align="top" :label="lang.ticket_label2" cur-class="form-select"
+              v-model:firpick="ticketData.ticket_type_id" :columns="ticketType" :rules="rules.ticket_type_id"
+              :placeholder="lang.ticket_tips2" :columns-names=" { text: 'name', value: 'id' }" right-icon="arrow">
+            </cur-select>
+            <van-field label-align="top" class="form-select" v-model="ticketData.title" :rules="rules.title"
+              :label="lang.ticket_label6" :placeholder="lang.ticket_tips9 ">
+            </van-field>
+            <cur-select label-align="top" :text="calcHostName" :label="lang.ticket_label7" cur-class="form-select"
+              @change="chooseItem" v-model:firpick="ticketData.host_ids" :columns="hostList" :rules="rules.host_ids"
+              :placeholder="lang.ticket_tips10" :columns-names=" { text: 'name', value: 'id' }" right-icon="arrow">
+              <template #option="option">
+                <div style="text-align: center;">
+                  <span v-if="!hasApp">
+                    {{option.product_name}}
+                    <template v-if="option.dedicate_ip || option.name">
+                      ({{ option.dedicate_ip ? option.dedicate_ip : option.name ? option.name : "--"}})
+                    </template>
+                  </span>
+                  <span v-else
+                    :class="{'dis-item': option.isDue}">{{option.product_name + calcProductName(option)}}</span>
+                  <span v-if="calcShowRenew(option) && hasApp" class="renew"
+                    @click="handleRenew(option)">{{lang.ticket_label20}}
+                  </span>
+                </div>
+              </template>
+            </cur-select>
+            <van-field label-align="top" type="textarea" class="form-select" v-model="ticketData.content"
+              :rules="rules.content" :label="lang.ticket_label8" :placeholder="lang.ticket_label12" maxlength="3000">
+            </van-field>
+            <van-field class="wai-filed" :label="lang.ticket_label13" label-align="top" readonly>
+              <template #input>
+                <div class="code-select" @click="handeSelecFile">
+                  <van-icon name="plus"></van-icon>
+                </div>
+                <van-uploader :after-read="afterRead" ref="uploadRef" multiple accept="*" v-show="false">
+                </van-uploader>
+              </template>
+            </van-field>
+            <div class="file-box">
+              <van-tag v-for="(item,index) in fileList" class="file-item" :show="true" closeable size="medium"
+                type="primary" @close="handeDelFile(item,index)">
+                {{item.file.name}}
+              </van-tag>
+            </div>
+          </van-form>
+        </div>
+        <div class="common-pop-fotter">
+          <van-button class="can-btn" block @click="closeDialog">{{lang.ticket_btn9}}</van-button>
+          <van-button class="sub-btn" block type="primary" @click="onSubmit" :loading="loading">
+            {{lang.ticket_btn6}}
+          </van-button>
+        </div>
+
+      </div>
+    </van-popup>
+  </div>
+
+  <!-- =======页面独有======= -->
+  <script src="/plugins/addon/idcsmart_ticket/template/clientarea/mobile/mfm201/api/ticket.js"></script>
+  <script src="/plugins/addon/idcsmart_ticket/template/clientarea/mobile/mfm201/lang/index.js"></script>
+
+  <script src="/plugins/addon/idcsmart_ticket/template/clientarea/mobile/mfm201/js/ticket.js"></script>

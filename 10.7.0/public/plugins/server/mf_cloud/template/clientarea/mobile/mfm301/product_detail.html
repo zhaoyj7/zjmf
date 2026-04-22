@@ -1,0 +1,2598 @@
+<link rel="stylesheet" href="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/css/cloud_detail.css">
+
+<div id="template2" v-cloak class="product-detail-page">
+  <van-sticky>
+    <van-nav-bar :title="lang.common_cloud_text43" safe-area-inset-top left-arrow @click-left="goBack">
+      <template #right v-if="isShowCashBtn">
+        <span @click="applyCashback" class="common-cashback">{{lang.apply_cashback}}</span>
+      </template>
+    </van-nav-bar>
+  </van-sticky>
+  <div class="op-box" v-if="hostData.status == 'Active' && !initLoading">
+    <div class="op-item">
+      <van-popover>
+        <template #reference>
+          <div class="op-icon">
+            <img src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/mf_cloud/prower.svg" alt="">
+          </div>
+          <div class="op-name">
+            {{ status === 'on' ? lang. common_cloud_text11 : status=== 'off' ? lang.common_cloud_text10 :
+              powerStatusArr[status].text }}
+          </div>
+        </template>
+        <div class="sure-remind">
+          <van-button type="primary" size="small" class="opt-item" v-for="item in powerList" :key="item.id"
+            @click="showPowerDialog(item.value)">
+            {{item.label}}
+          </van-button>
+        </div>
+      </van-popover>
+    </div>
+    <div class="op-item" :class="{'abandon':cloudConfig.manual_resource_control_mode === 'not_support'}"
+      @click="doGetVncUrl">
+      <div class="op-icon">
+        <img src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/mf_cloud/console.svg" alt="">
+      </div>
+      <div class="op-name">
+        {{lang.common_cloud_btn11}}
+      </div>
+    </div>
+    <div class="op-item"
+      v-if="hostData.change_billing_cycle_id === 0 && !refundData || (refundData && (refundData.status=='Reject')) || (refundData && (refundData.status=='Cancelled'))">
+      <template
+        v-if="refundData && (refundData.status=='Pending' || refundData.status=='Suspend' || refundData.status=='Suspending')">
+        <div class="op-icon" @click="quitRefund">
+          <img src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/mf_cloud/reset.svg" alt="">
+        </div>
+        <div class="op-name" @click="quitRefund">
+          <div class="refund-status"
+            v-if="refundData && refundData.status != 'Cancelled' && refundData.status != 'Reject'">
+            {{refundStatus[refundData.status]}}
+          </div>
+          {{lang.common_cloud_btn8}}
+        </div>
+      </template>
+      <template
+        v-if="!refundData || (refundData && (refundData.status=='Reject')) || (refundData && (refundData.status=='Cancelled'))">
+        <div class="op-icon" @click="showRefund">
+          <img src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/mf_cloud/reset.svg" alt="">
+        </div>
+        <div @click="showRefund" class="op-name">
+          <div class="refund-status"
+            v-if="refundData && refundData.status != 'Cancelled' && refundData.status != 'Reject'">
+            {{refundStatus[refundData.status]}}
+          </div>
+          {{lang.common_cloud_btn9}}
+        </div>
+      </template>
+    </div>
+    <div class="op-item">
+      <van-popover>
+        <template #reference>
+          <div class="op-icon">
+            <img src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/mf_cloud/restart.svg" alt="">
+          </div>
+          <div class="op-name">
+            {{ status=== 'operating' ? powerStatusArr[status].text : lang.common_cloud_text13 }}
+          </div>
+        </template>
+        <div class="sure-remind">
+          <van-button type="primary" size="small" class="opt-item" v-for="item in restartList" :key="item.id"
+            @click="showPowerDialog(item.value)">
+            {{item.label}}
+          </van-button>
+        </div>
+      </van-popover>
+    </div>
+  </div>
+  <van-tabs v-model:active="activeName" @change="handleClick" class="tab-box" line-width="16px"
+    title-active-color="var(--van-primary-color)">
+    <van-tab :title="lang.summarize" name="summarize">
+      <div class="summarize" v-if="hostData">
+        <div class="info-title">
+          <div class="info-title-text">{{lang.cloud_pay_title}}</div>
+          <div class="info-right-btn" v-if="hostData.status === 'Grace' || hostData.status === 'Keep'"
+            @click="showBillList">
+            <van-icon name="bill-o"></van-icon>
+            {{lang.mf_demand_tip19}}
+          </div>
+        </div>
+        <van-cell-group class="info-cell-group">
+          <!-- 自动续费 -->
+          <van-cell
+            v-if="isRenewPlugin && !isDemandFee && hostData.change_billing_cycle_id === 0 && hostData.status == 'Active'">
+            <template #title>
+              <div class="cell-label">
+                <div>
+                  {{lang.common_cloud_text16}}
+                </div>
+                <van-popover placement="top">
+                  <div class="sure-remind">
+                    {{lang.common_cloud_tip15}}
+                  </div>
+                  <template #reference>
+                    <van-icon name="question-o"></van-icon>
+                  </template>
+                </van-popover>
+              </div>
+            </template>
+            <template #value>
+              <div class="cell-value">
+                <van-radio-group v-model="isShowPayMsg" shape="dot" icon-size="16px" direction="horizontal">
+                  <van-radio :name="0" @click="autoRenewChange">{{lang.com_config.no}}</van-radio>
+                  <van-radio :name="1" @click="autoRenewChange">{{lang.com_config.yes}}</van-radio>
+                </van-radio-group>
+              </div>
+            </template>
+          </van-cell>
+          <!-- 下次续费时间 -->
+          <van-cell :title="lang.cloud_due_time" v-if="hostData.due_time && !isDemandFee">
+            <span :style="{color: isRead ? 'var(--base-color-danger)' : ''} " v-time="hostData.due_time"></span>
+          </van-cell>
+          <!-- 下次出账时间 -->
+          <van-cell :title="lang.mf_demand_tip4" v-if="isDemandFee">
+            <span v-time="hostData.next_payment_time"></span>
+          </van-cell>
+          <!-- 自动释放时间 -->
+          <van-cell :title="lang.mf_demand_tip6" v-if="isDemandFee">
+            <div>
+              <span v-time="hostData.auto_release_time"></span>
+              <template v-if="hostData.product_on_demand?.client_auto_delete">
+                <span class="renew-btn" @click="handleReleaseTime"
+                  v-if="hostData.auto_release_time === 0">{{lang.mf_demand_tip8}}</span>
+                <span class="renew-btn" v-else @click="submitReleaseTime">{{lang.common_cloud_btn29}}</span>
+              </template>
+            </div>
+          </van-cell>
+          <!-- 下次续费金额 -->
+          <van-cell :title="lang.cloud_re_text" v-if="!isDemandFee && hostData.change_billing_cycle_id === 0">
+            {{commonData.currency_prefix + hostData.renew_amount + commonData.currency_suffix}}
+          </van-cell>
+          <!-- 开通时间 -->
+          <van-cell :title="lang.cloud_creat_time" v-if="hostData.active_time">
+            <span v-time="hostData.active_time"></span>
+          </van-cell>
+          <!-- 付款类型 -->
+          <van-cell :title="lang.cloud_pay_style">
+            <div v-if="!isDemandFee">
+              {{hostData.billing_cycle_name }}{{lang.common_cloud_text17}}
+              <span class="renew-btn" v-if="hostData.product_on_demand?.duration_to_on_demand 
+                      && hostData.change_billing_cycle_id === 0 
+                      && cloudData.line?.bill_type === 'bw'
+                      && cloudData.line?.sync_firewall_rule != 1" @click="tranferDemand">
+                {{lang.mf_demand}}
+              </span>
+              <template v-if="hostData.change_billing_cycle_id">
+                ({{lang.mf_demand_tip24}})
+                <span class="renew-btn" @click="cancelTransferDemand">{{lang.mf_demand_tip16}}</span>
+              </template>
+            </div>
+            <div v-else>
+              {{lang.mf_demand_fee}}
+              <span class="renew-btn" v-if="canTransfer" @click="showRenew('demand')">{{lang.mf_demand_tip5}}</span>
+            </div>
+          </van-cell>
+          <!-- 首次订购金额 -->
+          <van-cell :title="lang.cloud_first_pay" v-if="!isDemandFee">
+            {{commonData.currency_prefix}}{{hostData.first_payment_amount}}{{commonData.currency_suffix}}
+          </van-cell>
+          <!-- 按需计费价格 -->
+          <van-cell :title="lang.mf_demand_tip18" v-if="isDemandFee">
+            {{commonData.currency_prefix + hostData.renew_amount}}/{{lang.mf_hour}}
+          </van-cell>
+          <!-- 按需流量价格 -->
+          <van-cell :title="lang.mf_flow" v-if="isDemandFee && cloudData.line?.bill_type === 'flow'">
+            {{commonData.currency_prefix + hostData.on_demand_flow_price}}/GB
+          </van-cell>
+          <van-cell :title="lang.cloud_code">
+            {{codeString || '--'}}
+          </van-cell>
+        </van-cell-group>
+        <div class="info-title">
+          <div class="info-title-text">{{lang.appstore_text301}}</div>
+          <div class="info-right-btn">
+            <div class="info-btn-item" @click="copyLoginInfo" v-if="rescueStatusData.username">
+              <van-icon name="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/copy.svg"></van-icon>
+              {{lang.copy_login_info}}
+            </div>
+            <div class="info-btn-item" @click="downloadRpd" style="margin-left: .1333rem;"
+              v-if="hostData.status === 'Active' && (cloudData.image?.image_group_name === 'Windows' || cloudData.image?.image_group_name === 'windows')">
+              {{lang.download_rpd}}
+              <van-popover placement="top">
+                <div class="sure-remind">
+                  {{lang.rdp_tip}}
+                </div>
+                <template #reference>
+                  <van-icon name="question-o"></van-icon>
+                </template>
+              </van-popover>
+            </div>
+          </div>
+        </div>
+        <van-cell-group class="info-cell-group">
+          <!-- 实例名称 -->
+          <van-cell :title="lang.cloud_name">
+            {{hostData.product_name}}
+            <span>({{hostData.name}})</span>
+          </van-cell>
+          <!-- ip -->
+          <van-cell title="IP">
+            {{cloudData.ip}}
+          </van-cell>
+          <!-- 内网地址IP -->
+          <van-cell :title="lang.vpc_private_ip" v-if="cloudData.network_type === 'vpc' && cloudData.vpc_private_ip">
+            {{cloudData.vpc_private_ip}}
+          </van-cell>
+          <!-- 备注 -->
+          <van-cell :title="lang.common_cloud_label29">
+            <div class="cell-value" @click="doEditNotes" v-if="hostData.notes">
+              <span>{{hostData.notes}}</span>
+              <van-icon class="renew-btn" name="edit"></van-icon>
+            </div>
+            <div class="cell-value renew-btn" v-else @click="doEditNotes">
+              {{lang.cloud_add_notes + ' +'}}
+            </div>
+          </van-cell>
+          <!-- 实例状态 -->
+          <van-cell :title="lang.finance_label4">
+            <host-status :id="id" :status="hostData.status">
+              <p class="host-status" @click="goPay" :class="hostData.status">{{hostData.status_name}}</p>
+            </host-status>
+          </van-cell>
+          <!-- 电源状态 -->
+          <van-cell :title="lang.finance_text135">
+            {{powerStatusArr[status]?.text}}
+          </van-cell>
+          <template v-if="cloudData.type !== 'hyperv'">
+            <!-- CPU -->
+            <van-cell title="CPU">
+              {{cpu_realData.cpu_usage}}%
+            </van-cell>
+            <van-cell :title="lang.cloud_memery">
+              <span v-if="cpu_realData.memory_usage != -1">{{cpu_realData.memory_usage}}%</span>
+              <span v-else> -- </span>
+            </van-cell>
+          </template>
+          <!-- 模拟物理机运行 -->
+          <van-cell v-if="cloudConfig.manual_manage === 0 && cloudConfig.simulate_physical_machine_enable === 1">
+            <template #title>
+              <div class="cell-label">
+                <div>
+                  {{lang.simulate_physical}}
+                </div>
+                <van-popover placement="top">
+                  <div class="sure-remind">
+                    {{lang.simulate_physical_tip}}
+                  </div>
+                  <template #reference>
+                    <van-icon name="question-o"></van-icon>
+                  </template>
+                </van-popover>
+              </div>
+            </template>
+            <template #value>
+              <div class="cell-value">
+                <van-switch v-model="rescueStatusData.simulate_physical_machine" @change="physicalChange"
+                  :active-value="1" :inactive-value="0" size=".4rem">
+                </van-switch>
+              </div>
+            </template>
+          </van-cell>
+          <!-- 区域 -->
+          <van-cell :title="lang.cloud_table_head_1">
+            <div class="cell-value">
+              <img class="country-img" :src="'/upload/common/country/' + cloudData.data_center.iso +'.png'">
+              <span class="country">{{cloudData.data_center.country_name}}</span>
+              <span class="city">{{cloudData.data_center.city}}-{{cloudData.data_center.area}}</span>
+            </div>
+          </van-cell>
+          <!-- 操作系统 -->
+          <van-cell :title="lang.common_cloud_label6">
+            <div class="cell-value">
+              <img class="os-img" v-if="cloudData.image?.icon"
+                :src="`/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/mf_cloud/${cloudData.image.icon}.svg`"
+                alt="">
+              {{ cloudData.image?.name}}
+            </div>
+          </van-cell>
+          <!-- CPU -->
+          <van-cell title="CPU">
+            {{cloudData.cpu}}{{lang.common_cloud_text30}}
+          </van-cell>
+          <!-- GPU -->
+          <van-cell title="GPU">
+            {{cloudData.gpu || "--"}}
+          </van-cell>
+          <!-- 内存 -->
+          <van-cell :title="lang.cloud_memery">
+            {{cloudData.memory}}{{configData?.config?.memory_unit}}
+          </van-cell>
+          <!-- 系统盘 -->
+          <van-cell :title="lang.mf_system">
+            {{cloudData.system_disk.size}}GB
+          </van-cell>
+          <!-- 流量 -->
+          <van-cell :title="lang.mf_flow" v-if="cloudData.line?.bill_type === 'flow'">
+            <template v-if="!isDemandFee">
+              <div v-if="cloudData.flow !==0">
+                {{cloudData.flow}}G
+              </div>
+              <div v-else>{{lang.mf_tip28}}</div>
+            </template>
+            <div v-else>{{lang.mf_demand_fee}}</div>
+          </van-cell>
+          <!-- 带宽 -->
+          <van-cell :title="lang.mf_bw">
+            <template v-if="cloudData.bw">
+              {{cloudData.bw}}Mbps
+            </template>
+            <template v-else>{{lang.not_limited}}</template>
+          </van-cell>
+          <!-- 用户名 -->
+          <van-cell :title="lang.common_cloud_label14">
+            {{rescueStatusData.username}}
+          </van-cell>
+          <!-- 密码 -->
+          <van-cell :title="lang.common_cloud_label7" v-if="cloudData.ssh_key?.id > 0 || rescueStatusData.password">
+            <div v-if="cloudData.ssh_key?.id === 0" class="cell-value">
+              <span> {{isShowPass ? rescueStatusData.password : passHidenCode}} </span>
+              <van-icon
+                :name="isShowPass ? '/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/cloud/pass-show.png' : '/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/cloud/pass-hide.png'"
+                @click="isShowPass=!isShowPass">
+              </van-icon>
+              <van-icon name="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/copy.svg"
+                v-copy="rescueStatusData.password"></van-icon>
+            </div>
+            <div v-else>
+              <a class="renew-btn" href="/security.htm" target="_blank">{{cloudData.ssh_key?.name}}</a>
+            </div>
+          </van-cell>
+          <!-- 端口 -->
+          <van-cell :title="lang.common_cloud_label13">
+            {{rescueStatusData.port}}
+          </van-cell>
+          <!-- 防御峰值 -->
+          <van-cell :title="lang.peak_defence" v-if="cloudData.line?.sync_firewall_rule == 0">
+            <template v-if="cloudData.peak_defence * 1">
+              {{cloudData.peak_defence}}G
+            </template>
+            <template v-else>{{lang.no_defense}}</template>
+          </van-cell>
+          <!-- IPv4 -->
+          <van-cell :title="'IPv4' + lang.shoppingCar_goodsNums">
+            <template v-if="ipv4Select.length <= 0">
+              {{lang.mf_none}}
+            </template>
+            <template v-else>{{ipv4Select.length}}{{lang.mf_one}}</template>
+          </van-cell>
+          <!-- IPv6 -->
+          <van-cell :title="'IPv6' + lang.shoppingCar_goodsNums">
+            <template v-if="cloudData.ipv6_num === 0">
+              {{lang.mf_none}}
+            </template>
+            <template v-else>{{cloudData.ipv6_num}}{{lang.mf_one}}</template>
+          </van-cell>
+          <!-- 面板密码 -->
+          <van-cell :title="lang.panel_password">
+            <div class="cell-value">
+              <div v-if="isShowPanelPass">
+                {{rescueStatusData.panel_pass}}
+              </div>
+              <div v-else>{{rescueStatusData?.panel_pass?.replace(/./g, '*') || '******'}}</div>
+              <van-icon
+                :name="isShowPanelPass ? '/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/cloud/pass-show.png' : '/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/cloud/pass-hide.png'"
+                @click="isShowPanelPass=!isShowPanelPass">
+              </van-icon>
+              <van-icon name="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/copy.svg"
+                v-copy="rescueStatusData.panel_pass"></van-icon>
+            </div>
+          </van-cell>
+          <!-- 自定义字段 -->
+          <van-cell :title="item.field_name" v-for="(item,index) in self_defined_field" :key="item.id + 'hhh'">
+            <div class="cell-value">
+              <span v-if="item.field_type === 'password'">
+                <span v-if="!item.hidenPass && item.value">{{item.value.replace(/./g, '*')}}</span>
+                <span v-else>{{item.value || '--'}}</span>
+              </span>
+              <span v-else-if="item.field_type === 'textarea'" class="word-pre">{{item.value || '--'}}</span>
+              <span v-else>{{item.value || '--'}}</span>
+              <van-icon v-if="item.field_type === 'password' && item.value"
+                :name="item.hidenPass ? '/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/cloud/pass-show.png':'/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/cloud/pass-hide.png'"
+                @click="item.hidenPass =!item.hidenPass">
+              </van-icon>
+              <van-icon v-if="(item.field_type === 'password' || item.field_type === 'link') && item.value"
+                name="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/copy.svg"
+                v-copy="item.value"></van-icon>
+            </div>
+          </van-cell>
+          <!-- 手动资源自定义展示字段 -->
+          <van-cell :title="item.name" v-for="(item,index) in customManualField" :key="item.id">
+            <div class="cell-value">
+              <span v-if="item.type === 'password'">
+                <span v-if="!item.hidenPass && item.value">{{item.value.replace(/./g, '*')}}</span>
+                <span v-else>{{item.value || '--'}}</span>
+              </span>
+              <span v-else-if="item.type === 'textarea'" class="word-pre">{{item.value || '--'}}</span>
+              <span v-else>{{item.value || '--'}}</span>
+              <van-icon v-if="item.type === 'password' && item.value"
+                :name="item.hidenPass ? '/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/cloud/pass-show.png':'/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/cloud/pass-hide.png'"
+                @click="item.hidenPass =!item.hidenPass">
+              </van-icon>
+              <van-icon v-if="(item.type === 'password' || item.type === 'link') && item.value"
+                name="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/copy.svg"
+                v-copy="item.value"></van-icon>
+            </div>
+          </van-cell>
+        </van-cell-group>
+        <!-- 续费按钮 -->
+        <template v-if="hostData.status == 'Active' || hostData.status == 'Suspended'">
+          <van-sticky v-plugin="'IdcsmartRenew'" position="bottom"
+            v-if="!refundData || refundData || (refundData && refundData.status=='Cancelled') || (refundData && refundData.status=='Reject')">
+            <div class="all-btn-box">
+              <van-button block type="primary" :loading="renewBtnLoading" @click="showRenew">{{lang.cloud_re_btn}}
+              </van-button>
+            </div>
+          </van-sticky>
+        </template>
+      </div>
+    </van-tab>
+    <template v-if="!initLoading && (hostData.status == 'Active' || hostData.status == 'Grace')">
+      <van-tab :title="lang.common_cloud_tab1" name="1"
+        v-if="cloudData.type !== 'hyperv' && cloudConfig.manual_manage === 0">
+        <div class="echart-box">
+          <van-select v-model:firpick="chartSelectValue" @change="chartSelectChange" :columns="timeOptions">
+          </van-select>
+          <div class="echart-main">
+            <!-- cpu用量图 -->
+            <div id="cpu-echart" class="my-echart" v-loading="echartLoading1"></div>
+            <!-- 网络带宽 -->
+            <div id="bw-echart" class="my-echart" v-loading="echartLoading2"></div>
+            <!-- 磁盘IO -->
+            <div id="disk-io-echart" class="my-echart" v-loading="echartLoading3"></div>
+            <!-- 内存用量 -->
+            <div id="memory-echart" class="my-echart" v-loading="echartLoading4"></div>
+          </div>
+        </div>
+      </van-tab>
+      <van-tab :title="lang.common_cloud_tab2" name="2">
+        <div class="manage-box">
+          <!-- 重置密码 -->
+          <div class="manage-item" @click="showRePass">
+            <div class="manage-content">
+              <div class="manage-title">{{lang.common_cloud_btn12}}</div>
+              <div class="manage-btn">
+                <img src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/cloudDetail/re_pass.png"
+                  alt="">
+              </div>
+            </div>
+            <div class="manage-des">
+              {{lang.common_cloud_tip19}}
+              <br>
+              {{lang.common_cloud_tip20}}
+            </div>
+          </div>
+          <!-- 救援系统 -->
+          <div class="manage-item" @click="isRescue ? showQuitRescueDialog() : showRescueDialog()"
+            v-if="cloudConfig.manual_resource_control_mode !== 'not_support'">
+            <div class="manage-content">
+              <div class="manage-title">{{isRescue ? lang.common_cloud_btn14 : lang.common_cloud_btn13}}</div>
+              <div class="manage-btn" v-if="!isRescue">
+                <img src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/cloudDetail/re_scue.png"
+                  alt="">
+              </div>
+              <div class="manage-btn" v-else>
+                <img src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/cloudDetail/re_scue.png"
+                  alt="">
+              </div>
+            </div>
+            <div class="manage-des">
+              {{lang.common_cloud_tip21}}
+              <br>
+              {{lang.common_cloud_tip22}}
+            </div>
+          </div>
+          <!-- 手动资源不支持控制方式的时候，同时显示救援，和退出救援 -->
+          <template v-else>
+            <div class="manage-item">
+              <div class="manage-content">
+                <div class="manage-title">{{lang.common_cloud_btn13}}</div>
+                <div class="manage-btn" @click="showRescueDialog">
+                  <img src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/cloudDetail/re_scue.png"
+                    alt="">
+                </div>
+              </div>
+              <div class="manage-des">
+                {{lang.common_cloud_tip21}}
+                <br>
+                {{lang.common_cloud_tip22}}
+              </div>
+            </div>
+            <div class="manage-item">
+              <div class="manage-content">
+                <div class="manage-title">{{lang.common_cloud_btn14}}</div>
+                <div class="manage-btn" @click="showQuitRescueDialog">
+                  <img src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/cloudDetail/re_scue.png"
+                    alt="">
+                </div>
+              </div>
+              <div class="manage-des">
+                {{lang.common_cloud_tip21}}
+                <br>
+                {{lang.common_cloud_tip22}}
+              </div>
+            </div>
+          </template>
+          <!-- 重装系统 -->
+          <div class="manage-item" @click="showReinstall">
+            <div class="manage-content">
+              <div class="manage-title">{{lang.common_cloud_btn15}}</div>
+              <div class="manage-btn">
+                <img src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/cloudDetail/re_install.png"
+                  alt="">
+              </div>
+            </div>
+            <div class="manage-des">{{lang.common_cloud_tip23}}</div>
+          </div>
+          <!-- 升降级 -->
+          <div :class="{'manage-item': true, disabled: cloudConfig.manual_manage !== 0}"
+            @click="cloudConfig.manual_manage === 0 ? showUpgrade() : ''" v-if="hostData.change_billing_cycle_id === 0">
+            <div class="manage-content">
+              <div class="manage-title">{{lang.common_cloud_btn16}}</div>
+              <div class="manage-btn">
+                <img src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/cloudDetail/re_upgrade.png"
+                  alt="">
+              </div>
+            </div>
+            <div class="manage-des">{{lang.common_cloud_tip24}}</div>
+          </div>
+          <!-- 设置启动项 -->
+          <div class="manage-item disabled">
+            <div class="manage-content">
+              <div class="manage-title">{{lang.common_cloud_btn17}}</div>
+              <div class="manage-btn">
+                <img src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/cloudDetail/re_startup.png"
+                  alt="">
+              </div>
+            </div>
+            <div class="manage-des">{{lang.common_cloud_tip25}}</div>
+          </div>
+          <!-- 挂载ISO -->
+          <div class="manage-item disabled">
+            <div class="manage-content">
+              <div class="manage-title">{{lang.common_cloud_btn18}}</div>
+              <div class="manage-btn">
+                <img src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/cloudDetail/re_iso.png" alt="">
+              </div>
+            </div>
+            <div class="manage-des">{{lang.common_cloud_tip26}}</div>
+          </div>
+          <!-- 删除实例 -->
+          <div class="manage-item disabled">
+            <div class="manage-content">
+              <div class="manage-title">{{lang.common_cloud_btn19}}</div>
+              <div class="manage-btn">
+                <img src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/cloudDetail/re_delete.png"
+                  alt="">
+              </div>
+            </div>
+            <div class="manage-des">{{lang.common_cloud_tip27}}</div>
+          </div>
+        </div>
+      </van-tab>
+      <van-tab :title="lang.common_cloud_tab3" name="3" v-if="cloudConfig.manual_manage === 0">
+        <van-tabs v-model:active="diskTab" line-width="16px" title-active-color="var(--van-primary-color)"
+          v-if="elasticDisk.length !== 0">
+          <van-tab :title="lang.disk_list" name="1">
+          </van-tab>
+          <van-tab :title="lang.elastic_disk" name="2">
+          </van-tab>
+        </van-tabs>
+        <div class="dist-box">
+          <template v-if="diskTab == '1'">
+            <div class="no-disk" v-if="diskList.length === 0">
+              <span class="text">{{lang.common_cloud_text18}}</span>
+              <span class="text2">{{lang.common_cloud_text19}}</span>
+              <van-button type="primary" v-show="dataDiskList.length > 0 && !isPackage"
+                @click="showDg">{{lang.common_cloud_btn22}}
+              </van-button>
+            </div>
+            <div class="yes-disk" v-else>
+              <div class="disk-item" v-for="item in diskList">
+                <div class="disk-name">
+                  <div class="name-text">{{item.name}}</div>
+                  <van-popover theme="dark" placement="bottom-end"
+                    v-if="item.type2 === 'data' || (item.type2 !== 'system' && item.is_free !== 1 && !isPackage)">
+                    <template #reference>
+                      <van-icon name="ellipsis" class="op-icon"></van-icon>
+                    </template>
+                    <div class="popover-op-box">
+                      <div class="op-item" @click="handelMount(item)" v-if="item.type2 === 'data' && item.status === 0">
+                        {{lang.common_cloud_title16}}
+                      </div>
+                      <div class="op-item" @click="handelUnload(item)"
+                        v-if="item.type2 === 'data' && item.status === 1">
+                        {{lang.common_cloud_title17}}
+                      </div>
+                      <div class="op-item" @click="handelDelete(item.id)"
+                        v-if="item.type2 !== 'system' && item.is_free !== 1 && !isPackage">
+                        {{lang.referral_btn4}}
+                      </div>
+                    </div>
+                  </van-popover>
+                </div>
+                <div class="disk-info">
+                  <div class="disk-time">
+                    <div class="disk-lebal">{{lang.common_cloud_label20}}：</div>
+                    <div class="disk-value">{{item.size + 'G'}}</div>
+                  </div>
+                  <div class="disk-time">
+                    <div class="disk-lebal">{{lang.common_cloud_label19}}：</div>
+                    <div class="disk-value" v-time="item.create_time"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+          <template v-if="diskTab == '2'">
+            <div class="yes-disk" v-if="elasticDisk.length > 0">
+              <div class="disk-item" v-for="item in elasticDisk">
+                <div class="disk-name">
+                  <div class="name-text">{{item.name}}</div>
+                  <van-popover theme="dark" placement="bottom-end"
+                    v-if="item.type2 === 'data' || (item.type2 !== 'system' && item.is_free !== 1 && !isPackage)">
+                    <template #reference>
+                      <van-icon name="ellipsis" class="op-icon"></van-icon>
+                    </template>
+                    <div class="popover-op-box">
+                      <div class="op-item" @click="handlerConnect('mf_cloud_disk','add',item)" v-if="!item.rel_host_id">
+                        {{lang.common_cloud_title16}}
+                      </div>
+                      <div class="op-item" @click="handlerConnect('mf_cloud_disk','cancle',item)"
+                        v-if="item.rel_host_id === id">
+                        {{lang.common_cloud_title17}}
+                      </div>
+                      <div class="op-item" @click="goProductDetail(item.id)">
+                        {{lang.cloud_table_head_5}}
+                      </div>
+                    </div>
+                  </van-popover>
+                </div>
+                <div class="disk-info">
+                  <div class="disk-time">
+                    <div class="disk-lebal">{{lang.common_cloud_label20}}：</div>
+                    <div class="disk-value">{{item.size + 'G'}}</div>
+                  </div>
+                  <div class="disk-time">
+                    <div class="disk-lebal">{{lang.common_cloud_text144}}：</div>
+                    <div class="disk-value" v-time="item.due_time"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+        <div style="position: fixed;bottom: 0;width: 100%;"
+          v-if="diskList.length !== 0 && !isPackage && diskTab == '1'">
+          <div class="all-btn-box">
+            <van-button style="color: #333333; width: 50%;" color="#F5F5F5" block v-if="trueDiskLength != 0"
+              class="btn1" @click="showExpansion">{{lang.common_cloud_btn20}}
+            </van-button>
+            <van-button type="primary" block v-show="dataDiskList.length > 0 && !isPackage"
+              @click="showDg">{{lang.common_cloud_btn22}}
+            </van-button>
+          </div>
+        </div>
+      </van-tab>
+      <van-tab :title="lang.common_cloud_tab4" name="4" v-if="cloudConfig.manual_manage === 0">
+        <div class="net-box">
+          <div class="ip-box">
+            <!-- 公网IP -->
+            <div class="net-title">
+              <div class="info-title-text">{{lang.common_cloud_title3}}</div>
+              <div class="info-right-btn" @click="showIpDia" v-if="!isPackage">
+                {{lang.common_cloud_title18}}
+              </div>
+            </div>
+            <!-- ipv4 -->
+            <div class="net-main">
+              <van-list v-model:loading="netLoading" :finished="netFinished" @load="getIpList" :immediate-check="false">
+                <div class="ip-head">
+                  <div class="ip-item-ip">{{lang.common_cloud_label21}}</div>
+                  <div class="ip-item-ips">{{lang.common_cloud_label22}}</div>
+                  <div class="ip-item-host">{{lang.common_cloud_label23}}</div>
+                </div>
+                <van-empty v-if="netDataList.length === 0 && netFinished"></van-empty>
+                <div class="ip-item" v-for="item in netDataList">
+                  <div class="ip-item-ip">{{item.ip}}</div>
+                  <div class="ip-item-ips">{{item.gateway}}</div>
+                  <div class="ip-item-host">{{item.subnet_mask}}</div>
+                </div>
+              </van-list>
+            </div>
+            <!-- ipv6 -->
+            <div class="net-main" style="margin-top: .32rem;"
+              v-if="cloudData.network_type !== 'vpc' && ipv6DataList.length !== 0">
+              <van-list v-model:loading="ipv6Loading" :finished="ipv6NetFinished" @load="getIpv6List"
+                :immediate-check="false">
+                <div class="ip-head">
+                  <div class="ip-item-ip">{{lang.ipv6_address}}</div>
+                  <div class="ip-item-ips">{{lang.common_cloud_label22}}</div>
+                  <div class="ip-item-host">{{lang.common_cloud_label23}}</div>
+                </div>
+                <van-empty v-if="ipv6DataList.length === 0 && ipv6NetFinished"></van-empty>
+                <div class="ip-item" v-for="item in ipv6DataList">
+                  <div class="ip-item-ip">{{item.ipv6}}</div>
+                  <div class="ip-item-ips">{{item.gateway || '--'}}</div>
+                  <div class="ip-item-host">{{item.subnet_mask || '--'}}</div>
+                </div>
+              </van-list>
+            </div>
+          </div>
+          <!-- 弹性IP -->
+          <div class="ip-box" v-if="elasticList.length > 0">
+            <div class="net-title">
+              <div class="info-title-text">{{lang.public_elastic_ip}}</div>
+            </div>
+            <div class="net-main elastic-box">
+              <van-list v-model:loading="elasticLoading" :finished="elasticFinished" @load="getElasticIpList"
+                :immediate-check="false">
+                <div class="elastic-item" v-for="item in elasticList">
+                  <div class="elastic-name">
+                    <div class="name-text">{{item.ip}}</div>
+                    <van-popover theme="dark" placement="bottom-end">
+                      <template #reference>
+                        <van-icon name="ellipsis" class="op-icon"></van-icon>
+                      </template>
+                      <div class="popover-op-box">
+                        <div class="op-item" @click="handlerConnect('mf_cloud_ip','add',item)" v-if="!item.rel_host_id">
+                          {{lang.allocation}}
+                        </div>
+                        <div class="op-item" @click="handlerConnect('mf_cloud_ip','cancle',item)"
+                          v-if="item.rel_host_id === id">
+                          {{lang.idle}}
+                        </div>
+                        <div class="op-item" @click="goProductDetail(item.id)">
+                          {{lang.cloud_table_head_5}}
+                        </div>
+                      </div>
+                    </van-popover>
+                  </div>
+                  <div class="elastic-info">
+                    <div class="elastic-value">
+                      <div>
+                        {{lang.common_cloud_label22}}:{{item.gateway}}
+                      </div>
+                      <div>
+                        {{lang.common_cloud_label23}}:{{item.subnet_mask}}
+                      </div>
+                    </div>
+                    <div class="elastic-time">
+                      {{lang.cloud_table_head_4}}:<span v-time="item.due_time">{{item.due_time}}</span>
+                    </div>
+                  </div>
+                </div>
+              </van-list>
+            </div>
+          </div>
+          <!-- VPC -->
+          <div class="ip-box" v-if="cloudData.network_type === 'vpc'">
+            <div class="net-title">
+              <div class="info-title-text">{{lang.common_cloud_title19}}</div>
+              <div class="info-right-btn" @click="handelAddVpc">
+                {{lang.common_cloud_title20}}
+              </div>
+            </div>
+            <div class="net-main elastic-box">
+              <van-list v-model:loading="vpcLoading" :finished="vpcFinished" @load="getVpcNetwork"
+                :immediate-check="false">
+                <van-empty v-if="vpcDataList.length === 0 && vpcFinished"></van-empty>
+                <div class="elastic-item" v-for="item in vpcDataList">
+                  <div class="elastic-name">
+                    <div class="name-text">{{item.name}}</div>
+                    <van-popover theme="dark" placement="bottom-end">
+                      <template #reference>
+                        <van-icon name="ellipsis" class="op-icon"></van-icon>
+                      </template>
+                      <div class="popover-op-box">
+                        <div class="op-item" @click="handelEngine(item)">
+                          {{lang.common_cloud_title24}}
+                        </div>
+                        <div class="op-item" @click="showDelVpcDia(item.id)">
+                          {{lang.common_cloud_title25}}
+                        </div>
+                      </div>
+                    </van-popover>
+                  </div>
+                  <div class="elastic-info">
+                    <div class="elastic-value">
+                      {{lang.common_cloud_title22}}:{{item.ips}}
+                    </div>
+                    <div class="elastic-time">
+                      {{lang.common_cloud_title23}}:{{item.subnet_mask}}
+                      <span class="ip-value">
+                        <van-popover theme="dark" placement="top">
+                          <div class="table-op-box">
+                            <span v-for="items in item.host" class="host-name">{{items.name}}</span>
+                          </div>
+                          <template #reference>
+                            <span v-if="item.host.length > 1">{{item.host[0].name}}...</span>
+                          </template>
+                        </van-popover>
+                        <span v-if="item.host.length === 1">{{item.host[0].name }}</span>
+                        <span v-if="item.host.length === 0">--</span>
+                      </span>
+                    </div>
+                    <div class="elastic-time">
+                      {{lang.cloud_table_head_4}}:<span v-time="item.due_time">{{item.due_time}}</span>
+                    </div>
+                  </div>
+                </div>
+              </van-list>
+            </div>
+          </div>
+          <!-- 安全组 -->
+          <div class="ip-box">
+            <div class="net-title">
+              <div class="info-title-text">{{lang.common_cloud_title26}}</div>
+              <div class="info-right-btn" @click="handelSafeOpen"
+                v-if="cloudData.security_group && !cloudData.security_group.id">
+                {{lang.common_cloud_title30}}
+              </div>
+            </div>
+            <div class="net-main safe-box">
+              <div v-if="cloudData.security_group && cloudData.security_group.id !==0">
+                <span class="not-in">{{lang.common_cloud_title27}}{{cloudData.security_group.name}}</span>
+                <a :href="`/group_rules.htm?id=${cloudData.security_group.id}&name=${cloudData.security_group.name}`"
+                  class="flow-btn" target="_blank">{{lang.common_cloud_title28}}</a>
+              </div>
+              <div class="tip" v-else>{{lang.common_cloud_title29}}</div>
+            </div>
+          </div>
+          <!-- 流量图 -->
+          <div class="ip-box" v-if="cloudData.type !== 'hyperv'">
+            <div class="net-title">
+              <div class="info-title-text">{{lang.common_cloud_title4}}</div>
+              <div class="info-right-btn" @click="buyPackage" v-plugin="'FlowPacket'"
+                v-if="flowData.total?.includes('GB') && addonsArr.includes('FlowPacket')">
+                {{lang.buy_package}}
+              </div>
+            </div>
+            <div class="net-main">
+              <div class="flow-box">
+                <div class="flow-content" v-if="!isDemandFee">
+                  <div class="flow-item">
+                    <div class="flow-label">{{lang.common_cloud_label24}}:</div>
+                    <div class="flow-value">{{flowData.total}}</div>
+                  </div>
+                  <div class="flow-item">
+                    <div class="flow-label">{{lang.common_cloud_label25}}:</div>
+                    <div class="flow-value">{{flowData.leave}}</div>
+                  </div>
+                  <div class="flow-item">
+                    <div class="flow-label">{{lang.common_cloud_label26}}:</div>
+                    <div class="flow-value">{{flowData.reset_flow_date}}</div>
+                  </div>
+                </div>
+                <div class="time-select">
+                  <van-select v-model:firpick="chartSelectValue" @change="chartSelectChange" :columns="timeOptions"
+                    cur-class="time-field">
+                  </van-select>
+                </div>
+                <div class="echart-main">
+                  <!-- 网络流量 -->
+                  <div id="flow-echart" class="my-echart" v-loading="flowLoading"></div>
+                </div>
+              </div>
+              <!-- 购买流量包 -->
+              <flow-packet :id="id" module="mf_cloud" ref="flowPacket" v-plugin="'FlowPacket'"
+                v-if="flowData.total?.includes('GB')" :line-type="cloudData.line?.bill_type" :show-package="showPackage"
+                @cancledialog="cancleDialog" :currency_prefix="commonData.currency_prefix" @sendPackId="handlerPay">
+              </flow-packet>
+            </div>
+          </div>
+        </div>
+      </van-tab>
+      <van-tab :title="calcNat" name="nat"
+        v-if="cloudData.nat_acl_limit || cloudData.nat_web_limit && cloudConfig.manual_manage === 0">
+        <div class="net-box">
+          <div class="ip-box">
+            <div class="net-title">
+              <div class="info-title-text">NAT{{lang.nat_acl}}({{aclList.length}}/{{cloudData.nat_acl_limit}})</div>
+              <div class="info-right-btn" @click="showCreateNat('acl')" v-if="aclList.length < cloudData.nat_acl_limit">
+                {{lang.invoice_text47}}{{lang.nat_acl}}
+              </div>
+            </div>
+            <div class="net-main elastic-box">
+              <van-list v-model:loading="aclLoading" :finished="aclFinished" @load="getNatAclList"
+                :immediate-check="false">
+                <div class="elastic-item" v-for="(item,index) in aclList">
+                  <div class="elastic-name">
+                    <div class="name-text">{{item.name}}</div>
+                    <van-popover theme="dark" placement="bottom-end" v-if="index !== aclList.length - 1">
+                      <template #reference>
+                        <van-icon name="ellipsis" class="op-icon"></van-icon>
+                      </template>
+                      <div class="popover-op-box">
+                        <div class="op-item" @click="natDelPopShow(item,item.name,'acl')">
+                          {{lang.common_cloud_title25}}
+                        </div>
+                      </div>
+                    </van-popover>
+                  </div>
+                  <div class="elastic-info">
+                    <div class="elastic-value">
+                      <div>
+                        ID：{{item.id}}
+                      </div>
+                      <div style="display: flex;align-items: center;">
+                        <div>{{lang.forward_ip_port}}：{{item.ip}}</div>
+                        <img src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/copy.svg"
+                          class="copy-btn" v-copy="item.ip" alt="">
+                      </div>
+                    </div>
+                    <div class="elastic-value elastic-time">
+                      <div>
+                        {{lang.int_port}}：{{item.int_port}}
+                      </div>
+                      <div>
+                        {{lang.protocol}}：{{calcProtocol(item.protocol)}}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </van-list>
+            </div>
+          </div>
+          <div class="ip-box" v-if="cloudData.nat_web_limit > 0">
+            <div class="net-title">
+              <div class="info-title-text">NAT{{lang.nat_web}}({{webList.length}}/{{cloudData.nat_web_limit}})</div>
+              <div class="info-right-btn" @click="showCreateNat('web')" v-if="webList.length < cloudData.nat_web_limit">
+                {{lang.invoice_text47}}{{lang.nat_web}}
+              </div>
+            </div>
+            <div class="net-main elastic-box">
+              <van-list v-model:loading="webLoading" :finished="webFinished" @load="getNatWebList"
+                :immediate-check="false">
+                <div class="elastic-item" v-for="(item,index) in webList">
+                  <div class="elastic-name">
+                    <div class="name-text">{{item.domain}}</div>
+                    <van-popover theme="dark" placement="bottom-end">
+                      <template #reference>
+                        <van-icon name="ellipsis" class="op-icon"></van-icon>
+                      </template>
+                      <div class="popover-op-box">
+                        <div class="op-item" @click="natDelPopShow(item,item.domain,'web')">
+                          {{lang.common_cloud_title25}}
+                        </div>
+                      </div>
+                    </van-popover>
+                  </div>
+                  <div class="elastic-info">
+                    <div class="elastic-value">
+                      <div>
+                        ID：{{item.id}}
+                      </div>
+                      <div>{{lang.ext_port}}：{{item.ext_port}}</div>
+                    </div>
+                    <div class="elastic-time">
+                      {{lang.int_port}}：{{item.int_port}}
+                    </div>
+                  </div>
+                </div>
+              </van-list>
+            </div>
+          </div>
+        </div>
+      </van-tab>
+      <van-tab name="5" :title="cloudData.type === 'hyperv' ? lang.common_cloud_title5 : lang.common_cloud_tab5"
+        v-if="cloudConfig.manual_manage === 0">
+        <van-tabs v-model:active="backTab" line-width="16px" title-active-color="var(--van-primary-color)"
+          v-if="cloudData.type !== 'hyperv'">
+          <van-tab :title="lang.common_cloud_btn53" name="1">
+          </van-tab>
+          <van-tab :title="lang.common_cloud_btn54" name="2">
+          </van-tab>
+        </van-tabs>
+        <div class="net-box">
+          <template v-if="backTab === '1'">
+            <div class="ip-box">
+              <template v-if="cloudData.backup_num > 0">
+                <div class="net-title">
+                  <div class="info-title-text">
+                    {{lang.common_cloud_title5}}({{dataList1.length}}/{{cloudData.backup_num}})
+                  </div>
+                  <div class="info-right-btn">
+                    <div class="info-btn-item" @click="handleBackUpgrade('back')">
+                      {{lang.common_cloud_btn16}}
+                    </div>
+                    <div v-if="backFinshed && dataList1.length < cloudData.backup_num" class="info-btn-item"
+                      @click="showCreateBs('back')">
+                      {{lang.common_cloud_btn23}}
+                    </div>
+                  </div>
+                </div>
+                <div class="net-main elastic-box">
+                  <van-list v-model:loading="backLoading" :finished="backFinshed" @load="getBackupList"
+                    :immediate-check="false">
+                    <div class="elastic-item" v-for="(item,index) in dataList1">
+                      <div class="elastic-name">
+                        <div class="name-text">{{item.name}}</div>
+                        <van-popover theme="dark" placement="bottom-end" v-if="item.status === 1">
+                          <template #reference>
+                            <van-icon name="ellipsis" class="op-icon"></van-icon>
+                          </template>
+                          <div class="popover-op-box">
+                            <div class="op-item" @click="showhyBs('back',item)">
+                              {{lang.common_cloud_btn24}}
+                            </div>
+                            <div class="op-item" @click="showDelBs('back',item)">
+                              {{lang.common_cloud_btn25}}
+                            </div>
+                          </div>
+                        </van-popover>
+                        <van-loading type="spinner" v-else>
+                          {{lang.common_cloud_title31}}
+                        </van-loading>
+                      </div>
+                      <div class="elastic-info">
+                        <div class="elastic-value">
+                          <div>
+                            {{lang.common_cloud_label28}}：<span v-time="item.create_time">{{item.create_time}}</span>
+                          </div>
+                        </div>
+                        <div class="elastic-value elastic-time">
+                          {{lang.common_cloud_label29}}：{{item.notes || '--'}}
+                        </div>
+                      </div>
+                    </div>
+                  </van-list>
+                </div>
+              </template>
+              <div class="back-empy-box" v-else>
+                <span class="not-in">{{lang.common_cloud_title5}}</span>
+                <span class="tip">{{lang.common_cloud_text20}}</span>
+                <van-button type="primary" v-if="configObj.backup_enable == 1"
+                  @click="openBs('back')">{{lang.common_cloud_btn26}}
+                </van-button>
+              </div>
+            </div>
+          </template>
+          <template v-if="backTab === '2'">
+            <div class="ip-box" v-if="cloudData.type !== 'hyperv'">
+              <template v-if="cloudData.snap_num > 0">
+                <div class="net-title">
+                  <div class="info-title-text">
+                    {{lang.common_cloud_title6}}({{dataList2.length}}/{{cloudData.snap_num}})
+                  </div>
+                  <div class="info-right-btn">
+                    <div class="info-btn-item" @click="handleBackUpgrade('snap')">
+                      {{lang.common_cloud_btn16}}
+                    </div>
+                    <div v-if="snapFinshed && dataList2.length < cloudData.snap_num" class="info-btn-item"
+                      @click="showCreateBs('snap')">
+                      {{lang.common_cloud_btn23}}
+                    </div>
+                  </div>
+                </div>
+                <div class="net-main elastic-box">
+                  <van-list v-model:loading="snapLoading" :finished="snapFinshed" @load="getSnapshotList"
+                    :immediate-check="false">
+                    <div class="elastic-item" v-for="(item,index) in dataList2">
+                      <div class="elastic-name">
+                        <div class="name-text">{{item.name}}</div>
+                        <van-popover theme="dark" placement="bottom-end" v-if="item.status === 1">
+                          <template #reference>
+                            <van-icon name="ellipsis" class="op-icon"></van-icon>
+                          </template>
+                          <div class="popover-op-box">
+                            <div class="op-item" @click="showhyBs('snap',item)">
+                              {{lang.common_cloud_btn24}}
+                            </div>
+                            <div class="op-item" @click="showDelBs('snap',item)">
+                              {{lang.common_cloud_btn25}}
+                            </div>
+                          </div>
+                        </van-popover>
+                        <van-loading type="spinner" v-else>
+                          {{lang.common_cloud_title31}}
+                        </van-loading>
+                      </div>
+                      <div class="elastic-info">
+                        <div class="elastic-value">
+                          <div>
+                            {{lang.common_cloud_label28}}：<span v-time="item.create_time">{{item.create_time}}</span>
+                          </div>
+                        </div>
+                        <div class="elastic-value elastic-time">
+                          {{lang.common_cloud_label29}}：{{item.notes || '--'}}
+                        </div>
+                      </div>
+                    </div>
+                  </van-list>
+                </div>
+              </template>
+              <div class="back-empy-box" v-else>
+                <span class="not-in">{{lang.common_cloud_title6}}</span>
+                <span class="tip">{{lang.common_cloud_text21}}</span>
+                <van-button type="primary" v-if="configObj.snap_enable == 1"
+                  @click="openBs('snap')">{{lang.common_cloud_btn26}}
+                </van-button>
+              </div>
+            </div>
+          </template>
+        </div>
+      </van-tab>
+      <van-tab :title="lang.common_cloud_tab6" name="6" v-if="cloudConfig.manual_manage === 0">
+        <div class="dist-box">
+          <div class="net-main">
+            <common-list :loading="logLoading" :list="logDataList" @load="getLogList" :finished="logFinished">
+              <template #default="{item}">
+                <div class="log-item">
+                  <div class="disk-name">
+                    <div class="name-text">
+                      <span v-time="item.create_time"></span>
+                    </div>
+                    <div style="font-size: .32rem; color: #9E9E9E;">ID:{{item.id}}</div>
+                  </div>
+                  <div class="disk-info">
+                    <div class="disk-time">
+                      {{item.description}}
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </common-list>
+          </div>
+        </div>
+      </van-tab>
+    </template>
+  </van-tabs>
+  <!-- 创建nat 转发建站 -->
+  <van-popup v-model:show="natDialog" @closed="bsCgClose" round closeable style="width: 90%;">
+    <div class="pop-box">
+      <div class="dia-text">
+        {{lang.invoice_text47}}{{natType === 'acl' ? lang.nat_acl :lang.nat_web}}
+      </div>
+      <div class="pop-body">
+        <van-form @submit="submitNat" ref="natForm">
+          <van-field v-if="natType === 'acl'" :rules="natRules.name" v-model="natForm.name"
+            :label="lang.security_label1" :placeholder="`${lang.placeholder_pre1}${lang.security_label1}`">
+          </van-field>
+          <van-field v-model="natForm.domain" :label="lang.security_label1" v-if="natType === 'web'"
+            :rules="natRules.domain" :placeholder="`${lang.placeholder_pre1}${lang.domain}`">
+          </van-field>
+          <van-field :model-value="80" readonly :label="lang.ext_port" v-if="natType === 'web'">
+          </van-field>
+          <van-field v-model.number="natForm.ext_port" :label="lang.ext_port" :rules="natRules.ext_port"
+            :placeholder="lang.nat_tip1" v-else>
+          </van-field>
+          <van-field type="digit" v-model.number="natForm.int_port" :label="lang.int_port" :rules="natRules.int_port"
+            :placeholder="`${lang.int_port}(1-65535)`" @update:model-value="changeIntPort">
+          </van-field>
+          <van-select v-if="natType === 'acl'" :label="lang.protocol" :rules="natRules.protocol" cur-class=""
+            right-icon="arrow" v-model:firpick="natForm.protocol" :columns="protocolArr"
+            :columns-names="{ text: 'label', value: 'value'}" :placeholder="`${lang.placeholder_pre2}${lang.protocol}`">
+          </van-select>
+          <div class="pop-fotter">
+            <van-button class="can-btn" @click="bsCgClose">{{lang.ticket_btn9}}</van-button>
+            <van-button class="sub-btn" :loading="submitLoaing" type="primary"
+              native-type="submit">{{lang.ticket_btn6}}</van-button>
+          </div>
+        </van-form>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 模拟物理机运行 -->
+  <van-popup v-model:show="physicalVisible" round closeable style="width: 90%;" @closed="physicalVisibleClose">
+    <div class="pop-box">
+      <div class="dia-text">
+        {{physicalTitle}}
+      </div>
+      <div class="pop-body">
+        <div class="reset-box">
+          <!-- 警告框 -->
+          <div class="com-danger-btn" v-show="powerStatus=='off'">
+            <div class="alert-text">{{lang.common_cloud_tip30}}</div>
+            <div class="item"><span class="dot"></span> {{lang.common_cloud_tip31}}</div>
+            <div class="item"><span class="dot"></span> {{lang.common_cloud_tip32}}</div>
+          </div>
+          <van-checkbox class="check-box" v-show="powerStatus=='off'" v-model="physicalChecked" shape="square"
+            icon-size=".4267rem" style="flex-shrink: 0;">
+            {{lang.common_cloud_text24}}
+          </van-checkbox>
+        </div>
+      </div>
+      <div class="pop-fotter">
+        <van-button class="can-btn" block @click="physicalVisible = false">{{lang.common_cloud_btn29}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="handlePhysical" :loading="submitLoaing">{{
+        lang.common_cloud_btn28}}</van-button>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 重置密码 -->
+  <van-popup v-model:show="isShowRePass" round closeable style="width: 90%;">
+    <div class="pop-box">
+      <div class="dia-text">
+        {{lang.common_cloud_title13}}
+        <p class="dia-text-tip">{{lang.common_cloud_text23}}</p>
+      </div>
+      <div class="pop-body">
+        <div class="reset-box">
+          <van-field class="btn-field" v-model="rePassData.password" :label="lang.common_cloud_label7" label-align="top"
+            :placeholder="lang.common_cloud_text47">
+            <template #button>
+              <div class="pass-btn" slot="suffix" @click="autoPass">
+                {{lang.common_cloud_btn1}}
+              </div>
+            </template>
+          </van-field>
+
+          <van-field class="btn-field" :label="lang.ticket_label19" label-align="top" v-model="rePassData.code"
+            :placeholder="lang.account_tips33" v-if="cloudConfig.reset_password_sms_verify === 1">
+            <template #button>
+              <div class="pass-btn" slot="suffix" v-if="isSendCodeing">{{sendTime}}{{lang.account_tips54}}</div>
+              <div class="pass-btn" slot="suffix" v-loading="sendFlag" @click="sendCode" v-else>
+                {{lang.account_tips55}}
+              </div>
+            </template>
+          </van-field>
+          <!-- 警告框 -->
+          <div class="com-danger-btn" v-show="powerStatus=='off'">
+            <div class="alert-text">{{lang.common_cloud_tip30}}</div>
+            <div class="item"><span class="dot"></span> {{lang.common_cloud_tip31}}</div>
+            <div class="item"><span class="dot"></span> {{lang.common_cloud_tip32}}</div>
+          </div>
+          <van-checkbox class="check-box" v-model="rePassData.checked" shape="square" icon-size=".4267rem">
+            {{lang.common_cloud_text24}}
+          </van-checkbox>
+        </div>
+      </div>
+      <div class="pop-fotter">
+        <van-button class="can-btn" block @click="rePassDgClose">{{lang.common_cloud_btn29}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="rePassSub" :loading="loading5">{{
+        lang.common_cloud_btn28}}</van-button>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 救援系统 -->
+  <van-popup v-model:show="isShowRescue" round closeable style="width: 90%;">
+    <div class="pop-box">
+      <div class="dia-text">
+        {{lang.common_cloud_tab7}}
+        <p class="dia-text-tip">{{lang.common_cloud_tip34}}</p>
+      </div>
+      <div class="pop-body">
+        <div class="reset-box">
+          <van-select :label="lang.common_cloud_tab8" label-align="top" v-model:firpick="rescueData.type"
+            :columns="osOptions" cur-class="select-field select-div" :clearable="false">
+            <template #input>
+              <div class="os-item">
+                <img class="item-os-img"
+                  :src="`/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/mf_cloud/${rescueData.type === '1' ? 'Windows' : 'Linux'}.png`"
+                  alt="">
+                <span class="item-os-text">{{rescueData.type === '1' ? 'Windows' : 'Linux'}}</span>
+              </div>
+            </template>
+            <template #option="option">
+              <div class="os-item">
+                <img class="item-os-img"
+                  :src="`/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/mf_cloud/${option.text}.png`"
+                  alt="">
+                <span class="item-os-text">{{option.text}}</span>
+              </div>
+            </template>
+          </van-select>
+          <van-field :label="lang.common_cloud_tab9" label-align="top" class="btn-field" v-model="rescueData.password"
+            :placeholder="lang.common_cloud_text47">
+            <template #button>
+              <div class="pass-btn" slot="suffix" @click="autoPass">
+                {{lang.common_cloud_btn1}}
+              </div>
+            </template>
+          </van-field>
+          <div class="com-reset-password">
+            {{lang.common_cloud_tip29}}
+          </div>
+        </div>
+      </div>
+      <div class="pop-fotter">
+        <van-button class="can-btn" block @click="rescueDgClose">{{lang.withdraw_btn2}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="rescueSub" :loading="loading3">{{
+          lang.withdraw_btn1}}</van-button>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 重装系统 -->
+  <van-popup v-model:show="isShowReinstallDialog" round closeable style="width: 90%;">
+    <div class="pop-box">
+      <div class="dia-text">{{lang.common_cloud_title9}}</div>
+      <div class="pop-body">
+        <div class="reset-box">
+          <van-field :label="lang.common_cloud_label6" class="select-field select-div no-border-select"
+            right-icon="arrow" style="margin: var(--van-cell-vertical-padding) 0;" @click="isShowImage = true" readonly
+            label-align="top">
+            <template #input>
+              <div class="os-item">
+                <img class="item-os-img" :src="osIcon" alt="">
+                <span class="item-os-text">{{osName}}</span>
+              </div>
+            </template>
+          </van-field>
+          <van-select v-model:firpick="reinstallData.type" :columns="passOption"
+            cur-class="select-field select-div no-border-select" style="margin: var(--van-cell-vertical-padding) 0;"
+            :clearable="false" :label="lang.login_way" label-align="top" right-icon="arrow">
+          </van-select>
+          <van-select label="SSH" v-if="reinstallData.type === 'key'" v-model:firpick="reinstallData.ssh_key_id"
+            label-align="top" :columns="sshKeyData" :columns-names="{text: 'name', value: 'id'}"
+            cur-class="select-field select-div no-border-select" style="margin: var(--van-cell-vertical-padding) 0;"
+            :clearable="false" right-icon="arrow">
+          </van-select>
+          <van-field class="btn-field" v-model="reinstallData.password" :placeholder="lang.common_cloud_text47"
+            :label="lang.login_password" label-align="top" v-else>
+            <template #button>
+              <div class="pass-btn" slot="suffix" @click="autoPass">
+                {{lang.common_cloud_btn1}}
+              </div>
+            </template>
+          </van-field>
+          <van-field class="btn-field" :disabled="configObj.rand_ssh_port === 2" v-model="reinstallData.port"
+            :placeholder="lang.common_cloud_text46" :label="lang.common_cloud_label13" label-align="top">
+            <template #button>
+              <div class="pass-btn" slot="suffix" @click="autoPort">
+                {{lang.common_cloud_btn1}}
+              </div>
+            </template>
+          </van-field>
+          <van-field v-if="cloudConfig.reinstall_sms_verify === 1" class="btn-field" v-model="reinstallData.code"
+            :label="lang.ticket_label19" label-align="top" :placeholder="lang.account_tips33">
+            <template #button>
+              <div class="pass-btn" slot="suffix" v-if="isSendCodeing">{{sendTime}}{{lang.account_tips54}}</div>
+              <div class="pass-btn" slot="suffix" v-loading="sendFlag" @click="sendCode" v-else>
+                {{lang.account_tips55}}
+              </div>
+            </template>
+          </van-field>
+          <div class="pay-img" v-show="isPayImg">
+            <div class="left">
+              <span>
+                {{lang.common_cloud_tip28}},{{commonData.currency_prefix + payMoney + lang.common_cloud_text26}}
+              </span>
+              <van-popover placement="top">
+                <div class="sure-remind">
+                  <div class="show-config-list">{{lang.shoppingCar_tip_text2}}：{{commonData.currency_prefix}}{{
+                    payDiscount }}</div>
+                  <div class="show-config-list">{{lang.common_cloud_text28}}：{{commonData.currency_prefix}}{{
+                    payCodePrice }}</div>
+                </div>
+                <template #reference>
+                  <van-icon name="question" class="help" v-show="isShowLevel || isShowPromo"></van-icon>
+                </template>
+              </van-popover>
+            </div>
+            <span class="img-buy-btn" @click="payImg">{{lang.common_cloud_btn5}}</span>
+          </div>
+          <div class="com-reset-password">
+            <span class="tip-text">{{lang.common_cloud_tip43}} {{lang.common_cloud_tip29}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="pop-fotter">
+        <van-button class="can-btn" block @click="reinstallDgClose">{{lang.common_cloud_btn29}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="doReinstall" :loading="loading6">{{
+          lang.common_cloud_btn28}}</van-button>
+      </div>
+    </div>
+
+  </van-popup>
+  <!-- 升降级 -->
+  <van-popup v-model:show="isShowUpgrade" position="right" :style="{ width: '100%', height: '100%' }"
+    @closed="upgradeDgClose">
+    <div class="upgrade-dialog">
+      <van-nav-bar :title="lang.common_cloud_btn16" safe-area-inset-top left-arrow @click-left="upgradeDgClose">
+      </van-nav-bar>
+      <div class="upgrade-box">
+        <div class="order-box" v-if="!isPackage">
+          <!-- cpu -->
+          <div class="order-title">CPU</div>
+          <div class="order-item-box">
+            <div class="order-item" :class="params.cpu == c.value ? 'is-select' : ''" v-for="(c,cInd) in calcCpuList"
+              @click="changeCpu(c.value)">
+              {{c.value + lang.mf_cores}}
+            </div>
+          </div>
+          <van-divider></van-divider>
+          <!-- 内存 -->
+          <template v-if="memoryList.length > 0">
+            <template v-if="memoryType">
+              <div class="order-title">{{lang.cloud_memery}}</div>
+              <div class="order-item-box">
+                <div class="order-item" v-for="(c,cInd) in calaMemoryList"
+                  :class="params.memory == c.value ? 'is-select' : ''" @click="changeMemory(c.value)">
+                  {{c.value + memory_unit}}
+                </div>
+              </div>
+            </template>
+            <div class="config-box" v-else>
+              <div class="lebal-box">
+                <div class="config-title">{{lang.cloud_memery}}</div>
+                <van-stepper v-model="params.memory" :min="calaMemoryList[0] * 1"
+                  :max="calaMemoryList[calaMemoryList.length -1] * 1" @change="changeMem">
+                </van-stepper>
+              </div>
+              <div class="slider-box">
+                <van-slider v-model="params.memory" :min="calaMemoryList[0] * 1"
+                  :max="calaMemoryList[calaMemoryList.length -1] * 1" @change="changeMem">
+                  <template #button>
+                    <div class="custom-button">{{ params.memory }}</div>
+                  </template>
+                </van-slider>
+                <span class="unit" v-if="!memoryType">{{memory_unit}}</span>
+              </div>
+              <div class="marks">
+                <span class="item">{{calaMemoryList[0]}}<span class="unit"
+                    v-if="!memoryType">{{memory_unit}}</span></span>
+                <span class="item">{{calaMemoryList[calaMemoryList.length - 1]}} <span class="unit"
+                    v-if="!memoryType">{{memory_unit}}</span></span>
+              </div>
+            </div>
+            <van-divider></van-divider>
+          </template>
+          <!-- 带宽 -->
+          <template v-if="lineDetail.bill_type === 'bw' && lineDetail.bw.length > 0">
+            <div class="order-title" v-if="lineDetail.bw[0].type === 'radio'">{{lang.mf_bw}}</div>
+            <div class="order-item-box" v-if="lineDetail.bw[0].type === 'radio'">
+              <div class="order-item" v-for="(c,cInd) in calcBwRange" :class="params.bw == c.value ? 'is-select' : ''"
+                @click="changeBw(c.value)">
+                {{c.value + 'M'}}
+              </div>
+            </div>
+            <div class="config-box" v-else>
+              <div class="lebal-box">
+                <div class="config-title">{{lang.mf_bw}}</div>
+                <van-stepper v-model="params.bw" :min="calcBwRange[0]" :max="calcBwRange[calcBwRange.length - 1]"
+                  @change="changeBwNum"></van-stepper>
+              </div>
+              <div class="slider-box">
+                <van-slider v-model="params.bw" :min="calcBwRange[0]" :max="calcBwRange[calcBwRange.length - 1]"
+                  @change="changeBwNum">
+                  <template #button>
+                    <div class="custom-button">{{ params.bw }}</div>
+                  </template>
+                </van-slider>
+                <div class="unit">M</div>
+              </div>
+              <div class="marks">
+                <span class="item">{{calcBwRange[0]}}M</span>
+                <span class="item">{{calcBwRange[calcBwRange.length -1 ]}}M</span>
+              </div>
+            </div>
+            <van-divider></van-divider>
+          </template>
+          <!-- 流量 -->
+          <template v-if="!isDemandFee && lineDetail.bill_type === 'flow' && lineDetail.flow.length > 0">
+            <div class="order-title">{{lang.mf_flow}}</div>
+            <div class="order-item-box">
+              <div class="order-item" v-for="(c,cInd) in calcFlowList"
+                :class="params.flow == (c.value > 0 ? c.value  : 0) ? 'is-select' : ''"
+                @click="changeFlow(c.value > 0 ? (c.value + 'G') : lang.mf_tip28)">
+                {{c.value > 0 ? (c.value + 'G') : lang.mf_tip28}}
+              </div>
+            </div>
+            <van-divider></van-divider>
+          </template>
+          <!-- 按需流量 -->
+          <template v-if="lineDetail.bill_type === 'flow' && lineDetail.flow_on_demand.length > 0 && isDemandFee">
+            <div class="order-title">{{lang.mf_flow}}</div>
+            <div class="order-item-box">
+              <div class="order-item is-select">{{lang.mf_demand_fee}}</div>
+            </div>
+            <van-divider></van-divider>
+          </template>
+          <!-- 流量类型下面的带宽，显示线路里面的flow.other_config.out_bw -->
+          <template v-if="lineDetail.bill_type === 'flow'">
+            <div class="order-title">{{lang.mf_bw}}</div>
+            <!-- <p class="flow-bw">{{showFlowBw == 0 ? lang.not_limited : showFlowBw + 'M'}}</p> -->
+            <van-select :text="bwName" v-model:firpick="params.bw" @change="changeFlowBw" :columns="showFlowBw"
+              cur-class=" " input-align="right" right-icon="arrow">
+            </van-select>
+            <van-divider></van-divider>
+          </template>
+          <!-- 防御 -->
+          <template
+            v-if="cloudData.line?.sync_firewall_rule == 0  && lineDetail.defence && lineDetail.defence.length >0">
+            <div class="order-title">{{lang.mf_defense}}</div>
+            <div class="order-item-box">
+              <div class="order-item" v-for="(c,cInd) in lineDetail.defence"
+                :class="params.peak_defence == c.value  ? 'is-select' : ''" @click="changeDefence(c.value)">
+                {{c.desc}}
+              </div>
+            </div>
+          </template>
+        </div>
+        <div class="package-box" v-else>
+          <div class="package-list">
+            <div class="cloud-item cur">
+              <div class="top">
+                {{recommend_config.name}}<span class="des">（{{recommend_config.description}}）</span>
+              </div>
+              <div class="info">
+                <p>
+                  <span
+                    class="name">{{lang.mf_specs}}：</span>{{recommend_config.cpu}}{{lang.mf_cores}}{{recommend_config.memory}}G
+                </p>
+                <p>
+                  <span class="name">{{lang.mf_system}}：</span>{{recommend_config.system_disk_size}}GB<span
+                    v-if="recommend_config.system_disk_type">，{{recommend_config.system_disk_type}}</span>
+                </p>
+                <p v-if="recommend_config.data_disk_size * 1">
+                  <span class="name">{{lang.common_cloud_text1}}：</span>{{recommend_config.data_disk_size}}GB<span
+                    v-if="recommend_config.data_disk_type">，{{recommend_config.data_disk_type}}</span>
+                </p>
+                <p>
+                  <span class="name">{{lang.mf_bw}}：</span>{{recommend_config.bw}}M
+                </p>
+                <template v-if="cloudData.line?.bill_type === 'flow'">
+                  <p v-if="isDemandFee"><span class="name">{{lang.mf_flow}}：</span>{{lang.mf_demand_fee}}</p>
+                  <template v-else>
+                    <p v-if="recommend_config.flow">
+                      <span class="name">{{lang.mf_flow}}：</span>{{recommend_config.flow}}GB
+                    </p>
+                    <p v-if="recommend_config.flow===0">
+                      <span class="name">{{lang.mf_flow}}：</span>{{lang.mf_tip28}}
+                    </p>
+                  </template>
+                </template>
+                <p v-if="configData.free_disk_switch">
+                  <span class="name">{{lang.mf_tip37}}：</span>
+                  {{configData.free_disk_size}}GB
+                </p>
+                <p v-if="recommend_config.peak_defence">
+                  <span class="name">{{lang.peak_defence}}：</span>{{
+                      recommend_config.peak_defence + 'G'}}
+                </p>
+                <p>
+                  <span class="name">IPv4{{lang.shoppingCar_goodsNums}}：</span>{{recommend_config.ip_num === 0 ?
+                      lang.mf_none : recommend_config.ip_num + lang.common_cloud_title43}}
+                </p>
+                <p>
+                  <span class="name">IPv6{{lang.shoppingCar_goodsNums}}：</span>{{recommend_config.ipv6_num === 0 ?
+                      lang.mf_none : recommend_config.ipv6_num + lang.common_cloud_title43}}
+                </p>
+                <p v-if="recommend_config.gpu_num">
+                  <span class="name">GPU{{lang.shoppingCar_goodsNums}}：</span>
+                  <span :title="`${recommend_config.gpu_num}*${recommend_config.gpu_name}`">{{cloudData.gpu ||
+                        '--'}}</span>
+                </p>
+              </div>
+              <div class="bot-btn">{{lang.cur_config}}</div>
+            </div>
+            <div class="cloud-item" :class="{active: recommend_config_id=== item.id}"
+              v-for="(item,index) in recommendList" :key="index">
+              <div class="top">
+                {{item.name}}<span class="des">（{{item.description}}）</span>
+              </div>
+              <div class="info">
+                <p>
+                  <span class="name">{{lang.mf_specs}}：</span>{{item.cpu}}{{lang.mf_cores}}{{item.memory}}G
+                </p>
+                <p>
+                  <span class="name">{{lang.mf_system}}：</span>{{item.system_disk_size}}GB<span
+                    v-if="item.system_disk_type">，{{item.system_disk_type}}</span>
+                </p>
+                <p v-if="item.data_disk_size * 1">
+                  <span class="name">{{lang.common_cloud_text1}}：</span>{{item.data_disk_size}}GB<span
+                    v-if="item.data_disk_type">，{{item.data_disk_type}}</span>
+                </p>
+                <p>
+                  <span class="name">{{lang.mf_bw}}：</span>{{item.bw}}M
+                </p>
+                <template v-if="item.bill_type === 'flow'">
+                  <p v-if="isDemandFee"><span class="name">{{lang.mf_flow}}：</span>{{lang.mf_demand_fee}}</p>
+                  <template v-else>
+                    <p v-if="item.flow">
+                      <span class="name">{{lang.mf_flow}}：</span>{{item.flow}}GB
+                    </p>
+                    <p v-if="item.flow===0">
+                      <span class="name">{{lang.mf_flow}}：</span>{{lang.mf_tip28}}
+                    </p>
+                  </template>
+                </template>
+                <p v-if="configData.free_disk_switch">
+                  <span class="name">{{lang.mf_tip37}}：</span>
+                  {{configData.free_disk_size}}GB
+                </p>
+                <p v-if="item.peak_defence">
+                  <span class="name">{{lang.peak_defence}}：</span>{{
+                      item.peak_defence + 'G'}}
+                </p>
+                <p>
+                  <span class="name">IPv4{{lang.shoppingCar_goodsNums}}：</span>{{item.ip_num === 0 ?
+                      lang.mf_none : item.ip_num + lang.common_cloud_title43}}
+                </p>
+                <p>
+                  <span class="name">IPv6{{lang.shoppingCar_goodsNums}}：</span>{{item.ipv6_num === 0 ?
+                      lang.mf_none : item.ipv6_num + lang.common_cloud_title43}}
+                </p>
+                <p v-if="item.gpu_num">
+                  <span class="name">GPU{{lang.shoppingCar_goodsNums}}：</span>
+                  <span :title="`${item.gpu_num}*${item.gpu_name}`">{{item.gpu_num}}*{{item.gpu_name}}</span>
+                </p>
+              </div>
+              <div class="bot-btn" @click="changeRecommend(item)">{{lang.change_package}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="upgrade-fotter">
+        <div class="money-box">
+          <div class="money-left">
+            <div class="money-text">{{isDemandFee ? lang.mf_demand_tip13 : lang.common_cloud_btn37}}：</div>
+            <div class="money-content">
+              <div v-show="!upgradePriceLoading">
+                <span class="money-num">{{commonData.currency_prefix }} {{ filterMoney(upParams.totalPrice)}}</span>
+                <span class="demand-unit" v-if="isDemandFee">/{{lang.mf_hour}}</span>
+                <van-popover placement="top">
+                  <div class="sure-remind">
+                    <p v-if="isShowLevel">{{lang.shoppingCar_tip_text2}}：{{commonData.currency_prefix}}
+                      {{calcFilterPrice(upParams.clDiscount)}}
+                    </p>
+                    <p v-if="isShowPromo && upParams.isUseDiscountCode">
+                      {{lang.shoppingCar_tip_text4}}：{{commonData.currency_prefix}}
+                      {{ filterMoney(upParams.code_discount)}}
+                    </p>
+                  </div>
+                  <template #reference>
+                    <van-icon name="info-o" class="help"
+                      v-if="upParams.clDiscount || upParams.code_discount "></van-icon>
+                  </template>
+                </van-popover>
+                <div class="original-price" v-if="upParams.totalPrice != upParams.original_price">
+                  {{commonData.currency_prefix}} {{filterMoney(upParams.original_price) }}
+                </div>
+                <div class="demand-price" v-if="isDemandFee && lineDetail.bill_type === 'flow' && demandFlowPrice > 0">
+                  ({{lang.mf_flow}}: {{commonData.currency_prefix}}<span
+                    class="price">{{ calcFilterPrice(demandFlowDiscountPrice) }}</span>
+                  <span class="demand-discout"
+                    v-if="demandFlowPrice * 1 > 0">{{commonData.currency_prefix}}{{calcFilterPrice(demandFlowPrice)}}</span>/GB)div
+                </div>
+              </div>
+              <van-loading v-show="upgradePriceLoading"></van-loading>
+            </div>
+          </div>
+          <div class="code-box" v-if="!isDemandFee">
+            <!-- 优惠码 -->
+            <discount-code placement="top-end" v-show="isShowPromo" @get-discount="getUpDiscount"
+              @remove-discount="removeUpDiscountCode" scene="upgrade" :product_id="product_id"
+              :amount="upParams.original_price" :billing_cycle_time="hostData.billing_cycle_time">
+            </discount-code>
+          </div>
+        </div>
+        <div class="upgrade-btn-box">
+          <van-button color="#F5F5F5" style="color: #999999; width: 50%;" block @click="upgradeDgClose">
+            {{lang.security_btn6}}
+          </van-button>
+          <van-button block type="primary" @click="upgradeSub" :loading="loading4">
+            {{lang.security_btn5}}
+          </van-button>
+        </div>
+      </div>
+    </div>
+
+  </van-popup>
+  <!-- 修改备注弹窗 -->
+  <van-popup v-model:show="isShowNotesDialog" round closeable style="width: 90%;">
+    <div class="pop-box">
+      <div class="dia-text"> {{hostData.notes?lang.common_cloud_title7:lang.common_cloud_title8}}</div>
+      <div class="pop-body">
+        <div class="label">{{lang.common_cloud_label29}}</div>
+        <van-field class="pop-input" v-model="notesValue"></van-field>
+      </div>
+      <div class="pop-fotter">
+        <van-button class="can-btn" block @click="notesDgClose">{{lang.common_cloud_btn29}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="subNotes">{{lang.common_cloud_btn28}}</van-button>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 停用弹窗（删除实例） -->
+  <van-popup v-model:show="isShowRefund" round closeable style="width: 90%;" @closed="refundDgClose">
+    <div class="pop-box">
+      <div class="dia-text">
+        {{refundPageData.allow_refund == 1 ? lang.common_cloud_title11 : lang.common_cloud_title12}}
+      </div>
+      <div class="pop-body">
+        <div class="refund-box">
+          <div class="label">{{lang.common_cloud_label35}}</div>
+          <div class="host-content">
+            <div class="host-item">
+              <div class="left">{{lang.common_cloud_label36}}:</div>
+              <div class="right">
+                <div class="right-row">
+                  <div class="right-row-item">{{cloudData.cpu}} {{lang.common_cloud_text285}}</div>
+                  <div class="right-row-item">{{(cloudData.memory) + 'GB'}} {{lang.common_cloud_text286}}</div>
+                  <div class="right-row-item">{{cloudData.system_disk.size}} GB {{lang.common_cloud_text287}}</div>
+                  <div class="right-row-item">{{cloudData.bw}} M {{lang.common_cloud_text288}}</div>
+                </div>
+              </div>
+            </div>
+            <div class="host-item">
+              <div class="left">{{lang.common_cloud_label37}}:</div>
+              <div class="right" v-time="refundPageData.host.create_time"></div>
+            </div>
+            <div class="host-item" v-if="refundPageData.allow_refund == 1">
+              <div class="left">{{lang.common_cloud_label38}}:</div>
+              <div class="right">{{commonData.currency_prefix + refundPageData.host.first_payment_amount}}</div>
+            </div>
+          </div>
+          <van-cell-group>
+            <van-cell v-if="refundPageData.reason_custom === 0" :title="lang.common_cloud_label39">
+              <van-checkbox-group style="width: 100%;" v-model="refundParams.suspend_reason" shape="square">
+                <van-select :text="calcMultilSelectText" right-icon="arrow" :columns="refundPageData.reasons"
+                  input-align="right" :columns-names="{text: 'content', value: 'id'}">
+                  <template #option="option">
+                    <van-checkbox :name="option.id">{{option.content}}</van-checkbox>
+                  </template>
+                </van-select>
+              </van-checkbox-group>
+            </van-cell>
+            <van-field :label="lang.common_cloud_label39" input-align="right" v-else
+              v-model="refundParams.suspend_reason">
+            </van-field>
+            <van-select v-model:firpick="refundParams.type" :label="lang.common_cloud_label40" right-icon="arrow"
+              input-align="right" cur-class="van-select" :columns="showSuspendOption" v-if="!isDemandFee">
+            </van-select>
+          </van-cell-group>
+          <div class="demand-stop-tip" v-if="isDemandFee">
+            <span>{{lang.mf_demand_tip10}}：</span><br>
+            <span>{{lang.mf_demand_tip22}}</span><br>
+            <span>{{lang.mf_demand_tip23}}</span>
+          </div>
+          <template v-if="!isDemandFee">
+            <div class="label">{{lang.common_cloud_label43}}</div>
+            <div class="amount-content" :class="{error: refundPageData.allow_refund === 0}">
+              <template v-if="refundPageData.allow_refund === 0">{{lang.refund_tip}}</template>
+              <template v-else>{{commonData.currency_prefix}}{{refundPageData.host.amount}}</template>
+            </div>
+          </template>
+        </div>
+      </div>
+      <div class="pop-fotter">
+        <van-button class="can-btn" block @click="refundDgClose">{{lang.common_cloud_btn29}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="subRefund">{{refundPageData.allow_refund == 1 ?
+          lang.common_cloud_btn31 : lang.common_cloud_btn32}}</van-button>
+      </div>
+    </div>
+
+  </van-popup>
+  <!-- 续费弹窗 -->
+  <renew-dialog v-if="product_id" ref="renewDialog" :id="id" :product-id="product_id" :is-demand-fee="isDemandFee"
+    @renew-success="handleRenewSuccess" @renew-pay="handleRenewPay">
+  </renew-dialog>
+  <!-- 电源操作确认弹窗 -->
+  <van-popup v-model:show="isShowPowerChange" round closeable style="width: 90%;">
+    <div class="pop-box">
+      <div class="dia-text">{{powerTitle}}{{lang.cloud_menu_1}}</div>
+      <div class="pop-body">
+        <div class="s-tip">{{lang.common_cloud_text34}}&nbsp;{{powerTitle}}&nbsp;{{lang.common_cloud_text35}}</div>
+        <div class="content">
+          <div class="l-icon">
+            <img src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/cloudDetail/host.png" alt="">
+          </div>
+          <div class="info">
+            <p class="text">
+              {{hostData.name}}
+              <van-tag :type="calcPower(status)" class="tag-button">{{status}}</van-tag>
+            </p>
+            <p class="ip">{{cloudData.ip}}</p>
+          </div>
+        </div>
+      </div>
+      <div class="pop-fotter">
+        <van-button class="can-btn" block @click="powerDgClose">{{lang.common_cloud_btn29}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="toChangePower" :loading="loading1">{{
+          lang.common_cloud_btn28}}</van-button>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 退出救援模式弹窗 -->
+  <van-popup v-model:show="isShowQuit" round closeable style="width: 90%;">
+    <div class="pop-box">
+      <div class="dia-text">{{lang.common_cloud_btn14}}</div>
+      <div class="pop-body">
+
+      </div>
+      <div class="pop-fotter">
+        <van-button class="can-btn" block @click="quitDgClose">{{lang.common_cloud_btn29}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="reQuitSub">{{ lang.common_cloud_btn34}}</van-button>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 挂载磁盘 -->
+  <van-popup v-model:show="isShwoMountDisk" round closeable style="width: 90%;">
+    <div class="pop-box">
+      <div class="dia-text">{{lang.common_cloud_title16 + lang.common_cloud_tab3}}</div>
+      <div class="pop-body">
+        <div class="label">{{lang.select_instance}}</div>
+        <van-select :text="curCloudName" :clearable="false" disabled right-icon="">
+        </van-select>
+      </div>
+      <div class="pop-fotter">
+        <van-button class="can-btn" block @click="isShwoMountDisk = false">{{lang.common_cloud_text181}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="subMount" :loading="mountLoading">{{
+          lang.common_cloud_btn28}}</van-button>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 卸载磁盘 -->
+  <van-popup v-model:show="isShwoUnmountDisk" round closeable style="width: 90%;">
+    <div class="pop-box">
+      <div class="dia-text danger-color">
+        <van-icon name="warning-o"></van-icon>
+        {{lang.common_cloud_title17 + lang.common_cloud_tab3}}
+      </div>
+      <div class="pop-body">
+        <div class="tip-box">
+          <span class="item-1">{{lang.common_cloud_title17 + lang.common_cloud_tab3}}: <span
+              class="name">{{curDisk.name}}</span></span>
+        </div>
+      </div>
+      <div class="pop-fotter">
+        <van-button class="can-btn" block @click="isShwoUnmountDisk = false">{{lang.common_cloud_text181}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="subUnmount" :loading="mountLoading">{{
+          lang.common_cloud_btn28}}</van-button>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 扩容磁盘弹窗 -->
+  <van-popup v-model:show="isShowExpansion" closeable round style="width: 90%;" @closed="krClose">
+    <div class="pop-box kr-box">
+      <div class="dia-text">
+        {{lang.common_cloud_btn42 }}
+      </div>
+      <div class="pop-body">
+        <div class="kr-disk-list">
+          <div class="disk-item" v-for="(item,index) in oldDiskList">
+            <div class="disk-name">{{lang.common_cloud_label18}}:{{item.name}}</div>
+            <div class="disk-num">
+              <span class="disk-left">{{lang.common_cloud_label20}}(GB):</span>
+              <template
+                v-if="item.type2 ==='data' && item.selectList.length > 0 && (item.selectList[0].type === 'total' || item.selectList[0].type === 'step')">
+                <van-stepper v-model="item.size" :min="item.min_value" :max="item.max_value"
+                  @change="(val)=>sliderChange(val,item)" :step="diskStep">
+                </van-stepper>
+              </template>
+              <template
+                v-if="item.type2 ==='data' && item.selectList.length > 0 && item.selectList[0].type === 'radio'">
+                <van-select v-model:firpick="item.size" :text="item.size + 'GB'"
+                  v-if="item.selectList[0].type === 'radio'" :clearable="false" :columns="item.selectList"
+                  :columns-names=" { text: 'value',value: 'value' }">
+                  <!-- <span v-if="isShowAppendItem(item)">{{freeDataObj.size + 'GB'}}</span> -->
+                  <template #option="option">
+                    <span>{{option.value + 'GB'}}</span>
+                  </template>
+                </van-select>
+              </template>
+              <template v-if="item.selectList.length === 0">
+                <span>{{lang.common_cloud_btn68}}</span>
+              </template>
+              <div class="disk-tips">
+                <span class="tips" v-if="item.tips && item.selectList.length !== 0">({{item.tips}})</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="kr-price">
+          <div class="kr-bottom-text">{{isDemandFee ? lang.mf_demand_tip26 : lang.common_cloud_btn44}}:</div>
+          <div class="kr-bottom-num" v-show="!diskPriceLoading">
+            {{commonData.currency_prefix}}{{calcFilterPrice(expansionDiskPrice * 1)}}
+            <span class="demand-unit" v-if="isDemandFee">/{{lang.mf_hour}}</span>
+            <van-popover placement="top">
+              <div class="sure-remind">
+                <div class="show-config-list">
+                  {{lang.shoppingCar_tip_text2}}：{{commonData.currency_prefix}}{{ calcFilterPrice(expansionDiscount)
+                  }}
+                </div>
+                <div class="show-config-list" v-if="!isDemandFee">
+                  {{lang.common_cloud_text28}}：{{commonData.currency_prefix}}{{expansionCodePrice }}
+                </div>
+              </div>
+              <template #reference>
+                <van-icon name="info-o" class="help" v-show="isShowLevel || isShowPromo"></van-icon>
+              </template>
+            </van-popover>
+          </div>
+          <van-loading v-show="diskPriceLoading"></van-loading>
+        </div>
+      </div>
+      <div class="pop-fotter">
+        <van-button class="can-btn" block @click="krClose">{{lang.common_cloud_text181}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="subExpansion">
+          {{ lang.common_cloud_btn28}}</van-button>
+      </div>
+    </div>
+
+  </van-popup>
+  <!-- 订购磁盘弹窗 -->
+  <van-popup v-model:show="isShowDg" closeable round style="width: 90%;" @closed="dgClose">
+    <div class="pop-box kr-box">
+      <div class="dia-text">
+        {{lang.common_cloud_btn22 }}
+      </div>
+      <div class="pop-body">
+        <div class="kr-disk-list">
+          <div class="disk-item" v-for="(item,index) in oldDiskList2">
+            <div class="add-disk-box">
+              <div class="origin-disk">
+                <span class="disk-item-text">{{item.name}}</span>
+                <span class="disk-item-size">{{item.size + 'G'}}</span>
+              </div>
+              <!-- <img class="del-icon" v-if="item.type2 !== 'system' && item.is_free !== 1" @click="delOldSize2(item.id)"
+                src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/cloud/del-disk.svg" alt=""> -->
+            </div>
+          </div>
+          <div class="disk-item" v-for="(item,index) in moreDiskData">
+            <div class="add-disk-box">
+              <div class="add-left">
+                <div class="disk-type">
+                  <span class="disk-left">{{lang.disk_type}}</span>
+                  <van-select v-model:firpick="item.type" :clearable="false"
+                    :columns="calcDiskType(item.selectList[0].disk_typeList)" @change="(val)=>changeType(val,item)">
+                  </van-select>
+                </div>
+                <div class="disk-num">
+                  <span class="disk-left">{{lang.common_cloud_label20}}(GB):</span>
+                  <van-select v-model:firpick="item.size" v-if="item.selectList[0].type === 'radio'" :clearable="false"
+                    :columns="item.selectList[0][item.type]" :columns-names=" { text: 'label',value: 'value' }">
+                  </van-select>
+                  <van-popover placement="top" v-else>
+                    <div class="sure-remind">
+                      {{lang.mf_range + item.selectList[0][item.type].tips}}
+                    </div>
+                    <template #reference>
+                      <van-stepper v-model.number="item.size" :min="item.selectList[0][item.type].min_value"
+                        :before-change="(val)=>changeDataNum(val,item)" :max="item.selectList[0][item.type].max_value"
+                        :step="diskStep">
+                      </van-stepper>
+                    </template>
+                  </van-popover>
+                </div>
+              </div>
+              <img class="del-icon" @click="delMoreDisk(item.index)"
+                src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/cloud/del-disk.svg" alt="">
+            </div>
+          </div>
+
+
+          <div class="add-disk-btn" @click="addMoreDisk">
+            <van-icon name="add-o"></van-icon>
+          </div>
+        </div>
+        <div class="kr-price">
+          <div class="kr-bottom-text">{{isDemandFee ? lang.mf_demand_tip25 : lang.common_cloud_btn41}}:</div>
+          <div class="kr-bottom-num" v-show="!diskPriceLoading">
+            {{commonData.currency_prefix}}{{calcFilterPrice(moreDiskPrice * 1)}}
+            <span class="demand-unit" v-if="isDemandFee">/{{lang.mf_hour}}</span>
+            <van-popover placement="top">
+              <div class="sure-remind">
+                <div class="show-config-list">
+                  {{lang.shoppingCar_tip_text2}}：{{commonData.currency_prefix}}{{calcFilterPrice(moreDiscountkDisPrice)}}
+                </div>
+                <div class="show-config-list" v-if="!isDemandFee">
+                  {{lang.common_cloud_text28}}：{{commonData.currency_prefix}}{{
+                  moreCodePrice }}
+                </div>
+              </div>
+              <template #reference>
+                <van-icon name="info-o" class="help" v-show="isShowLevel || isShowPromo"></van-icon>
+              </template>
+            </van-popover>
+          </div>
+          <van-loading v-show="diskPriceLoading"></van-loading>
+        </div>
+      </div>
+      <div class="pop-fotter">
+        <van-button class="can-btn" block @click="dgClose">{{lang.common_cloud_text181}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="toCreateDisk">
+          {{ lang.product_buy_now}}
+        </van-button>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 新增附加IP -->
+  <van-popup v-model:show="isShowIp" round closeable style="width: 90%;" @closed="ipClose">
+    <div class="pop-box">
+      <div class="dia-text">{{lang.common_cloud_title39}}</div>
+      <div class="pop-body">
+        <!-- ipv4 -->
+        <div class="ip-label" v-if="ipValueData.length > 0">
+          {{lang.common_cloud_title40}} {{ipv4Select.length}}
+          {{lang.common_cloud_title43 + ',' +
+            lang.common_cloud_title41}}：{{cloudData.ip_num}}{{lang.common_cloud_title43
+          + ',' +lang.common_cloud_title42}}
+        </div>
+        <div class="ip-main-card" v-if="ipValueData.length > 0">
+          <template v-if="ipValueData[0].type === 'radio'">
+            <div class="ip-item" :class="ipValue === item.value ? 'active' : ''" v-for="item in calcIPList"
+              :key="item.value" @click="selectIpValue(item.value)">
+              {{item.value}} {{lang.common_cloud_title43}}
+            </div>
+          </template>
+
+          <van-popover placement="top" v-else>
+            <div class="sure-remind">
+              {{lang.mf_range + ipv4Tip}}
+            </div>
+            <template #reference>
+              <van-stepper v-model.number="ipValue" :step="1" :min="calcIPList[0]"
+                :max="calcIPList[calcIPList.length - 1]" :before-change="(val)=>changeIpNum('ipv4', val)">
+              </van-stepper>
+            </template>
+          </van-popover>
+        </div>
+        <!-- 指定IPv4降级 -->
+        <div class="ip-down" v-if="ipValueData.length > 0 && calcDelNum('ipv4') > 0">
+          <p class="label">{{lang.ip_down_tip}}</p>
+          <van-checkbox-group style="width: 100%;" v-model="ipv4DelArr" shape="square" :max="calcDelNum('ipv4')">
+            <van-select v-model:firpick="host_id" label-align="top" :label="lang.placeholder_pre2"
+              :text="calcRelaTionText('ipv4')" cur-class="select-field" v-model:firpick="ipv4DelArr"
+              :columns="ipv4Select" :placeholder="lang.placeholder_pre2" right-icon="arrow-down">
+              <template #option="option">
+                <van-checkbox :name="option.value">{{option.text}}</van-checkbox>
+              </template>
+            </van-select>
+          </van-checkbox-group>
+          <span class="tip">
+            {{lang.ip_down_tip1}}<span
+              class="num">{{calcDelNum('ipv4') - ipv4DelArr.length}}</span>{{lang.ip_down_tip2}}
+          </span>
+        </div>
+        <!-- ipv6 -->
+        <template v-if="ipv6ValueData.length > 0 && cloudData.network_type !== 'vpc'">
+          <div class="ip-label">
+            {{lang.cur_ipv6}} {{cloudData.ipv6_num}}
+            {{lang.common_cloud_title43 + ',' +
+              lang.common_cloud_title41}}：{{cloudData.ipv6_num}}{{lang.common_cloud_title43
+            + ',' +lang.cur_ipv6_tip}}
+          </div>
+          <div class="ip-main-card">
+            <template v-if="ipv6ValueData[0].type === 'radio'">
+              <div class="ip-item" :class="ipv6Value === item.value ? 'active' : ''" v-for="item in ipv6ValueData"
+                :key="item.value" @click="selectIpv6Value(item.value)">
+                {{item.value}} {{lang.common_cloud_title43}}
+              </div>
+            </template>
+            <van-popover placement="top" v-else>
+              <div class="sure-remind">
+                {{lang.mf_range + ipv6Tip}}
+              </div>
+              <template #reference>
+                <van-stepper v-model.number="ipv6Value" :step="1" :min="ipv6ValueData[0].min_value" class="ip-slider"
+                  :max="ipv6ValueData[ipv6ValueData.length - 1].max_value"
+                  :before-change="(val)=>changeIpNum('ipv6', val)">
+                </van-stepper>
+              </template>
+            </van-popover>
+          </div>
+          <!-- 指定IPv6降级 -->
+          <div class="ip-down" v-if="ipValueData.length > 0 && calcDelNum('ipv6') > 0">
+            <p class="label">{{lang.ip_down_tip}}</p>
+            <van-checkbox-group style="width: 100%;" v-model="ipv6DelArr" shape="square" :max="calcDelNum('ipv6')">
+              <van-select v-model:firpick="host_id" label-align="top" :text="calcRelaTionText('ipv6')"
+                :label="lang.placeholder_pre2" cur-class="select-field" v-model:firpick="ipv6DelArr"
+                :columns="ipv6Select" :placeholder="lang.placeholder_pre2" right-icon="arrow-down">
+                <template #option="option">
+                  <van-checkbox :name="option.value">{{option.text}}</van-checkbox>
+                </template>
+              </van-select>
+            </van-checkbox-group>
+            <span class="tip">
+              {{lang.ip_down_tip1}}<span
+                class="num">{{calcDelNum('ipv6') - ipv6DelArr.length}}</span>{{lang.ip_down_tip2}}
+            </span>
+          </div>
+        </template>
+      </div>
+      <div class="ip-price-box">
+        <div class="kr-bottom-text">{{isDemandFee ? lang.mf_demand_tip13 : lang.common_cloud_title44}}:</div>
+        <div class="kr-bottom-num" v-show="!ipPriceLoading">
+          {{commonData.currency_prefix}}{{calcFilterPrice(ipMoney)}}
+          <span class="demand-unit" v-if="isDemandFee">/{{lang.mf_hour}}</span>
+          <van-popover placement="top">
+            <div class="sure-remind">
+              <div class="show-config-list">
+                {{lang.common_cloud_text27}}：{{commonData.currency_prefix}}{{ calcFilterPrice(ipDiscountkDisPrice) }}
+              </div>
+              <!-- <div class="show-config-list">{{lang.common_cloud_text28}}：{{commonData.currency_prefix}}{{
+                ipCodePrice}}
+              </div> -->
+            </div>
+            <template #reference>
+              <van-icon name="info-o" class="help" v-show="isShowLevel || isShowPromo"></van-icon>
+            </template>
+          </van-popover>
+        </div>
+        <van-loading v-show="ipPriceLoading"></van-loading>
+      </div>
+      <div class="pop-fotter">
+        <van-button class="can-btn" block @click="ipClose">{{lang.common_cloud_text181}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="subAddIp">{{ lang.common_cloud_btn28}}</van-button>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 删除VPC弹窗 -->
+  <van-popup v-model:show="isShowVpcDel" round closeable style="width: 90%;" @close="vpcDelClose">
+    <div class="del-pop">
+      <div class="dia-text">
+        <van-icon name="warning-o"></van-icon>
+        {{lang.mf_tip34}}
+      </div>
+      <div class="fotter-btn dia-fotter">
+        <van-button class="can-btn" @click="vpcDelClose">{{lang.security_btn6}}</van-button>
+        <van-button class="sub-btn" :loading="delVpcLoading" type="danger"
+          @click="handDelVpc">{{lang.security_btn9}}</van-button>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 删除NAT / 转发弹窗 -->
+  <van-popup v-model:show="isShowNatDel" round closeable style="width: 90%;" @close="natDelClose">
+    <div class="del-pop">
+      <div class="dia-text">
+        <van-icon name="warning-o"></van-icon>
+        {{lang.security_btn9 +  natDelName + '？'}}
+      </div>
+      <div class="fotter-btn dia-fotter">
+        <van-button class="can-btn" @click="natDelClose">{{lang.security_btn6}}</van-button>
+        <van-button class="sub-btn" :loading="natDelLoading" v-if="natDelType === 'acl'" type="danger"
+          @click="handDelacl">{{lang.security_btn9}}</van-button>
+        <van-button class="sub-btn" v-else type="danger" :loading="natDelLoading"
+          @click="handDelweb">{{lang.security_btn9}}</van-button>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 分配主机 -->
+  <van-popup v-model:show="isShowengine" round closeable style="width: 90%;">
+    <div class="pop-box">
+      <div class="dia-text">{{lang.common_cloud_title35}}</div>
+      <div class="pop-body">
+        <div class="engine-label">{{lang.common_cloud_title36}}</div>
+        <div class="engine-select">
+          <span class="select-title">{{lang.common_cloud_title37}}：</span>
+          <van-select v-model:firpick="engineID" cur-class="van-select" :columns-names="{text: 'name', value: 'id'}"
+            :columns="productOptions">
+          </van-select>
+        </div>
+      </div>
+      <div class="pop-fotter">
+        <van-button class="can-btn" block @click="engineClose">{{lang.subaccount_text32}}</van-button>
+        <van-button class="sub-btn" block type="primary" :loading="isSubmitEngine" @click="subAddEngine">{{
+          lang.subaccount_text31}}</van-button>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 新增VPC网络 -->
+  <van-popup v-model:show="isShowAddVpc" round closeable style="width: 95%;" @closed="addVpcClose">
+    <div class="pop-box">
+      <div class="dia-text">{{lang.common_cloud_title20}}</div>
+      <div class="pop-body">
+        <div class="vpc-item">
+          <span class="vpc-leabel">{{lang.common_cloud_title32}}：</span>
+          <span class="vpc-value">{{vpcName}}</span>
+        </div>
+        <div class="vpc-item">
+          <span class="vpc-leabel">{{lang.common_cloud_title33}}：</span>
+          <van-select cur-class="van-select" v-model:firpick="plan_way" :columns-names="{text: 'name', value: 'id'}"
+            :columns="planWayOptions">
+          </van-select>
+        </div>
+        <div class="vpc-item ip-custom" v-if="plan_way === 1">
+          <span class="vpc-leabel">{{lang.common_cloud_title34}}：</span>
+          <div class="vpc">
+            <!-- 自定义vpc -->
+            <div class="custom">
+              <van-select cur-class="custom-select" v-model:firpick="vpc_ips.vpc1.value" @change="changeVpcIp"
+                :columns="vpc_ips.vpc1.select">
+              </van-select>
+              <span class="ip-dot">·</span>
+              <van-popover placement="top">
+                <div class="sure-remind">
+                  {{vpc_ips.vpc1.tips}}
+                </div>
+                <template #reference>
+                  <van-field :disabled="vpc_ips.vpc1.value === 192" v-model="vpc_ips.vpc2" :step="1"
+                    :formatter="vpcFormatter" format-trigger="onBlur" :controls="false" :min="vpc_ips.min"
+                    :max="vpc_ips.max" type="digit">
+                  </van-field>
+                </template>
+              </van-popover>
+              <span class="ip-dot">·</span>
+              <van-popover placement="top">
+                <div class="sure-remind">
+                  {{vpc_ips.vpc3Tips}}
+                </div>
+                <template #reference>
+                  <van-field :disabled="vpc_ips.vpc6.value === 16" @blur="changeVpc3" :formatter="vpc2Formatter"
+                    v-model="vpc_ips.vpc3" :step="1" format-trigger="onBlur" :controls="false" :min="0"
+                    :max="255"></van-field>
+                </template>
+              </van-popover>
+              <span class="ip-dot">·</span>
+              <van-popover placement="top">
+                <div class="sure-remind">
+                  {{vpc_ips.vpc4Tips}}
+                </div>
+                <template #reference>
+                  <van-field :disabled="vpc_ips.vpc6.value < 25" @blur="changeVpc4" :formatter="vpc2Formatter"
+                    v-model="vpc_ips.vpc4" :step="1" format-trigger="onBlur" :controls="false" :min="0"
+                    :max="255"></van-field>
+                </template>
+              </van-popover>
+              <span class="ip-dot">/</span>
+              <van-select cur-class="custom-select" v-model:firpick="vpc_ips.vpc6.value" @change="changeVpcMask"
+                :columns="vpc_ips.vpc6.select">
+              </van-select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pop-fotter">
+        <van-button class="can-btn" block @click="addVpcClose">{{lang.subaccount_text32}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="subAddVpc">{{ lang.subaccount_text31}}</van-button>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 加入安全组 -->
+  <van-popup v-model:show="safeDialogShow" round closeable style="width: 90%;">
+    <div class="pop-box">
+      <div class="dia-text">{{lang.add_to_group}}</div>
+      <div class="pop-body">
+        <van-select :label="lang.choose_group" cur-class="select-field" v-model:firpick="safeID" right-icon="arrow"
+          input-align="right" :columns-names="{text: 'name', value: 'id'}" :columns="safeOptions">
+        </van-select>
+      </div>
+      <div class="pop-fotter">
+        <van-button class="can-btn" block @click="safeClose">{{lang.finance_text71}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="subAddSafe">{{ lang.finance_text70}}</van-button>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 开启备份/快照弹窗 -->
+  <van-popup v-model:show="isShowOpenBs" round closeable style="width: 90%;">
+    <div class="pop-box">
+      <div class="dia-text">
+        <span v-if="backupType === 'add'">
+          {{isBs?lang.common_cloud_btn62:lang.common_cloud_btn63}}
+        </span>
+        <span v-else>{{lang.common_cloud_btn16}}</span>
+      </div>
+      <div class="pop-body">
+        <van-select v-if="isBs" :text="bsData.backNum + lang.common_cloud_text3" v-model:firpick="bsData.backNum"
+          @change="bsSelectChange" cur-class="select-field select-div" :columns-names="{text: 'num', value: 'num'}"
+          :columns="backup_config">
+          <template #option="option">
+            <!-- + commonData.currency_prefix + option.price + '/' + bsData.duration -->
+            <span>{{option.num + lang.common_cloud_text3}}</span>
+          </template>
+        </van-select>
+        <van-select v-if="!isBs" :text="bsData.snapNum + lang.common_cloud_text4" v-model:firpick="bsData.snapNum"
+          @change="bsSelectChange" cur-class="select-field select-div" :columns-names="{text: 'num', value: 'num'}"
+          :columns="snap_config">
+          <template #option="option">
+            <!-- + commonData.currency_prefix + option.price + '/' +  bsData.duration -->
+            <span>{{option.num + lang.common_cloud_text4 }}</span>
+          </template>
+        </van-select>
+      </div>
+      <div class="pop-price">
+        <div class="price-text" v-if="!isDemandFee">
+          {{lang.common_cloud_text2}}{{isBs?bsData.backNum:bsData.snapNum}}{{lang.mf_one}}{{isBs?lang.common_cloud_title5:lang.common_cloud_btn54}}:
+        </div>
+        <div class="price-text" v-else>{{lang.mf_demand_tip27}}</div>
+        <div class="price-num" v-show="!bsDataLoading">
+          {{commonData.currency_prefix}}{{calcFilterPrice(bsData.money * 1)}}
+          <template v-if="!isDemandFee">/{{bsData.duration}}</template>
+          <template v-else>/{{lang.mf_hour}}</template>
+          <van-popover placement="top">
+            <div class="sure-remind">
+              <div class="show-config-list">
+                {{lang.common_cloud_text27}}：{{commonData.currency_prefix}}{{calcFilterPrice(bsData.moneyDiscount *
+                1)}}
+              </div>
+              <!-- <div class="show-config-list">
+                {{lang.common_cloud_text28}}：{{commonData.currency_prefix}}{{(bsData.codePrice * 1).toFixed(2)}}
+              </div> -->
+            </div>
+            <template #reference>
+              <van-icon name="info-o" class="help" v-if="isShowLevel || isShowPromo"></van-icon>
+            </template>
+          </van-popover>
+        </div>
+        <van-loading v-show="bsDataLoading"></van-loading>
+      </div>
+      <div class="pop-fotter">
+        <van-button class="can-btn" block @click="bsopenDgClose">{{lang.common_cloud_btn29}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="bsopenSub">{{ lang.common_cloud_btn28}}</van-button>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 创建备份/快照弹窗 -->
+  <van-popup v-model:show="isShwoCreateBs" round closeable style="width: 90%;">
+    <div class="pop-box">
+      <div class="dia-text">{{isBs? lang.common_cloud_btn45 :lang.common_cloud_btn46}}</div>
+      <div class="pop-body">
+        <div class="s-tip">{{lang.common_cloud_btn47}}{{isBs? lang.common_cloud_btn45
+          :lang.common_cloud_btn46}}{{lang.common_cloud_btn48}}</div>
+        <div class="bsData-box">
+          <van-select :label="lang.common_cloud_tab3" v-model:firpick="createBsData.disk_id" :columns="allDiskList"
+            :columns-names="{text: 'name', value: 'id'}" cur-class="select-field select-div" label-align="top">
+          </van-select>
+          <van-field v-model="createBsData.name" :label="lang.invoice_text139" label-align="top" class="dia-field">
+          </van-field>
+        </div>
+      </div>
+      <div class="pop-fotter">
+        <van-button class="can-btn" block @click="bsCgClose">{{lang.common_cloud_text181}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="subCgBs" :loading="cgbsLoading">{{
+          lang.common_cloud_btn28}}</van-button>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 还原备份、快照弹窗 -->
+  <van-popup v-model:show="isShowhyBs" round closeable style="width: 90%;">
+    <div class="pop-box">
+      <div class="dia-text">{{lang.common_cloud_btn49}}</div>
+      <div class="pop-body">
+        <div class="hyBs-box">
+          <span>
+            {{lang.common_cloud_btn50}}
+            <span class="name">{{restoreData.cloud_name}}</span>
+            {{lang.common_cloud_btn51}}
+          </span>
+          <span><span
+              v-time="restoreData.time"></span>{{lang.common_cloud_btn52}}{{isBs?lang.common_cloud_btn53:lang.common_cloud_btn54}}</span>
+          <span>{{lang.common_cloud_btn55}}{{isBs?lang.common_cloud_btn53:lang.common_cloud_btn54}}</span>
+        </div>
+      </div>
+      <div class="pop-fotter">
+        <van-button class="can-btn" block @click="bshyClose">{{lang.common_cloud_btn29}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="subhyBs" :loading="loading3">{{
+          lang.common_cloud_btn56}}</van-button>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 删除备份、快照弹窗 -->
+  <van-popup v-model:show="isShowDelBs" round closeable style="width: 90%;">
+    <div class="pop-box">
+      <div class="dia-text danger-color">
+        <van-icon name="warning-o"></van-icon>
+        {{isBs?lang.common_cloud_btn57:lang.common_cloud_btn58}}
+      </div>
+      <div class="pop-body">
+        <div class="tip-box">
+          <span class="item-1">{{isBs?lang.common_cloud_btn57:lang.common_cloud_btn58}}: <span
+              class="name">{{delData.name}}</span></span>
+          <span class="item-2">{{lang.common_cloud_btn59}}{{delData.cloud_name}}{{lang.common_cloud_btn51}}
+            <span v-time="delData.time"></span>
+            {{lang.common_cloud_btn52}}{{isBs?lang.common_cloud_btn53:lang.common_cloud_btn54}}{{lang.common_cloud_btn60}}</span>
+        </div>
+      </div>
+      <div class="pop-fotter">
+        <van-button class="can-btn" block @click="delBsClose">{{lang.common_cloud_btn29}}</van-button>
+        <van-button class="sub-btn" block type="danger" @click="subDelBs" :loading="loading4">{{
+          lang.common_cloud_btn61}}</van-button>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 自动续费确认弹窗 -->
+  <van-popup v-model:show="isShowAutoRenew" round closeable style="width: 90%;" @closed="getRenewStatus">
+    <div class="pop-box">
+      <div class="dia-text">{{lang.common_cloud_text37}}{{isShowPayMsg? lang.common_cloud_text38 :
+        lang.common_cloud_text39}}{{lang.auto_renew}}</div>
+      <div class="pop-body">
+        <div class="hyBs-box">
+          <span>
+            {{lang.fin_host}}
+            <span class="name">{{hostData.name}}</span>
+          </span>
+        </div>
+      </div>
+      <div class="pop-fotter">
+        <van-button class="can-btn" block @click="autoRenewDgClose">{{lang.common_cloud_btn29}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="doAutoRenew">{{ lang.common_cloud_btn28}}</van-button>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 关联/取消关联 -->
+  <van-popup v-model:show="isShowConnect" round closeable style="width: 90%;">
+    <div class="pop-box">
+      <div class="dia-text">{{calcDes}}</div>
+      <div class="pop-body">
+        <div class="label">{{lang.common_cloud_text36}}</div>
+        <p>{{curIp}}</p>
+        <!-- 警告框 -->
+        <div class="com-danger-btn" v-show="powerStatus=='off' && connectType === 'mf_cloud_ip'">
+          <div class="alert">
+            <div class="alert-text">{{lang.common_cloud_tip30}}</div>
+            <div class="item"><span class="dot"></span> {{lang.common_cloud_tip31}}</div>
+            <div class="item"><span class="dot"></span> {{lang.common_cloud_tip32}}</div>
+          </div>
+          <div class="check-box">
+            <van-checkbox v-model="connectCheck" shape="square" icon-size=".4267rem">
+              <span class="check-text">{{lang.common_cloud_text24}}</span>
+            </van-checkbox>
+          </div>
+        </div>
+      </div>
+      <div class="pop-fotter">
+        <van-button class="can-btn" block @click="isShowConnect = false">{{lang.common_cloud_btn29}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="submitConnect" :loading="loading5">
+          {{ lang.common_cloud_btn28}}
+        </van-button>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 镜像选择弹窗 -->
+  <van-popup v-model:show="showImgPick" round position="bottom" teleport="body">
+    <van-picker option-height=".96rem" visible-option-num="8" :columns="calcOsImgList"
+      :columns-field-names="{ text: 'name', value: 'id' }" ref="selectPopRef">
+      <template #toolbar>
+        <div class="tool-bar">
+          <img class="cancel-btn" @click="showImgPick = false"
+            src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/cancel.svg" alt="">
+          <span class="tool-confirm" @click="handelSelectImg">{{lang.template_text135}}</span>
+        </div>
+      </template>
+    </van-picker>
+  </van-popup>
+  <!-- 镜像选择弹窗 -->
+  <van-action-sheet v-model:show="isShowImage" round>
+    <div class="action-select">
+      <div class="action-title">
+        <div class="left-icon">
+          <img class="cancel-btn" @click="isShowImage = false"
+            src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/cancel.svg" alt="">
+        </div>
+        <div class="title-text">{{lang.cloud_menu_5}}</div>
+        <div></div>
+      </div>
+      <!-- 公共镜像|镜像市场选择 -->
+      <van-tabs v-model:active="imageType" @change="getImage" class="image-tabs">
+        <van-tab :title="lang.public_image" name="public"></van-tab>
+        <van-tab :title="lang.image_market" name="market" v-if="marketImageCount"></van-tab>
+      </van-tabs>
+      <div class="action-conctet image-action">
+        <div class="image-action-item" v-for="item in calcImageList" @click="changeImage(item)">
+          <div class="select-name">
+            <img :src="`/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/img/mf_cloud/${item.icon}.svg`"
+              alt="" class="image-icon" />
+            <span>{{item.name}}</span>
+          </div>
+          <van-icon name="arrow"></van-icon>
+        </div>
+      </div>
+    </div>
+  </van-action-sheet>
+  <!-- 自动释放时间 -->
+  <van-popup style="width: 90%;" round closeable v-model:show="showReleaseTime" :show-close="false"
+    @close="rePassDgClose">
+    <div class="pop-box">
+      <div class="dia-text">{{lang.mf_demand_tip6}}</div>
+      <van-form ref="releaseTimeForm" @submit="handleSubmitReleaseTime" label-align="top">
+        <div class="pop-body">
+          <van-field v-model="realeaseTime" readonly name="realeaseTime" :label="lang.placeholder_pre2"
+            :placeholder="lang.mf_demand_tip6" @click="showPicker = true"
+            :rules="[{ required: true, message: `${lang.placeholder_pre2}${lang.mf_demand_tip6}` }]">
+          </van-field>
+          <p class="realease-des">{{lang.mf_demand_tip7}}</p>
+        </div>
+        <div class="pop-fotter">
+          <van-button class="can-btn" block @click="showReleaseTime = false">{{lang.common_cloud_btn29}}</van-button>
+          <van-button class="sub-btn" block type="primary" native-type="submit" :loading="submitLoaing">
+            {{ lang.common_cloud_btn28}}
+          </van-button>
+        </div>
+      </van-form>
+    </div>
+  </van-popup>
+  <div class="realease-dialog">
+    <!-- 选择日期 -->
+    <van-popup v-model:show="showPicker" destroy-on-close position="bottom">
+      <van-date-picker v-model="currentDate" :title="lang.mf_demand_tip32" :min-date="new Date()" @confirm="confirmDate"
+        @cancel="showPicker = false" />
+    </van-popup>
+    <!-- 选择时间 -->
+    <van-popup v-model:show="showTimePicker" destroy-on-close position="bottom">
+      <van-time-picker v-model="currentTime" :title="lang.mf_demand_tip33" @confirm="confirmTime"
+        @cancel="showTimePicker = false" />
+    </van-popup>
+  </div>
+  <!-- 支付历史账单 -->
+  <van-popup style="width: 90%;" round closeable v-model:show="historyVisible" :show-close="false"
+    @close="rePassDgClose">
+    <div class="pop-box history-bill">
+      <div class="dia-text">{{lang.mf_demand_tip21}}</div>
+      <div class="pop-body">
+        <div class="item" v-for="item in historyList">
+          <p class="order-id">
+            <span>{{item.id}}</span>
+            <span class="time" v-time="item.create_time"></span>
+          </p>
+          <p class="product">
+            <span class="left">
+              <span v-for="(item,index) in item.product_names" :key="index">
+                <span v-if="index > 0">、</span>{{item}}
+              </span>
+            </span>
+            <span>{{ commonData.currency_prefix + item.amount}}</span>
+          </p>
+        </div>
+      </div>
+      <div class="pop-fotter">
+        <van-button class="can-btn" block @click="payHistoryClose">{{lang.common_cloud_btn29}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="submitCombine" v-if="historyList.length"
+          :loading="submitLoaing">
+          {{ lang.mf_demand_tip20}}
+        </van-button>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 包年包月转按需 -->
+  <van-popup style="width: 90%;" round closeable v-model:show="showTransferDemand" :show-close="false"
+    @close="rePassDgClose">
+    <div class="pop-box transfer-dialog">
+      <div class="dia-text">{{lang.mf_demand_tip14}}</div>
+      <div class="pop-body">
+        <div class="con">
+          <p class="item">
+            <span class="label">{{lang.mf_bill_way}}：</span>
+            <span class="value">{{lang.mf_demand_fee}}</span>
+          </p>
+          <p class="item">
+            <span class="label">{{lang.common_cloud_text7}}：</span>
+            <span
+              class="value">{{commonData.currency_prefix}}{{transferDemandForm.on_demand_price}}/{{transferDemandForm.billing_cycle_name}}</span>
+          </p>
+        </div>
+        <p class="des">{{lang.mf_demand_tip15}}</p>
+        <p class="footer-price">
+          {{lang.common_cloud_label11}}：
+          <span class="num">{{commonData.currency_prefix}}{{transferDemandForm.on_demand_price}}</span>
+          /{{lang.mf_hour}}
+        </p>
+      </div>
+      <div class="pop-fotter">
+        <van-button class="can-btn" block @click="showTransferDemand = false">{{lang.common_cloud_btn29}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="handleTransferDemand" :loading="submitLoaing">
+          {{ lang.mf_demand_tip9}}
+        </van-button>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 取消包年包月转按需 -->
+  <van-popup style="width: 90%;" round closeable v-model:show="cancelTransfer" :show-close="false"
+    @close="rePassDgClose">
+    <div class="pop-box">
+      <div class="dia-text">{{lang.mf_demand_tip17}}</div>
+      <div class="pop-fotter">
+        <van-button class="can-btn" block @click="cancelTransfer = false">{{lang.common_cloud_btn29}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="submitCancelTransfer" :loading="submitLoaing">
+          {{ lang.referral_btn6}}
+        </van-button>
+      </div>
+    </div>
+  </van-popup>
+  <!-- 安全验证 -->
+  <safe-confirm ref="safeRef" v-model:password="client_operate_password" @confirm="hadelSafeConfirm"></safe-confirm>
+  <!-- 图形验证码 -->
+  <captcha-dialog :is-show-captcha="isShowCaptcha" ref="captcha" captcha-id="mf-cloud-detail-captcha"
+    @get-captcha-data="getData" @captcha-cancel="captchaCancel"></captcha-dialog>
+  <!-- 支付弹窗 -->
+  <pay-dialog ref="topPayDialog" @payok="paySuccess" @paycancel="payCancel"></pay-dialog>
+  <!-- 申请返现 -->
+  <cash-back :id="id" :show-cash="isShowCashDialog" @cancledialog="cancleDialog" @showbtn="showBtn"></cash-back>
+</div>
+
+
+
+<!-- =======页面引入js和相关组件位置======= -->
+<script src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/api/cloud.js"></script>
+<script src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/lang/index.js"></script>
+<script src="/plugins/server/mf_cloud/template/clientarea/mobile/mfm301/js/cloud_detail.js"></script>

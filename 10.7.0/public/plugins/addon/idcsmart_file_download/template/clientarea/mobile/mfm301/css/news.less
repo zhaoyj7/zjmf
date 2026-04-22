@@ -1,0 +1,292 @@
+.help-page {
+    background: #F7F7F7;
+
+
+
+    .search-input {
+        .van-search__content {
+            border-radius: 6px;
+            overflow: hidden;
+        }
+    }
+
+    .fillter-search {
+
+
+        .van-search__action {
+            border-radius: 6px;
+        }
+
+        .van-dropdown-menu {
+
+            .van-dropdown-menu__bar {
+                padding-right: .4rem;
+                background: var(--van-search-content-background);
+                height: var(--van-search-input-height);
+                box-shadow: none;
+            }
+        }
+    }
+
+
+    .help-main {
+        background-color: #fff;
+        padding: .96rem .8rem 1.8667rem .8rem;
+
+        .help-item {
+            margin-bottom: .8rem;
+
+            .content-item-title {
+                display: flex;
+                align-items: center;
+                column-gap: .2133rem;
+                font-size: .48rem;
+                line-height: .6933rem;
+
+                img {
+                    width: .5867rem;
+                    height: .5867rem;
+                }
+            }
+
+            .content-item-link {
+                margin-top: .32rem;
+                display: flex;
+                flex-direction: column;
+                row-gap: .1067rem;
+
+                .link-item {
+                    font-size: .4267rem;
+                    line-height: .64rem;
+                    position: relative;
+                    padding-left: .32rem;
+                    cursor: pointer;
+
+                    &:before {
+                        content: '';
+                        position: absolute;
+                        left: 0;
+                        top: 50%;
+                        transform: translate(-50%, -50%);
+                        width: .1067rem;
+                        height: .1067rem;
+                        background: #C5C5C5;
+                        border-radius: 50%;
+                    }
+                }
+            }
+        }
+    }
+
+    .all-help-box {
+        margin-top: .2133rem;
+
+        .van-cell__title {
+            color: #333;
+            font-weight: 600;
+            font-size: .32rem;
+        }
+
+        .van-collapse-item__content {
+            >.help-item {
+                color: #333;
+                padding: .32rem .4267rem;
+                border-bottom: 0.5px solid #f7f7f7;
+                font-size: .32rem;
+
+                &:nth-last-of-type(1) {
+                    border-bottom: none;
+                }
+
+                &.active {
+                    background-color: #f7f7f7;
+                }
+            }
+
+        }
+
+        .bread-box {
+            display: flex;
+            align-items: center;
+            column-gap: 6px;
+            font-size: 12px;
+
+            .bread-text {
+                color: rgba(0, 0, 0, 0.6);
+            }
+        }
+
+
+    }
+
+    .new-main {
+        margin-top: .2133rem;
+        background: #FFF;
+
+        .new-item {
+            display: flex;
+            align-items: center;
+            column-gap: .5333rem;
+            border-radius: 3px;
+            margin-bottom: .2667rem;
+            font-size: 14px;
+            padding: .4267rem 0;
+            margin: 0 .4rem;
+            border-bottom: 1px solid #DEDEDE;
+
+            .item-left {
+                width: 2.6667rem;
+                height: 1.6rem;
+                flex-shrink: 0;
+                border-radius: 8px;
+                overflow: hidden;
+
+                .item-img {
+                    width: 100%;
+                    height: 100%;
+                    border-radius: 8px;
+                }
+            }
+
+            .item-right {
+                .title {
+                    font-size: .32rem;
+                    font-weight: 600;
+                }
+
+                .info {
+                    margin-top: .2933rem;
+                    font-size: .32rem;
+                    color: #999999;
+
+                    .el-icon-time {
+                        margin-right: .1333rem;
+                    }
+                }
+            }
+        }
+    }
+
+    .down-main {
+        margin: .2133rem 0;
+        background-color: #fff;
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            column-gap: .32rem;
+            background-color: #fff;
+            padding: .4267rem 0 .36rem 0;
+            margin: 0 .4rem;
+            border-bottom: 1px solid #DEDEDE;
+
+            .file-left {
+                width: .9467rem;
+                height: .9467rem;
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                }
+            }
+
+            .file-right {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                row-gap: .1067rem;
+                font-size: 0;
+
+                .file-title {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    column-gap: .1333rem;
+                    font-size: .3733rem;
+                    font-weight: 600;
+
+                    .van-icon {
+                        transform: rotate(180deg);
+                        color: #999999;
+                    }
+                }
+
+
+                .file-type {
+                    display: flex;
+                    justify-content: space-between;
+                    column-gap: .4rem;
+                }
+
+                .file-lebal {
+                    font-size: .2933rem;
+                }
+
+                .file-value {
+                    font-size: .2933rem;
+                    color: #999999;
+                }
+            }
+
+
+        }
+    }
+}
+
+.right-box {
+    position: relative;
+
+    .top-nav {
+        position: sticky;
+        top: 0;
+        left: 0;
+    }
+
+    .news-main {
+        padding: .32rem .4rem .6667rem;
+
+        .news-title {
+            font-size: 20px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .news-time {
+            margin-top: .16rem;
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.4);
+            text-align: center;
+
+            .time-keyworld {
+                margin-left: 10px;
+            }
+        }
+
+        .news-content {
+            width: 100%;
+            font-size: 14px;
+        }
+
+        .right-attachment {
+            margin-top: .4rem;
+            font-size: 14px;
+            display: flex;
+            align-items: flex-start;
+
+            .attachment-box {
+                display: flex;
+                flex-direction: column;
+                row-gap: 6px;
+            }
+
+            .right-attachment-item {
+
+                .van-icon {
+                    color: var(--base-color-primary);
+                }
+            }
+
+        }
+
+    }
+}

@@ -1,0 +1,183 @@
+<!-- =======内容区域======= -->
+<link rel="stylesheet" href="/plugins/addon/idcsmart_certification/template/admin/css/real_name.css">
+<link href="/plugins/addon/idcsmart_certification/template/admin/css/viewer.css" rel="stylesheet">
+<script src="/plugins/addon/idcsmart_certification/template/admin/js/viewer.js"></script>
+<script src="/plugins/addon/idcsmart_certification/template/admin/js/v_viewer.js"></script>
+<div id="content" class="real_name_approval" v-cloak>
+  <com-config>
+    <t-card class="list-card-container">
+      <ul class="common-tab">
+        <li class="active" v-permission="'auth_user_certification_approval_view'">
+          <a href="javascript:;">{{lang.real_name_approval}}</a>
+        </li>
+        <li v-permission="'auth_user_certification_configuration_view'">
+          <a href="real_name_setting.htm">{{lang.real_name_setting}}</a>
+        </li>
+        <li v-permission="'auth_user_certification_interface_view'">
+          <a href="real_name_interface.htm">{{lang.interface_manage}}</a>
+        </li>
+      </ul>
+      <div class="common-header">
+        <p></p>
+        <div class="r-box">
+          <t-select v-model="params.status" multiple :minCollapsed-num="2" clearable :placeholder="`${lang.status}`"
+            @change="seacrh">
+            <t-option v-for="item in statusList" :value="item.value" :label="item.label" :key="item.value"></t-option>
+          </t-select>
+          <div class="com-search">
+            <t-input v-model="params.keywords" class="search-input"
+              :placeholder="`${lang.proposer}、${lang.certify_id}、${lang.id_card}`" @keypress.enter.native="seacrh"
+              :on-clear="clearKey" clearable>
+            </t-input>
+            <t-icon size="20px" name="search" @click="seacrh" class="com-search-btn" />
+          </div>
+          <t-button @click="seacrh">{{lang.query}}</t-button>
+        </div>
+      </div>
+      <t-table row-key="id" :data="data" size="medium" :columns="columns" :hover="hover" :loading="loading"
+        :table-layout="tableLayout ? 'auto' : 'fixed'" @sort-change="sortChange" :hide-sort-tips="hideSortTips">
+        <template slot="sortIcon">
+          <t-icon name="caret-down-small"></t-icon>
+        </template>
+        <template #phone="{row}">
+          <span v-if="row.phone">+{{row.phone_code}}&nbsp;-&nbsp;{{row.phone}}</span>
+        </template>
+        <template #certify_id="{row}">
+          <span>{{row.certify_id || '--'}}</span>
+        </template>
+        <template #username="{row}">
+          <a class="aHover" :href="`${baseUrl}client_detail.htm?client_id=${row.client_id}`" style="cursor: pointer;"
+            v-if="row.username">#{{row.client_id}}-{{row.username}}</a>
+          <span v-else>--</span>
+        </template>
+        <template #real_name="{row}">
+          <template v-if="row.type === 1">
+            {{row.card_name}}
+          </template>
+          <template v-else>{{row.company}}</template>
+        </template>
+        <template #status="{row}">
+          <t-tag theme="primary" class="status" v-if="row.status===1" variant="light">{{lang.certified}}</t-tag>
+          <t-tooltip :content="row.auth_fail" :show-arrow="false" theme="light">
+            <t-tag theme="danger" class="status" v-show="row.status===2" variant="light">{{lang.fail}}</t-tag>
+          </t-tooltip>
+          <t-tag theme="success" class="status" v-if="row.status===3" variant="light">{{lang.to_audit}}</t-tag>
+          <t-tag class="status" v-if="row.status===4" variant="light">{{lang.submitted}}</t-tag>
+        </template>
+        <template #type="{row}">
+          <span v-if="row.type === 1">{{lang.personal_way}}</span>
+          <span v-if="row.type === 2">{{lang.business_way}}</span>
+          <span v-if="row.type === 3">{{lang.personal_to_business}}</span>
+        </template>
+        <template #card_number="{row}">
+          {{row.card_number || '--'}}
+        </template>
+        <template #create_time="{row}">
+          {{row.create_time ? moment(row.create_time * 1000).format('YYYY-MM-DD HH:mm') : ''}}
+        </template>
+        <template #op="{row}">
+          <t-tooltip :content="lang.pass" :show-arrow="false" theme="light">
+            <t-icon name="check-circle" class="common-look" @click="passHandler(row)"
+              v-if="row.status !== 1 && $checkPermission('auth_user_certification_approval_pass_approval')">
+            </t-icon>
+          </t-tooltip>
+          <t-tooltip :content="lang.reject" :show-arrow="false" theme="light">
+            <t-icon name="file-excel" class="common-look" @click="rejectHandler(row)"
+              v-if="row.status !== 2 && $checkPermission('auth_user_certification_approval_deny_approval')">
+            </t-icon>
+          </t-tooltip>
+          <!-- 详情 -->
+          <t-tooltip :content="lang.detail" :show-arrow="false" theme="light">
+            <t-icon name="view-module" class="common-look" @click="getDetail(row)"
+              v-permission="'auth_user_certification_approval_certification_detail'"></t-icon>
+          </t-tooltip>
+        </template>
+      </t-table>
+      <com-pagination v-if="total" :total="total" :page="params.page" :limit="params.limit" @page-change="changePage">
+      </com-pagination>
+    </t-card>
+    <!-- 通过/驳回-->
+    <t-dialog theme="warning" :header="statusTip" :visible.sync="statusVisble">
+      <t-form :data="formData" ref="payDialog" :label-width="120" v-if="optType === 'reject'">
+        <t-form-item>
+          <t-textarea v-model="formData.reason" :rows="3" :placeholder="lang.dismiss_the_reason"></t-textarea>
+        </t-form-item>
+      </t-form>
+      <template slot="footer">
+        <t-button theme="primary" @click="sureChange" :loading="submitLoading">{{lang.sure}}</t-button>
+        <t-button theme="default" @click="closeDialog">{{lang.cancel}}</t-button>
+      </template>
+    </t-dialog>
+    <!-- 详情 -->
+    <t-dialog :visible.sync="detailVisible" :header="payTit" :on-close="closePay" :footer="false" placement="center"
+      width="600" class="detailDialog">
+      <t-form :data="realDetai" ref="payDialog" :label-width="120" v-if="realDetai">
+        <t-form-item :label="lang.proposer">
+          <p class="disabled">{{realDetai.username}}</p>
+        </t-form-item>
+        <t-form-item :label="lang.order_post_time">
+          <p class="disabled">{{realDetai.create_time ? moment(realDetai.create_time * 1000).format('YYYY-MM-DD HH:mm')
+            : ''}}</p>
+        </t-form-item>
+        <t-form-item :label="lang.auth_way">
+          <p class="disabled">{{realDetai.title}}</p>
+        </t-form-item>
+        <t-form-item :label="lang.auth_type">
+          <p class="disabled">{{realDetai.type === 1 ? lang.personal_way : realDetai.type === 2 ? lang.business_way :
+            lang.personal_to_business}}</p>
+        </t-form-item>
+        <t-form-item :label="realDetai.type === 1 ? lang.legal_person_name :  lang.legal_name">
+          <p class="disabled">{{realDetai.card_name}}</p>
+        </t-form-item>
+        <t-form-item :label="realDetai.type === 1 ? lang.legal_person_id_card : lang.legal_id_card">
+          <p class="disabled">{{realDetai.card_number}}</p>
+        </t-form-item>
+        <t-form-item :label="lang.business_way + lang.nickname" v-if="realDetai.type !== 1">
+          <p class="disabled">{{realDetai.company}}</p>
+        </t-form-item>
+        <!-- <t-form-item :label="lang.ID_type">
+        <p class="disabled">{{realDetai.card_type === 0 ? lang.no_mainland : lang.mainland}}</p>
+      </t-form-item> -->
+        <t-form-item :label="lang.personal_no" v-if="realDetai.type !== 1">
+          <p class="disabled">{{realDetai.company_organ_code}}</p>
+        </t-form-item>
+        <div class="card-img">
+          <div class="item" v-if="realDetai.backUrl">
+            <p class="tit">{{lang.id_Photo_front}}</p>
+            <div class="img" @click="lookImg(realDetai.backUrl)">
+              <img :src="realDetai.backUrl" alt="">
+              <div class="preview">
+                <t-icon name="browse"></t-icon>
+              </div>
+            </div>
+          </div>
+          <div class="item" v-if="realDetai.fontUrl">
+            <p class="tit">{{lang.id_Photo_back}}</p>
+            <div class="img" @click="lookImg(realDetai.fontUrl)">
+              <img :src="realDetai.fontUrl" alt="">
+              <div class="preview">
+                <t-icon name="browse"></t-icon>
+              </div>
+            </div>
+          </div>
+          <div class="item" v-if="realDetai.slicense">
+            <p class="tit">{{lang.business_slicense}}</p>
+            <div class="img" @click="lookImg(realDetai.slicense)">
+              <img :src="realDetai.slicense" alt="">
+              <div class="preview">
+                <t-icon name="browse"></t-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="f-btn">
+          <t-button theme="default" variant="base" @click="detailVisible = false">{{lang.close}}</t-button>
+        </div>
+      </t-form>
+    </t-dialog>
+  </com-config>
+</div>
+
+<script src="/plugins/addon/idcsmart_certification/template/admin/js/lang.js"></script>
+<script src="/plugins/addon/idcsmart_certification/template/admin/api/real_name.js"></script>
+<script src="/plugins/addon/idcsmart_certification/template/admin/js/real_name_approval.js"></script>

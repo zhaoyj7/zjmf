@@ -1,0 +1,65 @@
+<!-- 页面独有样式 -->
+<link rel="stylesheet" href="/plugins/addon/idcsmart_news/template/clientarea/mobile/mfm301/css/new_detail.css">
+</head>
+
+<body>
+  <div id="template" v-cloak>
+    <van-sticky>
+      <van-nav-bar :title="lang.news_text4" safe-area-inset-top left-arrow @click-left="goBack">
+      </van-nav-bar>
+    </van-sticky>
+    <div class="contnet-right-out">
+      <div class="content-right" v-show="newDetail.id" v-loading="contentLoading">
+        <!-- 标题 -->
+        <div class="right-title">
+          {{newDetail.title}}
+        </div>
+        <!-- 更新时间 -->
+        <div class="right-keywords-time">
+          <div class="right-time">
+            {{lang.agreement_text1}}：<span v-time="newDetail.create_time"></span>
+          </div>
+          <div class="right-keywords">
+            {{lang.agreement_text2}}：{{newDetail.keywords || '--'}}
+          </div>
+        </div>
+        <!-- 主体内容 -->
+        <shadow-content class="right-content" :content="calStr(newDetail.content)"></shadow-content>
+        <!-- 附件 -->
+        <div class="right-attachment" v-if="newDetail.attachment?.length > 0">
+          {{lang.agreement_text3}}：
+          <div class="right-attachment-item" v-for="(f,i) in newDetail.attachment" :key="i"
+            @click="downloadfile(f.url)">
+            <span :title="f.name">
+              <van-icon name="orders-o"></van-icon>
+              <span>{{f.name}}</span>
+            </span>
+          </div>
+        </div>
+        <!-- 下一页 -->
+        <div class="msg-page">
+          <div class="page-left">
+            <template v-if="JSON.stringify(newDetail.prev) !== '{}'">
+              <span class="page-icon" @click="goOtherPage(newDetail.prev.id)">
+                {{lang.source_text4}}: </span>
+              <span class="page-next" @click="goOtherPage(newDetail.prev.id)">{{newDetail?.prev?.title}}</span>
+            </template>
+          </div>
+          <div class="page-right" v-if="JSON.stringify(newDetail.next) !== '{}'">
+            <template v-if="newDetail.next?.id">
+              <span class="page-icon" @click="goOtherPage(newDetail.next.id)">{{lang.source_text5}}: </span>
+              <span class="page-next" @click="goOtherPage(newDetail.next.id)">{{newDetail?.next?.title}}
+              </span>
+            </template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- =======页面独有======= -->
+  <script src="/plugins/addon/idcsmart_news/template/clientarea/mobile/mfm301/lang/index.js"></script>
+  <script src="/{$template_catalog}/template/{$themes}/components/shadowContent/shadowContent.js"></script>
+  <script src="/plugins/addon/idcsmart_news/template/clientarea/mobile/mfm301/api/news.js"></script>
+  <script src="/plugins/addon/idcsmart_news/template/clientarea/mobile/mfm301/js/news_detail.js"></script>

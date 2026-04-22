@@ -1,0 +1,128 @@
+.coin-active-popover {
+  padding: 0 !important;
+}
+.coin-active-btn {
+  position: fixed;
+  right: 3px;
+  top: 35vh;
+  z-index: 99;
+}
+.coin-active-btn .coin-active-trigger {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 5px;
+  border-radius: 99px;
+  color: #fff;
+  background: var(--color-primary);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(26, 97, 214, 0.2);
+}
+.coin-active-btn .coin-active-trigger:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(26, 97, 214, 0.4);
+  /* 由于@primary-color是CSS变量，less的lighten函数无法直接处理，改为使用filter实现亮色效果 */
+  background: var(--color-primary);
+  filter: brightness(1.08);
+}
+.coin-active-btn .coin-active-trigger:hover .trigger-icon {
+  transform: rotate(5deg);
+  background-color: #f8f9ff;
+}
+.coin-active-btn .coin-active-trigger:hover .trigger-text {
+  letter-spacing: 6px;
+}
+.coin-active-btn .coin-active-trigger .trigger-icon {
+  font-size: 0;
+  padding: 7px;
+  border-radius: 50%;
+  background-color: #fff;
+  transition: all 0.3s ease;
+}
+.coin-active-btn .coin-active-trigger .trigger-icon .icon-svg {
+  width: 16px;
+  height: 16px;
+}
+.coin-active-btn .coin-active-trigger .trigger-text {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  letter-spacing: 5px;
+  font-size: 12px;
+  transition: all 0.3s ease;
+}
+.coin-active-box .coin-title {
+  padding: 16px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2B2B2B;
+  border-bottom: 1px solid #EAEAEA;
+}
+.coin-active-box .coin-active-tabs .el-tabs__nav-wrap {
+  padding-left: 24px;
+}
+.coin-active-box .coin-list {
+  padding: 0 24px;
+  max-height: 5rem;
+  overflow-y: auto;
+  width: 5rem;
+}
+.coin-active-box .coin-list .coin-list-item {
+  box-sizing: border-box;
+  padding: 16px 0;
+  border-bottom: 1px dashed #EAEAEA;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.coin-active-box .coin-list .coin-list-item:nth-last-of-type(1) {
+  border-bottom: none;
+}
+.coin-active-box .coin-list .coin-list-item .coin-item-icon {
+  border-radius: 50%;
+  background-color: #F3F3F3;
+  padding: 11px;
+  font-size: 0;
+}
+.coin-active-box .coin-list .coin-list-item .coin-item-icon .item-icon {
+  width: 24px;
+  height: 24px;
+}
+.coin-active-box .coin-list .coin-list-item .coin-item-content {
+  flex: 1;
+}
+.coin-active-box .coin-list .coin-list-item .coin-item-content .coin-item-content-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: 0.3rem;
+}
+.coin-active-box .coin-list .coin-list-item .coin-item-content .coin-item-content-top .coin-item-content-title-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2B2B2B;
+}
+.coin-active-box .coin-list .coin-list-item .coin-item-content .coin-item-content-top .coin-item-content-time {
+  font-size: 12px;
+  color: #A2A2A2;
+}
+.coin-active-box .coin-list .coin-list-item .coin-item-content .coin-item-content-desc {
+  text-align: right;
+  margin-top: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  color: var(--color-primary);
+}
+.coin-active-box .coin-list .coin-list-item .coin-item-content .coin-item-detail .coin-detail-active-limit,
+.coin-active-box .coin-list .coin-list-item .coin-item-content .coin-item-detail .coin-detail-use-limit {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2B2B2B;
+  margin-bottom: 5px;
+}
+.coin-active-box .coin-list .coin-list-item .coin-item-content .coin-item-detail .coin-detail-use-limit {
+  margin-top: 10px;
+}

@@ -1,0 +1,197 @@
+.authentication-select {
+  padding-bottom: 0.8rem;
+}
+.authentication-select .main-page {
+  padding: 0 16px;
+}
+.authentication-select .mar-30 {
+  margin-top: 0.8rem;
+}
+.authentication-select .content-title {
+  font-size: 0.4267rem;
+}
+.authentication-select .check-type {
+  padding: 0.2667rem 0;
+  display: flex;
+  flex-direction: column;
+  row-gap: 0.4rem;
+}
+.authentication-select .check-type .type-box {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 0.01rem solid #E6E7EB;
+  border-radius: 0.16rem;
+  overflow: hidden;
+}
+.authentication-select .check-type .type-box .type-img {
+  margin-top: 0.2667rem;
+  width: 0.8rem;
+}
+.authentication-select .check-type .type-box .type-title {
+  font-size: 0.48rem;
+  margin-top: 0.2133rem;
+}
+.authentication-select .check-type .type-box .type-tips {
+  padding: 0.4rem 0.4267rem;
+  font-size: 0.3733rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+.authentication-select .check-type .type-box .presonl-status {
+  width: 100%;
+  font-size: 0.3733rem;
+  color: #fff;
+  padding: 0.2133rem 0;
+  text-align: center;
+}
+.authentication-select .check-type .type-box .presonl-status.person-success {
+  background-color: var(--base-color-success);
+}
+.authentication-select .check-type .type-box .presonl-status.person-loading {
+  background-color: var(--base-color-warning);
+}
+.authentication-select .check-type .type-box .checked-icon {
+  font-size: 0.4267rem;
+  position: absolute;
+  bottom: 0;
+  z-index: 2;
+  right: 0;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.5333rem;
+  height: 0.5333rem;
+  border-top-left-radius: 3px;
+  background-color: var(--base-color-primary);
+}
+.authentication-select .check-mode {
+  margin-top: 0.8rem;
+}
+.authentication-select .check-mode .select-field {
+  padding: 0;
+}
+.authentication-select .check-mode .config-tip {
+  margin-top: 0.2133rem;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 0.3733rem;
+}
+.authentication-select .check-mode .config-tip .amount-num {
+  color: var(--base-color-primary);
+  font-size: 0.4267rem;
+}
+.authentication-select .next-box {
+  display: flex;
+  column-gap: 0.5333rem;
+  margin-top: 0.8rem;
+}
+.authentication-select .third-box {
+  margin-top: 0.8rem;
+  font-size: 0.3733rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  border-radius: 0.03rem;
+}
+.authentication-select .third-box .thirdBox-left {
+  text-align: left;
+}
+.authentication-select .third-box .left-box1 p {
+  margin-bottom: 0.2667rem;
+  color: #4E5259;
+}
+.authentication-select .third-box .left-box1 > p .left-title {
+  display: inline-block;
+  margin-right: 0.32rem;
+  color: #8692B0;
+}
+.authentication-select .third-box #contentBox {
+  margin-top: 0.5333rem;
+}
+.authentication-select .third-box .left-box2 {
+  padding-left: 10px;
+  margin-top: 0.5333rem;
+  display: flex;
+  align-items: center;
+}
+.authentication-select .third-box .sao-icon-box {
+  margin-right: 0.4rem;
+  width: 0.9067rem;
+  height: 0.9067rem;
+}
+.authentication-select .third-box .sao-icon-box img {
+  width: 100%;
+  height: 100%;
+}
+.authentication-select .third-box .sao-text {
+  height: 0.9067rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.authentication-select .third-box .sao-text p {
+  color: #8692B0;
+}
+.authentication-select .third-box .thirdBox-right {
+  margin-left: 0.2667rem;
+  width: 2.35rem;
+  height: 2.08rem;
+}
+.authentication-select .third-box .thirdBox-right img {
+  width: 100%;
+  height: 100%;
+}
+.authentication-select .status-box {
+  font-size: 0.3733rem;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+  padding-top: 0.8rem;
+  border-radius: 0.03rem;
+}
+.authentication-select .status-box .personl-ing {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.authentication-select .status-box .personl-ing .status-img-box img {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.authentication-select .status-box .personl-ing .status-title {
+  font-size: 0.4267rem;
+  margin-top: 0.2667rem;
+}
+.authentication-select .status-box .personl-ing .status-tips {
+  margin-top: 0.2667rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+.authentication-select .status-box .personl-ing .table-box {
+  margin-top: 0.8rem;
+  border-spacing: 0;
+  text-align: left;
+  border: 1px solid #E6E7EB;
+}
+.authentication-select .status-box .personl-ing .table-box tr td {
+  width: 50%;
+  padding: 0.2667rem;
+  color: #1E2736;
+  border: 1px solid #E6E7EB;
+}
+.authentication-select .status-box .personl-ing .title-green {
+  margin-top: 0.4rem;
+  font-size: 0.4267rem;
+  color: var(--base-color-success);
+}
+.authentication-select .status-box .personl-ing .title-blue {
+  font-size: 0.4267rem;
+  color: var(--base-color-primary);
+}
+.authentication-select .status-box .personl-ing .again-btn {
+  margin-top: 0.8rem;
+}

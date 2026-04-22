@@ -1,0 +1,399 @@
+.template-container {
+  background-color: #F9F9FC;
+}
+.template-container .top-info {
+  padding: 9px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 16px;
+}
+.template-container .top-info .top-left {
+  display: flex;
+  align-items: center;
+}
+.template-container .top-info .top-left .logo-box {
+  width: 50px;
+  height: 50px;
+  margin-right: 16px;
+}
+.template-container .top-info .top-left .hello-text {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 17px;
+  letter-spacing: normal;
+  color: #2B2B2B;
+}
+.template-container .top-info .top-right {
+  display: flex;
+  align-items: center;
+  column-gap: 16px;
+}
+.template-container .top-info .top-right .active-user {
+  display: flex;
+  align-items: center;
+  column-gap: 8px;
+}
+.template-container .top-info .top-right .active-user .active-user-text {
+  font-size: 14px;
+  line-height: 17px;
+  color: #646464;
+}
+.template-container .top-info .top-right .active-user .divider {
+  display: inline-block;
+  /* 自动布局子元素 */
+  width: 2px;
+  height: 10px;
+  border-radius: 2px;
+  background: #F1F1F1;
+}
+.template-container .top-info .top-right .active-user .active-op-text {
+  cursor: pointer;
+  color: #1A7AE8;
+}
+.template-container .top-info .top-right .active-user .active-user-num {
+  font-size: 16px;
+  color: #2B2B2B;
+}
+.template-container .top-info .top-right .setting-box {
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+}
+.template-container .top-info .top-right .setting-box img {
+  width: 100%;
+  height: 100%;
+}
+.template-container .custom-box {
+  margin-top: 24px;
+}
+.template-container .custom-box #drag-row > div {
+  width: 100%;
+}
+.template-container .custom-box #drag-row > div > span {
+  display: flex;
+  flex-flow: row wrap;
+  row-gap: 24px;
+  margin-right: -24px;
+}
+.template-container .custom-box .mover {
+  position: absolute;
+  right: 20px;
+  top: 10px;
+  cursor: move;
+}
+.template-container .custom-box .custom-item {
+  width: 100%;
+  height: 350px;
+  box-sizing: border-box;
+  padding: 32px;
+  border-radius: 16px;
+  background: #FFFFFF;
+}
+.template-container .custom-box .profit-box .profit-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.template-container .custom-box .profit-box .profit-title .profit-title-left {
+  display: flex;
+  align-items: center;
+  column-gap: 8px;
+  color: #2B2B2B;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 25px;
+}
+.template-container .custom-box .profit-box .profit-title .profit-title-left .profit-eyes {
+  width: 24px;
+  height: 24px;
+}
+.template-container .custom-box .profit-box .profit-title .profit-title-right .t-select .t-input {
+  width: 136px;
+  padding: 0 16px;
+  height: 48px;
+  border-radius: 8px;
+  background: #F9FAFC;
+}
+.template-container .custom-box .profit-box .profit-money {
+  margin-top: 24px;
+}
+.template-container .custom-box .profit-box .profit-money .profit-money-top {
+  color: #2B2B2B;
+}
+.template-container .custom-box .profit-box .profit-money .profit-money-top .profit-money-pre {
+  font-size: 24px;
+}
+.template-container .custom-box .profit-box .profit-money .profit-money-top .profit-money-num {
+  font-family: Helvetica Neue;
+  font-size: 45px;
+  line-height: 56px;
+}
+.template-container .custom-box .profit-box .profit-money .profit-money-bottom {
+  margin-top: 16px;
+  color: #A2A2A2;
+  font-size: 18px;
+}
+.template-container .custom-box .profit-box .profit-detail {
+  margin-top: 32px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  column-gap: 24px;
+}
+.template-container .custom-box .profit-box .profit-detail .profit-detail-item {
+  padding: 16px 24px;
+  border-radius: 16px;
+  background: #F9FAFC;
+}
+.template-container .custom-box .profit-box .profit-detail .profit-detail-item .profit-detail-top {
+  display: flex;
+  align-items: center;
+  column-gap: 8px;
+  padding-left: 7px;
+}
+.template-container .custom-box .profit-box .profit-detail .profit-detail-item .profit-detail-top .profit-detail-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: #2B2B2B;
+}
+.template-container .custom-box .profit-box .profit-detail .profit-detail-item .profit-detail-top .profit-detail-title {
+  font-size: 14px;
+  color: #646464;
+}
+.template-container .custom-box .profit-box .profit-detail .profit-detail-item .profit-detail-bottom {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  column-gap: 8px;
+  justify-content: space-between;
+}
+.template-container .custom-box .profit-box .profit-detail .profit-detail-item .profit-detail-bottom .profit-detail-num {
+  font-size: 28px;
+  color: #2B2B2B;
+}
+.template-container .custom-box .profit-box .profit-detail .profit-detail-item .profit-detail-bottom .profit-detail-rate {
+  display: flex;
+  align-items: center;
+  column-gap: 8px;
+  font-size: 14px;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+.template-container .custom-box .profit-box .profit-detail .profit-detail-item .profit-detail-bottom .profit-detail-rate.up {
+  background-color: #FFEAED;
+  color: #DC2D2D;
+}
+.template-container .custom-box .profit-box .profit-detail .profit-detail-item .profit-detail-bottom .profit-detail-rate.down {
+  background-color: #E3FAEC;
+  color: #007747;
+}
+.template-container .custom-box .big-box {
+  padding-bottom: 20px;
+}
+.template-container .custom-box .big-box .big-title {
+  line-height: 25px;
+  font-size: 18px;
+  color: #2B2B2B;
+  font-weight: 600;
+}
+.template-container .custom-box .big-box .big-list {
+  margin-top: 21px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 12px;
+}
+.template-container .custom-box .big-box .big-list .big-list-item {
+  padding: 14px 24px 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 8px;
+  background: #F9FAFC;
+  color: #2B2B2B;
+}
+.template-container .custom-box .big-box .big-list .big-list-item:hover {
+  cursor: pointer;
+  color: #1A7AE8;
+}
+.template-container .custom-box .big-box .big-list .big-list-item:hover .big-item-pre {
+  color: #1A7AE8 !important;
+}
+.template-container .custom-box .big-box .big-list .big-list-item:nth-of-type(1) .big-list-index {
+  color: #FD960D;
+  background: url('../img/index/order-1.svg') no-repeat center center;
+  background-size: 24px 24px;
+}
+.template-container .custom-box .big-box .big-list .big-list-item:nth-of-type(2) .big-list-index {
+  color: #ADBECE;
+  background: url('../img/index/order-2.svg') no-repeat center center;
+  background-size: 24px 24px;
+}
+.template-container .custom-box .big-box .big-list .big-list-item:nth-of-type(3) .big-list-index {
+  color: #F0923B;
+  background: url('../img/index/order-3.svg') no-repeat center center;
+  background-size: 24px 24px;
+}
+.template-container .custom-box .big-box .big-list .big-list-item:nth-of-type(4) .big-list-index {
+  color: #646464;
+  background: url('../img/index/order-4.svg') no-repeat center center;
+  background-size: 24px 24px;
+}
+.template-container .custom-box .big-box .big-list .big-list-item .big-list-left {
+  display: flex;
+  align-items: center;
+  column-gap: 8px;
+}
+.template-container .custom-box .big-box .big-list .big-list-item .big-list-left .big-list-index {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 4px;
+}
+.template-container .custom-box .big-box .big-list .big-list-item .big-list-left .big-list-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+.template-container .custom-box .big-box .big-list .big-list-item .big-list-right {
+  display: flex;
+  align-items: center;
+}
+.template-container .custom-box .big-box .big-list .big-list-item .big-list-right .big-item-pre {
+  font-size: 14px;
+  color: #ADBECE;
+}
+.template-container .custom-box .big-box .big-list .big-list-item .big-list-right .big-item-money {
+  line-height: 26px;
+  font-size: 18px;
+}
+.template-container .custom-box .todo-box {
+  height: 202px;
+}
+.template-container .custom-box .todo-box .todo-title {
+  font-size: 18px;
+  color: #2B2B2B;
+  font-weight: 600;
+}
+.template-container .custom-box .todo-box .todo-list {
+  margin-top: 32px;
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+  gap: 24px;
+}
+.template-container .custom-box .todo-box .todo-list .todo-list-item {
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: #F9FAFC;
+}
+.template-container .custom-box .todo-box .todo-list .todo-list-item:hover {
+  cursor: pointer;
+  background: #fff;
+  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+}
+.template-container .custom-box .todo-box .todo-list .todo-list-item:hover .todo-num-text {
+  color: #1A7AE8;
+  text-decoration: underline;
+}
+.template-container .custom-box .todo-box .todo-list .todo-list-item .todo-item-title {
+  font-size: 14px;
+  color: #646464;
+}
+.template-container .custom-box .todo-box .todo-list .todo-list-item .todo-item-num {
+  margin-top: 4px;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 30px;
+  color: #2B2B2B;
+}
+.template-container .custom-box .todo-box .todo-list .todo-list-item .todo-item-num .todo-item-unit {
+  margin-left: 8px;
+  font-size: 14px;
+  color: #A2A2A2;
+}
+.template-container .custom-box .user-box .user-title {
+  font-size: 18px;
+  color: #2B2B2B;
+  font-weight: 600;
+}
+.template-container .custom-box .user-box .user-list {
+  margin-top: 21px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 12px;
+}
+.template-container .custom-box .user-box .user-list .user-list-item {
+  padding: 15px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #F9F9F9;
+}
+.template-container .custom-box .user-box .user-list .user-list-item:hover {
+  cursor: pointer;
+}
+.template-container .custom-box .user-box .user-list .user-list-item:hover .user-item-left .user-item-index {
+  color: #fff;
+  background: #1A7AE8;
+}
+.template-container .custom-box .user-box .user-list .user-list-item:hover .user-item-left .user-item-name {
+  color: #1A7AE8;
+}
+.template-container .custom-box .user-box .user-list .user-list-item:hover .user-item-right {
+  color: #1A7AE8;
+}
+.template-container .custom-box .user-box .user-list .user-list-item .user-item-left {
+  display: flex;
+  align-items: center;
+  column-gap: 8px;
+}
+.template-container .custom-box .user-box .user-list .user-list-item .user-item-left .user-item-index {
+  font-weight: bold;
+  font-size: 14px;
+  color: #646464;
+  border-radius: 4px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F2F2F2;
+}
+.template-container .custom-box .user-box .user-list .user-list-item .user-item-left .user-item-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2B2B2B;
+}
+.template-container .custom-box .user-box .user-list .user-list-item .user-item-right {
+  font-size: 12px;
+  color: #646464;
+}
+.template-container .custom-box .chart-box .chart-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.template-container .custom-box .chart-box .chart-title .chart-title-left {
+  display: flex;
+  align-items: center;
+  column-gap: 8px;
+  color: #2B2B2B;
+  font-size: 18px;
+  font-weight: 600;
+}
+.template-container .custom-box .chart-box .chart-title .chart-title-right .t-select .t-input {
+  width: 136px;
+  padding: 0 16px;
+  height: 48px;
+  border-radius: 8px;
+  background: #F9FAFC;
+}
+.template-container .custom-box .chart-box .chart-content {
+  margin-top: 30px;
+  width: 100%;
+  height: 200px;
+}

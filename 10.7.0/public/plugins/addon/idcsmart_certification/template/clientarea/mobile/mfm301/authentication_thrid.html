@@ -1,0 +1,20 @@
+<!-- 页面引入样式位置 -->
+<link rel="stylesheet"
+  href="/plugins/addon/idcsmart_certification/template/clientarea/mobile/mfm301/css/authentication_select.css">
+</head>
+
+<body>
+  <div id="template" v-cloak class="certification-page">
+    <van-nav-bar class="nav-bar" :title="lang.realname_text1" safe-area-inset-top left-arrow @click-left="goBack">
+    </van-nav-bar>
+    <div class="main-page">
+      <div class="third-box" id="third-box"></div>
+    </div>
+  </div>
+
+  <!-- =======页面引入js和相关组件位置======= -->
+  <script src="/{$template_catalog}/template/{$themes}/lib/jquery@2.14.min.js"></script>
+  <script src="/plugins/addon/idcsmart_certification/template/clientarea/mobile/mfm301/lang/index.js"></script>
+  <script src="/plugins/addon/idcsmart_certification/template/clientarea/mobile/mfm301/api/certification.js"></script>
+  <script
+    src="/plugins/addon/idcsmart_certification/template/clientarea/mobile/mfm301/js/authentication_thrid.js"></script>

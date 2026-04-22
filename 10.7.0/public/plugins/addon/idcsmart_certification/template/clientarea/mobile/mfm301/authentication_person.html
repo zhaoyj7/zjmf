@@ -1,0 +1,101 @@
+<!-- 页面引入样式位置 -->
+<link rel="stylesheet"
+  href="/plugins/addon/idcsmart_certification/template/clientarea/mobile/mfm301/css/authentication_select.css">
+</head>
+
+<body>
+  <div id="template" v-cloak class="certification-company">
+    <van-nav-bar class="nav-bar" :title="lang.realname_text25" safe-area-inset-top left-arrow @click-left="goBack">
+    </van-nav-bar>
+    <div class="company-page">
+      <van-form ref="certificationPerson" input-align="right" label-width="auto" error-message-align="right">
+        <van-field :rules="personRules.card_name" required v-model="certificationPerson.card_name"
+          :placeholder="lang.realname_text13" :label="lang.realname_text12">
+        </van-field>
+        <van-field v-model="certificationPerson.phone" :rules="personRules.phone" :label="lang.realname_text14"
+          :placeholder="lang.realname_text15">
+        </van-field>
+        <van-select required v-model:firpick="certificationPerson.card_type" :placeholder="lang.realname_text16"
+          right-icon="arrow" :label="lang.realname_text16" :columns="id_card_type"
+          :columns-names="{ text: 'label', value: 'value' }">
+        </van-select>
+        <template v-for="(item,index) in custom_fieldsObj">
+          <van-field v-if="item.type ==='text'" :placeholder="item.title" :required="item.required"
+            v-model="certificationPerson.custom_fields[item.field]" :label="item.title"
+            :rules="[{ required: item.required, message: item.tip || lang.realname_text73, trigger: 'blur'}]">
+          </van-field>
+          <van-select v-if="item.type ==='select'" :required="item.required" v-model:firpick="certificationPerson.custom_fields
+          [item.field]" right-icon="arrow" :label="item.title" :placeholder="item.title"
+            :rules="[{ required: item.required, message: item.tip || lang.realname_text73, trigger: 'blur'}]"
+            :columns="calcOption(item.options)" :columns-names="{ text: 'label', value: 'value' }">
+          </van-select>
+          <van-field :required="item.required" label-align="top" input-align="left"
+            :rules="[{ required: item.required, message: item.tip || lang.realname_text73, trigger: 'blur'}]"
+            v-if="item.type ==='file'" :label="item.title" :placeholder="item.title">
+            <template #input>
+              <van-uploader :after-read="(val)=>afterRead(val,item.field,true)"
+                v-model="certificationPerson.custom_fields[item.field]" ref="uploadRef" multiple accept="*">
+              </van-uploader>
+            </template>
+          </van-field>
+        </template>
+        <van-field v-model="certificationPerson.card_number" required :rules="personRules.card_number"
+          :label="lang.realname_text19" :placeholder="lang.realname_text18">
+        </van-field>
+        <template v-if="certificationInfoObj.certification_upload == 1">
+          <van-field required :rules="[{ required:true, message: lang.realname_text79 , trigger: 'blur'}]"
+            label-align="top" input-align="left">
+            <template #label>
+              {{lang.realname_text21}}
+              <span class="upload-tips-text">({{lang.realname_text90}})</span>
+            </template>
+            <template #input>
+              <van-uploader max-count="1" :after-read="(val)=>afterRead(val,'card_one_fileList')"
+                :preview-size="['calc(100vw - 32px)','4rem']" v-model="card_one_fileList" ref="uploadRef" multiple
+                accept=".jpg,.gif,.jpeg,.png">
+                <div class="upload-btn card-1">
+                  <van-button type="primary" round>
+                    <van-icon name="plus"></van-icon>
+                  </van-button>
+                </div>
+              </van-uploader>
+            </template>
+          </van-field>
+          <van-field required :rules="[{ required:true, message: lang.realname_text80 , trigger: 'blur'}]"
+            label-align="top" input-align="left">
+            <template #label>
+              {{lang.realname_text22}}
+              <span class="upload-tips-text">({{lang.realname_text90}})</span>
+            </template>
+            <template #input>
+              <van-uploader max-count="1" :after-read="(val)=>afterRead(val,'card_two_fileList')"
+                :preview-size="['calc(100vw - 32px)','4rem']" v-model="card_two_fileList" ref="uploadRef" multiple
+                accept=".jpg,.gif,.jpeg,.png">
+                <div class="upload-btn card-2">
+                  <van-button type="primary" round>
+                    <van-icon name="plus"></van-icon>
+                  </van-button>
+                </div>
+              </van-uploader>
+            </template>
+          </van-field>
+        </template>
+      </van-form>
+    </div>
+    <div class="next-box">
+      <van-button @click="goSelect" block color="#F5F5F5" style="width: 50%;color: #999999;">
+        {{lang.realname_text8}}
+      </van-button>
+      <van-button type="primary" block @click="personSumit" :loading="sunmitBtnLoading">
+        {{sunmitBtnLoading ? lang.realname_text9 :
+          lang.realname_text10}}
+      </van-button>
+    </div>
+  </div>
+
+  <!-- =======页面引入js和相关组件位置======= -->
+
+  <script src="/plugins/addon/idcsmart_certification/template/clientarea/mobile/mfm301/lang/index.js"></script>
+  <script src="/plugins/addon/idcsmart_certification/template/clientarea/mobile/mfm301/api/certification.js"></script>
+  <script
+    src="/plugins/addon/idcsmart_certification/template/clientarea/mobile/mfm301/js/authentication_person.js"></script>

@@ -1,0 +1,84 @@
+<!-- 页面独有样式 -->
+<link rel="stylesheet" href="/plugins/addon/idcsmart_file_download/template/clientarea/mobile/mfm201/css/news.css">
+</head>
+
+<body>
+  <!-- mounted之前显示 -->
+  <div id="mainLoading">
+    <div class="ddr ddr1"></div>
+    <div class="ddr ddr2"></div>
+    <div class="ddr ddr3"></div>
+    <div class="ddr ddr4"></div>
+    <div class="ddr ddr5"></div>
+  </div>
+  <div id="template" v-cloak class="help-page">
+    <top-menu neednav>
+      <template #left>
+        <van-icon @click="goBack" class="left-icon" name="arrow-left"></van-icon>
+      </template>
+      <template #center>
+        <div class="nav-title">{{lang.source_title}}</div>
+      </template>
+      <template #right>
+      </template>
+    </top-menu>
+    <van-tabs class="tab-box" v-model:active="activeIndex" @change="handleClick" line-width="16px"
+      title-active-color="var(--van-primary-color)">
+      <van-tab :title="lang.source_text6" name="1" v-if="havePlugin('IdcsmartHelp')">
+
+      </van-tab>
+      <van-tab :title="lang.source_text7" name="4" v-if="havePlugin('IdcsmartHelp')">
+
+      </van-tab>
+      <van-tab :title="lang.source_tab2" name="2" v-if="havePlugin('IdcsmartNews')">
+
+      </van-tab>
+      <van-tab :title="lang.source_tab3" name="3" v-if="havePlugin('IdcsmartFileDownload')">
+        <form action="/">
+          <van-search class="search-input fillter-search" v-model="downParams.keywords" :placeholder="lang.cloud_tip_2"
+            @search="initDownList" @clear="initDownList">
+            <template #left>
+              <van-dropdown-menu>
+                <van-dropdown-item :title="downLoadTypeText" @change="initDownList" v-model="selectDownType"
+                  :options="downType">
+                </van-dropdown-item>
+              </van-dropdown-menu>
+            </template>
+          </van-search>
+          <div class="down-main">
+            <template v-if="downList.length > 0">
+              <van-list v-model:loading="downLoading" :finished="downFinished" @load="getDownList"
+                :immediate-check="false">
+                <div v-for="(item,index) in downList" class="file-item">
+                  <div class="file-title" @click="handelClickfile(item.id)">
+                    <span>{{item.name}}</span>
+                    <van-icon name="upgrade"></van-icon>
+                  </div>
+                  <div class="file-des">
+                    <span class="file-lebal">{{lang.file_des}}：</span>
+                    <span class="file-value">{{item.description || '--'}}</span>
+                  </div>
+                  <div class="file-type">
+                    <div>
+                      <span class="file-lebal">{{lang.file_type}}：</span>
+                      <span class="file-value">{{item.filetype}}</span>
+                    </div>
+                    <div>
+                      <span class="file-lebal">{{lang.file_size}}：</span>
+                      <span class="file-value">{{formateByte(item.filesize)}}</span>
+                    </div>
+                  </div>
+                </div>
+              </van-list>
+            </template>
+            <van-empty v-else></van-empty>
+          </div>
+        </form>
+      </van-tab>
+    </van-tabs>
+
+  </div>
+  <!-- =======页面独有======= -->
+  <script src="/plugins/addon/idcsmart_file_download/template/clientarea/mobile/mfm201/lang/index.js"></script>
+  <script src="/plugins/addon/idcsmart_file_download/template/clientarea/mobile/mfm201/api/news.js"></script>
+  <script src="/plugins/addon/idcsmart_file_download/template/clientarea/mobile/mfm201/js/news.js"></script>

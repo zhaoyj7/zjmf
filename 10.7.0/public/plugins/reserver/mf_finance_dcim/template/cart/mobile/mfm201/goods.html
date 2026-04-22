@@ -1,0 +1,357 @@
+<!-- 页面引入样式位置 -->
+<link rel="stylesheet" href="/plugins/reserver/mf_finance_dcim/template/clientarea/mobile/mfm201/css/common_goods.css">
+
+
+<div id="template2" v-cloak>
+  <top-menu onlynav>
+    <template #left>
+      <van-icon @click="goBack" class="left-icon" name="arrow-left"></van-icon>
+    </template>
+    <template #center>
+      <div class="nav-title">{{basicInfo.name || lang.common_cloud_text109}}</div>
+    </template>
+  </top-menu>
+  <div class="buy-box">
+    <div class="custom-box">
+      <!-- <div class="description" v-html="calStr" v-if="calStr"></div> -->
+      <van-form ref="orderForm" scroll-to-error>
+        <template v-for="item in configoptions">
+          <!-- 下拉/单选 点击单选 -->
+          <cur-select v-model:firpick="configForm[item.id]" @change="changeConfig"
+            v-if="item.option_type === 1 || item.option_type === 2 || item.option_type === 6 || item.option_type === 8 || item.option_type === 10 || item.option_type === 13"
+            :columns="item.sub" :columns-names=" { text: 'option_name', value: 'id' }" input-align="right"
+            right-icon="arrow" :label="item.option_name" cur-class=" ">
+          </cur-select>
+          <!-- 是否 -->
+          <van-field :label="item.option_name" input-align="right" v-if="item.option_type === 3">
+            <template #input>
+              <van-switch v-model="configForm[item.id]" size="16px" :active-value="1" :inactive-value="0"
+                @change="changeConfig">
+              </van-switch>
+              <!-- 后缀单位 -->
+              <div class="unit" v-if="item.unit">{{item.unit}}</div>
+            </template>
+          </van-field>
+          <!-- 数量拖动 -->
+          <van-field label-align="top" v-if="item.option_type === 4 || item.option_type === 7 || item.option_type === 9 || item.option_type === 11 ||
+          item.option_type === 14 || item.option_type === 15 || item.option_type === 16 || item.option_type === 17
+          || item.option_type === 18 || item.option_type === 19">
+            <template #label>
+              <div class="lebal-box">
+                <span>{{item.option_name}}</span>
+                <van-stepper v-model="configForm[item.id]" :min="item.qty_minimum" :max="item.qty_maximum"
+                  @change="(val)=>sliderChange(val,item)">
+                </van-stepper>
+              </div>
+            </template>
+            <template #input>
+              <div class="slider-input">
+                <div class="slider-box">
+                  <van-slider v-model="configForm[item.id]" :min="item.qty_minimum" :max="item.qty_maximum"
+                    bar-height=".1067rem" @change="(val)=>sliderChange(val,item)">
+                    <template #button>
+                      <div class="custom-button">{{ configForm[item.id]}}</div>
+                    </template>
+                  </van-slider>
+                  <div class="unit" v-if="item.unit">{{item.unit}}</div>
+                </div>
+                <div class="marks">
+                  <span class="item">{{item.qty_minimum}} <span v-if="item.unit">{{item.unit}}</span></span>
+                  <span class="item">{{item.qty_maximum}} <span v-if="item.unit">{{item.unit}}</span></span>
+                </div>
+              </div>
+            </template>
+          </van-field>
+          <!-- 双下拉 操作系统-->
+          <van-field v-if="item.option_type === 5" :label="item.option_name" class="select-field primary-field "
+            right-icon="arrow" @click="clickOsItem(item)" readonly label-align="top">
+            <template #input>
+              <div class="primary-color">
+                <img :src="osIcon" alt="" class="image-icon" v-if="osIcon" />
+                {{imageName}}
+              </div>
+            </template>
+          </van-field>
+          <!-- 数据中心 -->
+          <cur-select :columns="item.sub" :label="item.option_name" label-align="top" v-if="item.option_type === 12"
+            :columns-names="{text:'option_name',value:'id'}" right-icon="arrow"
+            cur-class="select-field  mar-0 primary-field" @change="(e)=>changeArea(item.id,e)">
+            <template #input>
+              <div class="select-input">
+                <img v-if="areImg" :src="`/upload/common/country/${areImg}.png`" alt="" class="country-icon">
+                {{countryName}}
+              </div>
+            </template>
+            <template #option="option">
+              <img v-if="option.country_code" :src="`/upload/common/country/${option.country_code}.png`" alt=""
+                class="country-icon">
+              {{option.option_name}}
+            </template>
+          </cur-select>
+          <!-- 单选级联 -->
+          <cur-select v-model:firpick="configForm[item.id]" @change="changeConfig" :columns="item.sub"
+            v-if="item.option_type === 20" :columns-names=" { text: 'option_name', value: 'id' }" input-align="right"
+            right-icon="arrow" :label="item.option_name" cur-class=" ">
+          </cur-select>
+          <!-- 描述 -->
+          <p class="s-tip" v-if="item.option_type !== 'area' && item.description" v-html="calcDes(item.description)">
+          </p>
+        </template>
+        <!-- 主机名 -->
+        <van-field v-if="shouHost" :label="lang.fin_host" input-align="right" v-model="configForm.host" disabled>
+        </van-field>
+        <!-- 主机密码 -->
+        <van-field v-if="shouPassword" :label="lang.fin_password" input-align="right" v-model="configForm.password">
+          <template #button>
+            <van-icon name="replay" @click="refreshPassword"></van-icon>
+          </template>
+        </van-field>
+        <custom-goods :id="id" v-model:self_defined_field="self_defined_field" curclass="select-field show-field"
+          class="custom-config" ref="customGoodRef">
+        </custom-goods>
+        <!-- 周期 -->
+        <van-field :label="lang.com_config.cycle" right-icon="arrow" input-align="right" @click="isShowDur = true"
+          clickable readonly>
+          <template #input>
+            <div>{{selectDuration.billingcycle_zh}}</div>
+          </template>
+        </van-field>
+      </van-form>
+
+    </div>
+    <div class="botton-buy-btn">
+      <div class="price-box">
+        <div class="pre-color">
+          <div class="total-price">
+            {{lang.shoppingCar_tip_text3}}：
+            <template v-if="!dataLoading">
+              <span class="price-num">{{commonData.currency_prefix}}{{filterMoney(totalPrice)}}</span>
+              <van-popover placement="right-end" v-if="original_price !=totalPrice">
+                <div class="sure-remind">
+                  <p v-if="clDiscount">{{lang.shoppingCar_tip_text2}}：{{commonData.currency_prefix}} {{
+                  filterMoney(clDiscount) }}</p>
+                  <p v-if="isShowPromo && isUseDiscountCode">
+                    {{lang.shoppingCar_tip_text4}}：{{commonData.currency_prefix}} {{
+                  filterMoney(code_discount)}}
+                  </p>
+                  <p v-if="customfield.event_promotion">{{lang.goods_text4}}：{{commonData.currency_prefix}} {{
+                  filterMoney(eventData.discount)}}</p>
+                </div>
+                <template #reference>
+                  <van-icon name="info-o" class="help"></van-icon>
+                </template>
+              </van-popover>
+              <span class="original-price" v-if="original_price !=totalPrice">
+                {{commonData.currency_prefix}} {{filterMoney(original_price * 1)}}
+              </span>
+            </template>
+            <van-loading size="24px" v-show="dataLoading"></van-loading>
+          </div>
+          <!-- 优惠码 -->
+          <div class="discount-box">
+            <discount-code v-if="isShowPromo" 
+              @get-discount="getDiscount"
+              @remove-discount="removeDiscountCode"
+              scene="new"
+              :product_id="id" 
+              :qty="orderData.qty" 
+              :amount="onePrice" 
+              :billing_cycle_time="orderData.duration">
+            </discount-code>
+            <!-- <div class="discount-codeNumber" v-if="customfield.promo_code">{{ customfield.promo_code }}
+              <van-icon name="close" class="remove-discountCode" @click="removeDiscountCode"></van-icon>
+            </div> -->
+            <event-code :eventpromotion="customfield.event_promotion" :product_id='id' :qty="orderData.qty"
+              :amount="onePrice" :billing_cycle_time="orderData.duration" @change="eventChange">
+            </event-code>
+          </div>
+        </div>
+        <span class="pre-text" @click="showConfigPage = !showConfigPage">{{lang.config_free}}
+          <van-icon :name=" showConfigPage ? 'arrow-up' : 'arrow-down'"></van-icon>
+        </span>
+      </div>
+      <div class="buy-btn-box">
+        <template v-if="backfill?.cycle">
+          <van-button type="primary" block class="sub-btn" @click="changeCart"
+            :loading="submitLoading">{{lang.product_sure_check}}</van-button>
+        </template>
+        <template v-else>
+          <van-button @click="addCart" block class="can-btn">{{lang.product_add_cart}}
+          </van-button>
+          <van-button @click="buyNow" type="primary" block class="sub-btn">{{lang.product_buy_now}}
+          </van-button>
+        </template>
+      </div>
+    </div>
+  </div>
+
+  <van-popup v-model:show="isShowDur" round closeable style="width: 90%;">
+    <div class="common-pop-box">
+      <div class="common-pop-title">{{lang.common_cloud_label8}}</div>
+      <div class="common-pop-body">
+        <div class="duration-box">
+          <div class="item" :class="{active:curCycle === index }" v-for="(item,index) in custom_cycles" :key="item.id"
+            @click="changeCycle(item,index)">
+            <p class="cycle">{{item.billingcycle_zh}}</p>
+          </div>
+        </div>
+      </div>
+      <div class="common-pop-fotter">
+        <van-button class="can-btn" block @click="isShowDur = false">{{lang.common_cloud_btn29}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="isShowDur = false">{{ lang.ticket_btn6}}</van-button>
+      </div>
+    </div>
+  </van-popup>
+
+
+  <!-- 已选配置弹窗 -->
+  <van-popup v-model:show="showConfigPage" closeable round position="bottom" :style="{ width: '100%' }">
+    <div class="config-detail">
+      <div class="config-top">
+        {{lang.mf_tip7}}
+      </div>
+      <div class="config-mid">
+        <div class="right-top">
+          <div class="info">
+            <p class="des" v-for="(item,index) in showInfo" :key="index">
+              <span class="name">{{item.name}}：<span class="value" :title="item.value">{{item.value}}</span></span>
+              <span class="price">{{commonData.currency_prefix}}{{ filterMoney(item.price)}}</span>
+            </p>
+            <p class="des" v-if="code_discount || clDiscount || eventData.discount">
+              <span class="name">{{lang.mf_discount}}</span>
+              <span class="price">-{{commonData.currency_prefix}}{{(code_discount * 1 + clDiscount * 1 +
+                eventData.discount * 1).toFixed(2)}}
+              </span>
+            </p>
+            <p class="des">
+              <span class="name">{{lang.mf_total}}</span>
+              <span class="price">{{commonData.currency_prefix}}{{filterMoney(totalPrice)}}</span>
+            </p>
+          </div>
+        </div>
+        <div class="botton-buy-btn">
+          <div class="price-box">
+            <div class="pre-color">
+              <div class="total-price">
+                {{lang.shoppingCar_tip_text3}}：
+                <template v-if="!dataLoading">
+                  <span class="price-num">{{commonData.currency_prefix}}{{filterMoney(totalPrice)}}</span>
+                  <van-popover placement="right-end" v-if="original_price !=totalPrice">
+                    <div class="sure-remind">
+                      <p v-if="clDiscount">{{lang.shoppingCar_tip_text2}}：{{commonData.currency_prefix}} {{
+                      filterMoney(clDiscount) }}</p>
+                      <p v-if="isShowPromo && isUseDiscountCode">
+                        {{lang.shoppingCar_tip_text4}}：{{commonData.currency_prefix}} {{
+                      filterMoney(code_discount)}}
+                      </p>
+                      <p v-if="customfield.event_promotion">{{lang.goods_text4}}：{{commonData.currency_prefix}} {{
+                      filterMoney(eventData.discount)}}</p>
+                    </div>
+                    <template #reference>
+                      <van-icon name="info-o" class="help"></van-icon>
+                    </template>
+                  </van-popover>
+                  <span class="original-price" v-if="original_price !=totalPrice">
+                    {{commonData.currency_prefix}} {{filterMoney(original_price * 1)}}
+                  </span>
+                </template>
+                <van-loading size="24px" v-show="dataLoading"></van-loading>
+              </div>
+              <!-- 优惠码 -->
+              <div class="discount-box">
+                <discount-code v-if="isShowPromo" 
+                  @get-discount="getDiscount"
+                  @remove-discount="removeDiscountCode"
+                  scene="new"
+                  :product_id="id" 
+                  :qty="orderData.qty" 
+                  :amount="onePrice" 
+                  :billing_cycle_time="orderData.duration">
+                </discount-code>
+                <!-- <div class="discount-codeNumber" v-if="customfield.promo_code">{{ customfield.promo_code }}
+                  <van-icon name="close" class="remove-discountCode" @click="removeDiscountCode"></van-icon>
+                </div> -->
+                <event-code :eventpromotion="customfield.event_promotion" :product_id='id' :qty="orderData.qty"
+                  :amount="onePrice" :billing_cycle_time="orderData.duration" @change="eventChange">
+                </event-code>
+              </div>
+            </div>
+            <span class="pre-text" @click="showConfigPage = !showConfigPage">{{lang.config_free}}
+              <van-icon :name=" showConfigPage ? 'arrow-up' : 'arrow-down'"></van-icon>
+            </span>
+          </div>
+          <div class="buy-btn-box">
+            <template v-if="backfill?.cycle">
+              <van-button type="primary" block class="sub-btn" @click="changeCart"
+                :loading="submitLoading">{{lang.product_sure_check}}</van-button>
+            </template>
+            <template v-else>
+              <van-button @click="addCart" block class="can-btn">{{lang.product_add_cart}}
+              </van-button>
+              <van-button @click="buyNow" type="primary" block class="sub-btn">{{lang.product_buy_now}}
+              </van-button>
+            </template>
+          </div>
+        </div>
+      </div>
+    </div>
+  </van-popup>
+
+  <!-- 镜像选择弹窗 -->
+  <van-popup v-model:show="showImgPick" round position="bottom" teleport="body">
+    <van-picker option-height=".96rem" visible-option-num="8" :columns="calcOsImgList"
+      :columns-field-names="{ text: 'version', value: 'id' }" ref="selectPopRef">
+      <template #toolbar>
+        <div class="tool-bar">
+          <img class="cancel-btn" @click="showImgPick = false"
+            src="/plugins/reserver/mf_finance_dcim/template/clientarea/mobile/mfm201/img/cancel.svg" alt="">
+          <span class="tool-confirm" @click="handelSelectImg">{{lang.template_text135}}</span>
+        </div>
+      </template>
+    </van-picker>
+  </van-popup>
+  <!-- 镜像选择弹窗 -->
+  <van-action-sheet v-model:show="isShowImage" round>
+    <div class="action-select">
+      <div class="action-title">
+        <div class="left-icon">
+          <img class="cancel-btn" @click="isShowImage = false"
+            src="/plugins/reserver/mf_finance_dcim/template/clientarea/mobile/mfm201/img/cancel.svg" alt="">
+        </div>
+        <div class="title-text">{{lang.cloud_menu_5}}</div>
+        <div></div>
+      </div>
+      <div class="action-conctet image-action">
+        <div class="image-action-item" v-for="item in systemArr" @click="changeImage(item)">
+          <div class="select-name">
+            <img
+              :src="`/plugins/reserver/mf_finance_dcim/template/clientarea/mobile/mfm201/img/remf_finance/${item.value}.svg`"
+              alt="" class="image-icon" />
+            <span>{{item.label}}</span>
+          </div>
+          <van-icon name="arrow"></van-icon>
+        </div>
+      </div>
+    </div>
+  </van-action-sheet>
+
+  <!-- 购物车弹窗 -->
+  <van-popup v-model:show="cartDialog" round closeable style="width: 90%;">
+    <div class="common-pop-box">
+      <div class="common-pop-title">{{lang.product_tip}}</div>
+      <div class="common-pop-body">
+      </div>
+      <div class="common-pop-fotter">
+        <van-button class="can-btn" block @click="cartDialog = false">{{lang.product_continue}}</van-button>
+        <van-button class="sub-btn" block type="primary" @click="goToCart">{{lang.product_settlement}}</van-button>
+      </div>
+    </div>
+  </van-popup>
+
+</div>
+
+
+<!-- =======页面引入js和相关组件位置======= -->
+<script src="/plugins/reserver/mf_finance_dcim/template/clientarea/mobile/mfm201/api/remf_finance.js"></script>
+<script src="/plugins/reserver/mf_finance_dcim/template/clientarea/mobile/mfm201/lang/index.js"></script>
+<script src="/plugins/reserver/mf_finance_dcim/template/clientarea/mobile/mfm201/js/remf_finance.js"> </script>

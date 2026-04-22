@@ -1,0 +1,131 @@
+<link rel="stylesheet" href="/plugins/reserver/mf_dcim/template/clientarea/mobile/mfm301/css/dcim_list.css">
+
+<div id="product-template" v-cloak class="product-list-page">
+  <van-sticky>
+    <van-nav-bar :title="lang.common_cloud_text94" safe-area-inset-top left-arrow @click-left="goBack">
+    </van-nav-bar>
+    <form action="/">
+      <van-search class="search-input" v-model="params.keywords" :placeholder="lang.cloud_tip_2" @search="inputChange"
+        @clear="inputChange" clearable>
+      </van-search>
+    </form>
+    <product-filter v-model:tab="params.tab" @change="inputChange" :count="countData"></product-filter>
+    <van-dropdown-menu>
+      <van-dropdown-item @change="centerSelectChange"
+        :title="params.data_center_id === '' ? lang.common_cloud_label1 : null" v-model="params.data_center_id"
+        :options="center">
+      </van-dropdown-item>
+      <van-dropdown-item @change="statusSelectChange" :title="params.status == 0 ?  lang.finance_label4 : null "
+        v-model="params.status" :options="statusSelect">
+      </van-dropdown-item>
+    </van-dropdown-menu>
+  </van-sticky>
+  <div class="list-box">
+    <common-list :loading="loading" :list="cloudData" @load="getCloudList" :finished="finished">
+      <template #default="{item}">
+        <div class="list-item" @click="toDetail(item)">
+          <div class="item-fir">
+            <div class="cloud-name">
+              <div class="status"
+                :style="'color:'+status[item.status].color + ';background:' + status[item.status].bgColor">
+                {{status[item.status].text }}
+              </div>
+              <span class="packge-name">{{ item.product_name }}</span>
+              <span class="name" v-if="item.name">({{ item.name }})</span>
+            </div>
+            <div class="cloud-os">
+              <img class="os-img" :src="powerStatus[item.power_status]?.icon" v-if="item.power_status"
+                :title="powerStatus[item.power_status]?.text">
+            </div>
+          </div>
+          <div class="info-other">
+            <div class="info-item">
+              <div class="info-label">ID：</div>
+              <div class="info-text">
+                {{item.id}}
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">{{lang.cloud_table_head_1}}：</div>
+              <div class="info-text">
+                <div class="area" v-if="item.country">
+                  <img :src="'/upload/common/country/' + item.country_code + '.png'" class="area-img">
+                  <span class="area-country">{{item.country}}-{{item.city}}-{{item.area}}</span>
+                </div>
+                <span v-else>--</span>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">IP：</div>
+              <div class="info-text">
+                <span>{{item.dedicate_ip && item.status!== 'Deleted' ? item.dedicate_ip : '--'}}
+                  <span v-if="item.ip_num > 1">({{item.ip_num}})</span>
+                  <img @click.stop="copyIp(item.allIp)" v-if="item.dedicate_ip && item.status!== 'Deleted'"
+                    class="copy-icon" src="./img/mf_dcim/copy.svg" alt="">
+                </span>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-label">{{lang.cloud_table_head_4}}：</div>
+              <div class="info-text">
+                <span v-time="item.due_time"></span>
+              </div>
+            </div>
+            <div class="info-item" v-plugin="'IdcsmartRenew'">
+              <div class="info-label">{{lang.auto_renew}}：</div>
+              <div class="info-text">
+                <span
+                  v-if="item.status === 'Active' && item.billing_cycle !== 'on_demand' && item.billing_cycle !== 'recurring_prepayment_on_demand'">
+                  {{item.is_auto_renew === 1 ? lang.com_config.yes : lang.com_config.no}}
+                </span>
+                <span v-else>--</span>
+              </div>
+            </div>
+            <template v-for="items in self_defined_field">
+              <div class="info-item"
+                v-if="item.self_defined_field[items.id] && item.self_defined_field[items.id] !== ''">
+                <div class="info-label">{{items.field_name}}:</div>
+                <div class="info-text">
+                  <span
+                    :class="item.field_type === 'textarea' ? 'word-pre' : ''">{{item.self_defined_field[items.id] ||  '--'}}</span>
+                </div>
+              </div>
+            </template>
+            <div class="info-item notes-item">
+              <div class="info-label">OS：</div>
+              <div class="os-box">
+                <img :title="item.image_name" class="os-img" v-if="item.image_icon"
+                  :src="'./img/mf_dcim/' + item.image_icon +'.svg'">
+                {{item.image_name || '--'}}
+              </div>
+            </div>
+            <div class="info-item notes-item" v-if="isShowBaseInfo">
+              <div class="info-label">{{lang.module_base_info}}：</div>
+              <div class="info-text">
+                {{(item.show_base_info === 1 && item.base_info) || '--'}}
+              </div>
+            </div>
+
+            <div class="info-item notes-item" v-if="item.client_notes" style="width: 100%;">
+              <div class="info-label">{{lang.invoice_text139}}：</div>
+              <div class="info-text">
+                <span>{{item.client_notes}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </common-list>
+  </div>
+  <van-sticky position="bottom">
+    <div class="all-btn-box">
+      <traffic-warning module="mf_dcim"></traffic-warning>
+    </div>
+  </van-sticky>
+</div>
+<!-- =======页面引入js和相关组件位置======= -->
+
+
+<script src="/plugins/reserver/mf_dcim/template/clientarea/mobile/mfm301/api/dcim.js"></script>
+<script src="/plugins/reserver/mf_dcim/template/clientarea/mobile/mfm301/lang/index.js"></script>
+<script src="/plugins/reserver/mf_dcim/template/clientarea/mobile/mfm301/js/dcim_list.js"></script>

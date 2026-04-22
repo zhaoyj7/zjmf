@@ -1,0 +1,84 @@
+.cycle-seting {
+  display: flex;
+  align-items: center;
+}
+.table-top {
+  margin: 10px 0 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cycle-box .cycle-item .cycle-item-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.sync-select {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  column-gap: 10px;
+  margin-bottom: 15px;
+}
+.custom-select .t-select__list {
+  display: flex;
+  padding: 10px;
+  flex-wrap: wrap;
+}
+.custom-select li {
+  padding: 12px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  height: auto;
+}
+.custom-select li .icon {
+  width: 20px;
+  height: 20px;
+}
+.custom-select .s-icon {
+  width: 20px;
+  height: 20px;
+}
+.custom-select .s-icon.noIcon {
+  display: none;
+}
+.custom-select input {
+  font-size: 0;
+}
+.class-name {
+  display: flex;
+  align-items: center;
+}
+.icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+}
+.com-opt .t-icon {
+  color: var(--td-brand-color);
+  margin-right: 10px;
+  font-size: 18px;
+  cursor: pointer;
+}
+.com-opt .t-icon:last-child {
+  margin-right: 0;
+}
+.tip-s {
+  color: rgba(0, 0, 0, 0.4);
+}
+/* product-notice-demand */
+.product-notice-demand .t-input-number {
+  width: 200px;
+}
+.product-notice-demand .t-select__wrap {
+  width: 100px;
+}
+.product-notice-demand .t-form__controls .t-form__item {
+  margin-right: 10px;
+}
+.top-opt {
+  margin: 10px 0 20px 0;
+}

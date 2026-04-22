@@ -1,0 +1,161 @@
+.product-list-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #F3F3F3;
+
+  .van-dropdown-menu__bar {
+    height: 1.0667rem;
+    box-shadow: none;
+
+    .van-dropdown-menu__title {
+      color: #333333;
+      font-weight: 600;
+      font-size: .32rem;
+    }
+  }
+
+
+  .all-btn-box {
+    padding: .32rem .4rem;
+    background-color: #fff;
+
+    .van-button {
+      height: 1.0667rem;
+      border-radius: .16rem;
+    }
+  }
+
+
+
+  .list-box {
+    flex: 1;
+    padding: .4267rem .4rem;
+
+    .list-item {
+      border-radius: .1067rem;
+      margin-bottom: .32rem;
+      background-color: #fff;
+
+      .item-fir {
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        column-gap: .4rem;
+        padding: .32rem .4rem;
+        border-bottom: 1px solid #EDEDED;
+
+        .cloud-name {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          column-gap: .2133rem;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+
+          .packge-name {
+            flex-shrink: 0;
+            font-weight: 600;
+            font-size: .3733rem;
+          }
+
+          .name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: .2933rem;
+            color: var(--base-color-primary);
+          }
+
+          .status {
+            flex-shrink: 0;
+            height: .5067rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: .1067rem;
+            font-size: .2667rem;
+            padding: 0 .32rem;
+          }
+
+        }
+
+        .cloud-os {
+          flex-shrink: 0;
+          font-size: 0;
+        }
+
+      }
+
+
+
+      .os-img {
+        width: .48rem;
+        height: .48rem;
+      }
+
+      .info-other {
+        padding: .44rem .4rem;
+        display: flex;
+        flex-wrap: wrap;
+        row-gap: .1867rem;
+
+
+
+        .info-item {
+          width: 50%;
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          font-size: .32rem;
+          color: #999999;
+
+          &:nth-of-type(2n) {
+            justify-content: flex-end;
+          }
+
+          .info-label {
+            flex-shrink: 0;
+          }
+
+          &.notes-item {
+            width: 100%;
+            justify-content: flex-start;
+          }
+
+
+          .os-box {
+            display: flex;
+            column-gap: .1333rem;
+            align-items: center;
+          }
+
+          .copy-icon {
+            width: .3733rem;
+            height: .3733rem;
+            vertical-align: bottom;
+            margin-left: .1067rem;
+            cursor: pointer;
+          }
+
+
+          .area {
+            display: flex;
+            column-gap: .16rem;
+            align-items: center;
+          }
+
+          .area-img {
+            width: .5333rem;
+            height: .3467rem;
+          }
+        }
+
+
+      }
+    }
+  }
+
+}

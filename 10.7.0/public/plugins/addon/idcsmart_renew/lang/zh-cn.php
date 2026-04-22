@@ -1,0 +1,48 @@
+<?php
+
+return [
+    'success_message' => '请求成功',
+    'host_is_not_exist' => '产品不存在',
+    'host_cannot_renew' => '产品不可续费',
+    'get_fail' => '获取失败',
+    'host_billing_cycle_is_invalid' => '无效周期',
+    'host_renew' => '产品续费',
+    'host_renew_description' => '续费-{product_name}({name}),购买时长:{billing_cycle_name}({time})',
+    'renew_success' => '续费成功',
+    'renew_fail' => '续费失败',
+    'param_error' => '参数错误',
+    'renew' => '续费',
+    'renew_batch' => '批量续费',
+    'renew_promo' => '优惠码',
+    'renew_client_renew' => '{client}续费产品:{host},续费金额:{currency_prefix}{amount}{currency_suffix}',
+    'renew_admin_renew' => '{admin}续费产品:{host},续费金额:{currency_prefix}{amount}{currency_suffix}',
+    'email_template_is_not_exist' => '邮件模板不存在',
+    'sms_template_is_not_exist' => '短信模板不存在',
+    'id_error' => 'ID错误',
+    'host_auto_renew_fail_send_email' => '自动续费扣款失败提醒,发送邮件',
+    'host_auto_renew_fail_send_sms' => '自动续费扣款失败提醒,发送短信',
+
+    'idcsmart_renew_configuration_log_renew_sms_template' => '续费短信模板',
+    'idcsmart_renew_configuration_log_renew_email_template' => '续费邮件模板',
+    'log_admin_configuration_idcsmart_renew' => '{admin}将续费设置的{description}',
+    'admin_old_to_new' => '{field}从{old}改为{new}',
+    'log_admin_open_auto_renew' => '{admin}开启产品{host}自动续费',
+    'log_admin_close_auto_renew' => '{admin}关闭产品{host}自动续费',
+    'log_client_open_auto_renew' => '{client}开启产品{host}自动续费',
+    'log_client_close_auto_renew' => '{client}关闭产品{host}自动续费',
+    'log_addon_renew_paid_fail' => '产品#host#{host}#支付后续费({id})失败，错误信息:{msg}',
+
+    'host_renew_send_mail' => '产品续费,发送邮件',
+    'host_renew_send_sms' => '产品续费,发送短信',
+    'addon_renew_batch_renew' => '批量续费订单(ID#{order_id}#),当前产品:#{host_id}#',
+    'addon_renew_batch_renew_upstream_error' => '上游返回错误:',
+    'renew_credit_limit_auto_renew_success' => '产品#{host_id}#使用信用额自动续费成功，订单#{order_id}#，金额{amount}',
+    'renew_credit_limit_auto_renew_fail' => '产品#{host_id}#使用信用额自动续费失败，订单#{order_id}#，原因:{msg}',
+    'renew_credit_limit_auto_renew_exception' => '产品#{host_id}#使用信用额自动续费异常，订单#{order_id}#，异常:{msg}',
+    
+    // 自动续费复用订单相关
+    'renew_auto_renew_reuse_order_success' => '产品#{host_id}#自动续费复用订单#{order_id}#支付成功，金额{amount}',
+    'renew_auto_renew_reuse_order_fail' => '产品#{host_id}#自动续费复用订单#{order_id}#支付失败，金额{amount}，余额不足',
+    'renew_auto_renew_fail_insufficient_balance' => '自动续费失败，账户余额不足',
+    'order_not_exist' => '订单不存在或状态异常',
+];

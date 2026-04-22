@@ -1,0 +1,457 @@
+.buy-box {
+  background: #F4F4F4;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 46px);
+  box-sizing: border-box;
+
+  .van-field__label {
+    color: #333333;
+    font-size: .32rem;
+    font-weight: 500;
+  }
+
+  .van-field__value {
+    font-size: .32rem;
+  }
+
+  .van-field__right-icon .van-icon {
+    font-size: .32rem;
+  }
+
+  .btn-field {
+
+    .van-field__button {
+
+      .count-down-btn {
+        min-width: 2.4533rem;
+        height: 100%;
+        font-size: 14px;
+        color: #212529;
+        background-color: #E1EBFD;
+        border: none;
+        border-left: 1px solid #CED4DA;
+        border-radius: 0;
+      }
+
+      .pass-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3px 8px;
+        font-size: 14px;
+        line-height: 22px;
+        color: var(--base-color-primary);
+        background-color: rgba(242, 243, 255, 1);
+        border-radius: 6px;
+
+        img {
+          width: 14px;
+          height: 14px;
+        }
+      }
+
+    }
+  }
+
+  .select-input {
+    display: flex;
+    align-items: center;
+  }
+
+  .primary-color {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .custom-box {
+    box-sizing: border-box;
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .description {
+    font-size: .32rem;
+    padding: .32rem .4267rem;
+  }
+
+
+  .select-type {
+    display: flex;
+    align-items: center;
+    padding: .4rem .4267rem;
+    font-size: .32rem;
+    line-height: .5867rem;
+    background: #fff;
+
+    .click-tip {
+      color: var(--base-color-primary);
+      font-weight: 600;
+    }
+  }
+
+  .select-field,
+  .van-field {
+    padding: .4267rem .4267rem;
+
+    &.has-tip {
+      padding-bottom: 0;
+    }
+  }
+
+
+  .lebal-box {
+    width: 100%;
+    color: 0.32rem;
+    font-size: 0.32rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+
+
+  .image-icon {
+    height: .5333rem;
+    margin-right: .2133rem;
+  }
+
+  .slider-input {
+    margin-top: .4rem;
+    width: 100%;
+
+    .slider-box {
+      display: flex;
+      align-items: center;
+      padding-left: .2667rem;
+
+      .custom-button {
+        background-color: #e2e5ed;
+        border-radius: 1px solid var(--base-color-primary);
+        color: var(--base-color-primary);
+        font-size: 0.3733rem;
+        padding: 0.12rem 0.1333rem;
+        display: flex;
+        align-items: center;
+      }
+
+      .van-slider {
+        width: 100%;
+      }
+
+      .unit {
+        margin-left: 0.4rem;
+        flex-shrink: 0;
+        font-size: 0.3733rem;
+        color: #212529;
+      }
+
+    }
+
+    .marks {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: .32rem;
+      color: #999999;
+      margin-top: .4rem;
+    }
+  }
+
+  .level-options {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: .4267rem;
+
+    .options-item {
+      position: relative;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #F5F5F5;
+      color: #333333;
+      font-size: .2933rem;
+      border-radius: .1067rem;
+      overflow: hidden;
+      border: 1px solid #F5F5F5;
+
+      &.is-select {
+        border: 1px solid var(--base-color-primary);
+        background: rgba(22, 119, 255, 0.102);
+        color: var(--base-color-primary);
+
+        // 右下角显示选中标记
+        &:before {
+          content: "";
+          position: absolute;
+          right: 0;
+          bottom: 0;
+          border: .1867rem solid var(--base-color-primary);
+          border-top-color: transparent;
+          border-left-color: transparent;
+        }
+
+        &:after {
+          content: "";
+          width: .08rem;
+          height: .1867rem;
+          position: absolute;
+          right: .0267rem;
+          bottom: .0267rem;
+          border: 1px solid #fff;
+          border-top-color: transparent;
+          border-left-color: transparent;
+          transform: rotate(45deg);
+        }
+
+      }
+    }
+  }
+}
+
+.s-tip {
+  background-color: #fff;
+  color: #999999;
+  font-size: .2933rem;
+  padding: .2rem .4267rem .4267rem;
+  position: relative;
+  white-space: pre-wrap;
+
+  &::after {
+    position: absolute;
+    box-sizing: border-box;
+    content: " ";
+    pointer-events: none;
+    right: var(--van-padding-md);
+    bottom: 0;
+    left: var(--van-padding-md);
+    border-bottom: 1px solid var(--van-cell-border-color);
+    transform: scaleY(.5);
+  }
+}
+
+.botton-buy-btn {
+  z-index: 2;
+  box-shadow: 0px 4px 15px 0px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  padding: .32rem .4rem;
+  font-size: .32rem;
+
+  .price-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .pre-text {
+      color: var(--base-color-primary);
+      white-space: nowrap;
+    }
+  }
+
+  .total-price {
+    display: flex;
+    align-items: center;
+    font-size: .32rem;
+
+    .help {
+      margin-left: .1067rem;
+      color: #999;
+      font-size: .3467rem;
+    }
+
+    .price-label {
+      color: #333333;
+      font-weight: 600;
+    }
+
+    .price-content {
+      display: flex;
+      align-items: baseline;
+      column-gap: .1333rem;
+    }
+
+    .price-num {
+      font-size: .5333rem;
+      color: var(--base-color-danger);
+    }
+
+    .original-price {
+      font-size: .3467rem;
+      text-align: right;
+      text-decoration: line-through;
+      font-weight: 500;
+      color: #999;
+    }
+
+  }
+
+
+  .buy-btn-box {
+    margin-top: 16px;
+    display: flex;
+    column-gap: 16px;
+
+    .can-btn,
+    .sub-btn {
+      font-size: .3733rem;
+      height: 1.1733rem;
+      border-radius: .1067rem;
+    }
+  }
+
+}
+
+.image-action {
+  display: flex;
+  flex-direction: column;
+
+  .image-action-item {
+    padding: 0.32rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #ced4da;
+    color: #212529;
+    font-size: 0.4rem;
+
+    .select-name {
+      display: flex;
+      align-items: center;
+    }
+
+    .image-icon {
+      height: 0.4267rem;
+      margin-right: 0.2667rem;
+    }
+  }
+}
+
+.country-icon {
+  height: 0.328rem;
+  margin-right: 0.2133rem;
+}
+
+.config-detail {
+  font-size: .32rem;
+  padding: 16px 0;
+
+  .config-top {
+    text-align: center;
+  }
+
+  .config-mid {
+
+    .info {
+      padding: .4267rem;
+      display: flex;
+      flex-direction: column;
+      row-gap: .2667rem;
+      max-height: 55vh;
+      overflow-y: auto;
+
+      .des {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: .32rem;
+        color: #333;
+        column-gap: .4rem;
+
+        .name {
+          color: #878a99;
+          min-width: 2.6667rem;
+        }
+
+        .price {
+          flex-shrink: 0;
+        }
+      }
+    }
+
+  }
+}
+
+
+.sure-remind {
+  display: flex;
+  padding: 0.2rem;
+  flex-direction: column;
+  row-gap: 0.2rem;
+  font-size: .32rem;
+  max-width: 60vw;
+}
+
+.duration-box {
+  max-height: 60vh;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: .32rem;
+
+  .duration-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 2px solid #F7F7F7;
+    background: #F7F7F7;
+    border-radius: .2133rem;
+    padding: .4267rem .5333rem;
+    color: #333333;
+
+    .item-price-prefix {
+      font-size: .32rem;
+    }
+
+    .item-check {
+      font-size: 0;
+      position: absolute;
+      top: .24rem;
+      right: .24rem;
+    }
+
+    .item-top {
+      text-align: center;
+      font-size: .4rem;
+      font-weight: 600;
+    }
+
+    .item-bottom {
+      margin-top: .4rem;
+      font-size: .5333rem;
+      font-weight: bold;
+    }
+
+    .item-origin-price {
+      margin-top: .2133rem;
+      font-size: .32rem;
+      color: #D8D8D8;
+    }
+
+    &.active {
+      border-color: var(--van-primary-color);
+      background: rgba(22, 119, 255, 0.1);
+      color: var(--van-primary-color);
+
+      .item-origin-price {
+        color: var(--van-primary-color);
+      }
+    }
+  }
+}
+
+
+.discount-box {
+  margin-top: .1333rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  column-gap: 0.1333rem;
+  flex-wrap: wrap;
+}

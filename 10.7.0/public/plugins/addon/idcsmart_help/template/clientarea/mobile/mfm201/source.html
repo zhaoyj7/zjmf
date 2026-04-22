@@ -1,0 +1,127 @@
+<!-- 页面独有样式 -->
+<link rel="stylesheet" href="/plugins/addon/idcsmart_help/template/clientarea/mobile/mfm201/css/news.css">
+</head>
+
+<body>
+  <!-- mounted之前显示 -->
+  <div id="template" v-cloak class="help-page">
+    <top-menu neednav>
+      <template #left>
+        <van-icon @click="goBack" class="left-icon" name="arrow-left"></van-icon>
+      </template>
+      <template #center>
+        <div class="nav-title">{{lang.source_title}}</div>
+      </template>
+      <template #right>
+      </template>
+    </top-menu>
+    <van-tabs class="tab-box" v-model:active="activeIndex" @change="handleClick" line-width="16px"
+      title-active-color="var(--van-primary-color)">
+      <van-tab :title="lang.source_text6" name="1" v-if="havePlugin('IdcsmartHelp')">
+        <form action="/">
+          <van-search class="search-input" v-model="params.keywords" :placeholder="lang.cloud_tip_2"
+            @search="inputChange" @clear="getHelpIndex">
+          </van-search>
+        </form>
+        <div class="help-main">
+          <div class="help-list" v-if="helpIndexList.length > 0">
+            <template v-for="(item,index) in helpIndexList">
+              <div class="help-item" v-if="item.id">
+                <div class="content-item-title">
+                  <img
+                    :src="`/plugins/addon/idcsmart_help/template/clientarea/mobile/mfm201/img/source/img${index + 1 }.png`"
+                    alt="">
+                  <span>{{item.name}}</span>
+                </div>
+                <div class="content-item-link">
+                  <div class="link-item" :title="help.title" v-for="help in item.helps" :key="help.id"
+                    @click="goToDetail(help.id)">
+                    {{help.title}}
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+          <van-empty v-else></van-empty>
+        </div>
+      </van-tab>
+      <van-tab :title="lang.source_text7" name="4" v-if="havePlugin('IdcsmartHelp')">
+        <form action="/">
+          <van-search class="search-input" v-model="params.keywords" :placeholder="lang.cloud_tip_2"
+            @search="inputChange" @clear="getHelpIndex">
+          </van-search>
+        </form>
+        <div class="all-help-box">
+          <div class="menu-icon">
+            <div @click="isShowMenu = !isShowMenu">
+              <svg v-show="!isShowMenu" xmlns="http://www.w3.org/2000/svg" width="24" height="12" viewBox="0 0 24 12"
+                fill="none">
+                <path d="M6 1.5H24M6 10.5H24M0 1.5H3M0 10.5H3" stroke="black" stroke-opacity="0.9" stroke-width="1.5" />
+              </svg>
+            </div>
+            <div @click="isShowMenu = !isShowMenu">
+              <svg v-show="isShowMenu" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                fill="none">
+                <path
+                  d="M12 13.3805L16.6195 18L18 16.6194L13.3806 12L18 7.38057L16.6195 6.00004L12 10.6195L7.38053 6L6 7.38053L10.6195 12L6 16.6195L7.38053 18L12 13.3805Z"
+                  fill="black" fill-opacity="0.9" />
+              </svg>
+            </div>
+          </div>
+          <van-collapse v-model="activeNames" v-show="isShowMenu">
+            <van-collapse-item :disabled="item.helps.length === 0" :title="item.name" :name="item.id"
+              v-for="(item,index) in allHelpList">
+              <div class="help-item" :class="{'active':docItem.id  === defaultActiveItem.id }"
+                v-for="docItem in item.helps" @click="itemClick(docItem.id)">
+                {{docItem.title}}
+              </div>
+            </van-collapse-item>
+          </van-collapse>
+          <template v-if="!isShowMenu">
+            <!-- 面包屑 -->
+            <div class="bread-box" @click="isShowMenu = true">
+              <span class="bread-title">{{defaultActiveItem.father_name}}
+                <van-icon name="arrow"></van-icon>
+              </span>
+              <span class="bread-text">{{defaultActiveItem.title}}</span>
+            </div>
+            <!-- 文章内容 -->
+            <div class="news-main">
+              <div class="news-title">{{defaultActiveItem.title}}</div>
+              <div class="news-time">
+                <span class="time-text">
+                  {{lang.source_text1}}：<span v-time="detailData.update_time || detailData.create_time"></span>
+                </span>
+                <span class="time-keyworld">{{lang.source_text2}}：{{detailData.keywords || '--'}}</span>
+              </div>
+              <shadow-content class="news-content" :content="calStr(detailData.content)"></shadow-content>
+              <!-- 附件 -->
+              <div class="right-attachment" v-if="detailData.attachment?.length > 0">
+                <div>
+                  {{lang.source_text3}}：
+                </div>
+                <div class="attachment-box">
+                  <div class="right-attachment-item" v-for="(f,i) in detailData.attachment" :key="i"
+                    @click="downloadfile(f.url)">
+                    <span :title="f.name">
+                      <van-icon name="orders-o"></van-icon><span>{{f.name}}</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </van-tab>
+      <van-tab :title="lang.source_tab2" name="2" v-if="havePlugin('IdcsmartNews')">
+      </van-tab>
+      <van-tab :title="lang.source_tab3" name="3" v-if="havePlugin('IdcsmartFileDownload')">
+      </van-tab>
+    </van-tabs>
+
+  </div>
+  <!-- =======页面独有======= -->
+  <script src="/plugins/addon/idcsmart_help/template/clientarea/mobile/mfm201/lang/index.js"></script>
+  <script src="/{$template_catalog}/template/{$themes}/components/shadowContent/shadowContent.js"></script>
+  <script src="/plugins/addon/idcsmart_help/template/clientarea/mobile/mfm201/api/news.js"></script>
+  <script src="/plugins/addon/idcsmart_help/template/clientarea/mobile/mfm201/js/news.js"></script>

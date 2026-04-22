@@ -1,0 +1,75 @@
+<!-- 页面引入样式位置 -->
+<link rel="stylesheet"
+  href="/plugins/addon/idcsmart_certification/template/clientarea/mobile/mfm201/css/authentication_select.css">
+</head>
+
+<body>
+  <div id="template" v-cloak class="authentication-select">
+    <top-menu neednav>
+      <template #left>
+        <van-icon @click="goBack" class="left-icon" name="arrow-left"></van-icon>
+      </template>
+      <template #center>
+        <div class="nav-title">{{lang.realname_text1}}</div>
+      </template>
+      <template #right>
+      </template>
+    </top-menu>
+    <div class="main-page">
+      <van-form ref="certificationEnterprise">
+        <van-field :rules="enterpriseRules.company" required label-align="top" v-model="certificationEnterprise.company"
+          :placeholder="lang.realname_text3" :label="lang.realname_text2">
+        </van-field>
+        <van-field v-model="certificationEnterprise.company_organ_code" required
+          :rules="enterpriseRules.company_organ_code" :label="lang.realname_text4" label-align="top"
+          :placeholder="lang.realname_text5">
+        </van-field>
+        <template v-for="(item,index) in custom_fieldsObj">
+          <van-field label-align="top" v-if="item.type ==='text'" :placeholder="item.title" :required="item.required"
+            v-model="certificationEnterprise.custom_fields[item.field]" :label="item.title"
+            :rules="[{ required: item.required, message: item.tip || lang.realname_text73, trigger: 'blur'}]">
+          </van-field>
+          <cur-select :required="item.required" v-model:firpick="certificationEnterprise.custom_fields[item.field]"
+            label-align="top" v-if="item.type ==='select'" :label="item.title" :placeholder="item.title"
+            :rules="[{ required: item.required, message: item.tip || lang.realname_text73, trigger: 'blur'}]"
+            :columns="calcOption(item.options)" :columns-names="{ text: 'label', value: 'value' }">
+          </cur-select>
+          <van-field :required="item.required"
+            :rules="[{ required: item.required, message: item.tip || lang.realname_text73, trigger: 'blur'}]"
+            v-if="item.type ==='file'" :label="item.title" label-align="top" :placeholder="item.title">
+            <template #input>
+              <van-uploader :after-read="(val)=>afterRead(val,item.field,true)"
+                v-model="certificationEnterprise.custom_fields[item.field]" ref="uploadRef" multiple accept="*">
+              </van-uploader>
+            </template>
+          </van-field>
+        </template>
+        <template v-if="certificationInfoObj.certification_upload == 1">
+          <van-field :rules="[{ required:true, message: lang.realname_text74 , trigger: 'blur'}]" required
+            :label="lang.realname_text7" label-align="top">
+            <template #input>
+              <van-uploader max-count="1" :after-read="(val)=>afterRead(val,'card_three_fileList')"
+                v-model="card_three_fileList" ref="uploadRef" multiple accept=".jpg,.gif,.jpeg,.png">
+              </van-uploader>
+            </template>
+          </van-field>
+        </template>
+      </van-form>
+      <div class="next-box">
+        <van-button block @click="goSelect">
+          {{lang.realname_text8}}
+        </van-button>
+        <van-button type="primary" block @click="companySumit" :loading="sunmitBtnLoading">
+          {{sunmitBtnLoading ? lang.realname_text9 : lang.realname_text10}}
+        </van-button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- =======页面引入js和相关组件位置======= -->
+
+  <script src="/plugins/addon/idcsmart_certification/template/clientarea/mobile/mfm201/lang/index.js"></script>
+  <script src="/plugins/addon/idcsmart_certification/template/clientarea/mobile/mfm201/api/certification.js"></script>
+  <script
+    src="/plugins/addon/idcsmart_certification/template/clientarea/mobile/mfm201/js/authentication_compny.js"></script>

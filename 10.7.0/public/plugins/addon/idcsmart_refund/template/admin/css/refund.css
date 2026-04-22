@@ -1,0 +1,182 @@
+.refund-icon {
+  color: var(--td-brand-color);
+  ;
+  margin-right: 5px;
+  cursor: pointer;
+}
+
+.t-dialog__body__icon {
+  padding: 10px !important;
+}
+
+.my-card-container .t-card__body {
+  flex: 1;
+}
+
+.jump {
+  color: var(--td-brand-color-active);
+  cursor: pointer;
+}
+
+.t-table .t-table__header--fixed:not(.t-table__header--multiple)>tr>th {
+  background-color: var(--td-bg-color-container);
+}
+
+#customTable .t-table__th-cell-inner p {
+  margin: 0;
+}
+
+.order-search-wrapper {
+  display: flex;
+  justify-content: end;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.order-search-wrapper .t-select__wrap,
+.order-search-wrapper .t-input__wrap
+{
+  width: 240px;
+}
+.t-table th {
+  line-height: 14px;
+}
+
+.order-search-wrapper.internal {
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.order-search-wrapper.internal .t-form{
+  display: inline-flex;
+  gap: 16px;
+}
+
+
+.reason-check {
+  display: flex;
+  align-items: center;
+}
+
+.reason-check span {
+  margin-right: 10px;
+}
+
+.add-btn {
+  text-align: center;
+  display: block;
+  width: 100%;
+  margin: 0px auto 10px;
+  border-top: 0;
+  border-radius: 0
+}
+
+.add-refund-divider .t-divider__inner-text {
+  font-size: 16px;
+  font-family: PingFang SC;
+  font-weight: bold;
+  color: #333333;
+  padding-left: 0;
+}
+
+.add-refund-divider.t-divider--with-text-left:before {
+  width: 0;
+}
+
+.add-refund-divider.t-divider--with-text-left:after {
+  margin-top: 10px;
+}
+
+.my-card-container {
+  padding: 40px 24px;
+}
+
+.my-card-container .poduct-form-label {
+  font-size: 14px;
+  font-family: PingFang SC;
+  font-weight: 400;
+  color: #333333;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.add-refund-require {
+  display: flex
+}
+
+.add-refund-require-content {
+  margin-left: 20px
+}
+
+.add-refund-require-content .t-radio-group {
+  display: flex;
+  flex-direction: column;
+  align-items: baseline;
+}
+
+.range-check {
+  display: flex;
+  align-items: center;
+}
+
+.require-content-range {
+  display: flex;
+  align-items: center;
+  position: relative;
+  top: 2px;
+}
+
+.table-card {
+  width: 40% !important;
+  min-width: 620px;
+}
+
+.table-card .t-card__body {
+  padding: 20px 12px
+}
+
+.add-refund-btn {
+
+  position: absolute;
+  bottom: 3%;
+  right: 2%;
+}
+
+.add_refund_product .com-first-title{
+  margin: 32px 0 24px 0;
+}
+
+/* .t-table th,
+.t-table thead td {
+  color: #000000 !important;
+} */
+
+#content .t-divider__inner-text {
+  padding-left: 0;
+}
+
+.com-f-btn {
+  margin-top: 24px;
+}
+
+.right-search-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.right-search-wrapper .t-select__wrap,
+.right-search-wrapper .t-input__wrap
+{
+  width: 240px;
+}
+.refund-require-label{
+  line-height: 32px;
+}
+.red{
+  color: red;
+}
+
+:root[theme-mode=dark] .add-refund-divider .t-divider__inner-text,
+:root[theme-mode=dark] .my-card-container .poduct-form-label{
+  color: #fff;
+}

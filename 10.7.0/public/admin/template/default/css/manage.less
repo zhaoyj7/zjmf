@@ -1,0 +1,171 @@
+/* 管理相关 */
+.log-system {
+  .common-header {
+    justify-content: flex-end;
+    margin-bottom: 14px;
+    margin-top: 20px;
+
+    .search {
+      width: 360px;
+    }
+  }
+
+  .export-header {
+    display: flex;
+    margin-bottom: 24px;
+    justify-content: space-between;
+    gap: 16px;
+    .right-search {
+      display: flex;
+      row-gap: 16px;
+      justify-content: flex-end;
+    }
+
+    .search-input {
+      width: 360px;
+    }
+
+    .com-search-btn {
+      cursor: pointer;
+    }
+  }
+
+  .log-description-width {
+    img {
+      width: 140px;
+      height: 84px;
+    }
+  }
+  .manual-btn{
+    display: flex;
+    gap: 10px;
+  }
+  .t-input-adornment__text{
+    padding: 5px;
+    font-size: 0;
+  }
+  .t-pagination{
+    width: auto !important;
+  }
+}
+
+/* log-notice-sms */
+.log-notice-sms,
+.log-notice-email {
+  .common-header {
+
+    .search {
+      width: 360px;
+    }
+  }
+
+  .choose-select-btn {
+    width: 100px;
+
+    .t-input {
+      background: var(--td-brand-color);
+
+      input,
+      .t-input__suffix svg {
+        color: #fff;
+      }
+
+      &:focus {
+        box-shadow: none;
+      }
+    }
+
+    .t-input--focused {
+      box-shadow: none;
+    }
+  }
+}
+
+/* task */
+.task {
+  .t-form {
+    flex-wrap: nowrap;
+    gap: 16px;
+
+    .t-form__label {
+      width: auto !important;
+      padding-right: 10px !important;
+    }
+
+    .t-form__controls {
+      margin-left: 0 !important;
+      margin-right: 0;
+    }
+
+    .t-form__item {
+      margin-right: 0 !important;
+      min-width: auto;
+    }
+
+    .search {
+      .t-form__controls {
+        width: 200px;
+      }
+    }
+
+    .f-btn {
+      .t-button {
+        margin-right: 16px;
+      }
+    }
+  }
+
+  .task-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .t-date-range-picker {
+    width: 300px;
+  }
+}
+
+// @media screen and (max-width: 1400px) {
+//   .task {
+//     .t-form {
+//       .search {
+//         .t-form__controls {
+//           width: 200px;
+//         }
+//       }
+
+//       .t-form__controls {
+//         width: 200px;
+//       }
+
+//       .t-form__item {
+//         margin-right: 20px !important;
+//       }
+
+//       .f-btn {
+//         margin-left: 0;
+//         margin-right: 0 !important;
+
+//         .t-form__controls {
+//           width: auto;
+//         }
+//       }
+//     }
+//   }
+// }
+
+// @media screen and (max-width: 1100px) {
+//   .task {
+//     .t-form {
+//       .search {
+//         .t-form__controls {
+//           width: 150px;
+//         }
+//       }
+
+//       .t-form__controls {
+//         width: 150px;
+//       }
+//     }
+//   }
+// }

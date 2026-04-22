@@ -1,0 +1,616 @@
+// Variables
+@text-color: #1e2736;
+@border-color: #e6e7eb;
+@text-secondary: #8692b0;
+@white: #ffffff;
+
+// Mixins
+.flex-center() {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flex-between() {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+// Main styles
+.main-card-title {
+    font-size: 0.28rem;
+    line-height: 0.28rem;
+}
+
+.content-box {
+    margin-top: 0.4rem;
+}
+
+.box-top {
+    height: 1rem;
+    width: 100%;
+    border-bottom: 1px solid @border-color;
+    display: flex;
+    align-items: center;
+}
+
+.right-name {
+    .flex-between();
+    width: 100%;
+}
+
+.name-text {
+    font-size: 0.32rem;
+    font-family: Helvetica;
+    font-weight: bold;
+    line-height: 0.32rem;
+    color: @text-color;
+}
+
+.name-country {
+    margin-top: 0.1rem;
+    display: flex;
+    align-items: center;
+}
+
+.country-img {
+    height: 0.25rem;
+    width: 0.4rem;
+}
+
+.attestation-status {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    margin-left: 0.04rem;
+
+    >img {
+        width: 0.26rem;
+        height: 0.26rem;
+    }
+}
+
+.attestation-text {
+    cursor: pointer;
+    margin-left: 0.1rem;
+    font-size: 0.14rem;
+    color: @text-color;
+}
+
+.bule-text {
+    color: var(--color-primary) !important;
+
+    .el-icon-arrow-right {
+        margin-left: 0.08rem;
+    }
+}
+
+.box-main {
+    margin-top: 0.4rem;
+}
+
+// Element UI overrides
+.el-popconfirm {
+    .el-popconfirm__main {
+        margin: 14px 0;
+    }
+
+    .el-popconfirm__action .el-button {
+        display: initial !important;
+    }
+}
+
+.account-title,
+.basic-title {
+    border-left: 3px solid var(--color-primary);
+    padding-left: 0.1rem;
+    font-size: 0.16rem;
+    line-height: 0.16rem;
+    font-weight: 400;
+}
+
+.account {
+    margin-top: 0.62rem !important;
+}
+
+.basic>.el-row,
+.account>.el-row {
+    margin-top: 0.43rem;
+}
+
+.oauth {
+    margin-top: 0.62rem;
+}
+
+.wx-switch {
+    margin-top: 0.43rem;
+}
+
+.oauth-box {
+    margin-top: 0.43rem;
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: 0.43rem;
+}
+
+.box-item {
+    display: flex;
+    flex-direction: column;
+    font-family: PingFang SC;
+}
+
+.box-item-t {
+    font-size: 0.13rem;
+    font-weight: 500;
+    height: 0.2rem;
+    color: @text-secondary;
+    margin-bottom: 0.25rem;
+}
+
+.box-item-b {
+
+    >.el-input,
+    .el-select,
+    .el-textarea {
+        width: 3.2rem;
+        border: none;
+        border-bottom: 1px solid @border-color;
+    }
+}
+
+.el-textarea .el-textarea__inner {
+    padding: 0;
+    border: none;
+}
+
+.box-item-b .el-input__inner {
+    border: none;
+    padding: 0;
+}
+
+.btn-save {
+    width: 0.88rem;
+    height: 0.32rem;
+    margin-top: 0.43rem;
+    background: var(--color-primary);
+    border-radius: 3px;
+    color: @white;
+    .flex-center();
+}
+
+.el-input {
+    &.is-disabled .el-input__inner {
+        background: @white;
+    }
+
+    &__inner {
+        height: 0.46rem;
+    }
+
+    &__suffix {
+        display: flex;
+        align-items: center;
+    }
+}
+
+.input-with-select .el-input-group__prepend {
+    width: 60px;
+    border: none;
+    background: @white;
+}
+
+.edit-icon {
+    cursor: pointer;
+    padding: 0.15rem;
+}
+
+// Dialog styles
+.el-dialog__body {
+    padding: 0.3rem 0.8rem;
+    font-size: 0.16rem;
+}
+
+.mian-form {
+    margin-top: 0.4rem;
+}
+
+.input-btn {
+    display: flex;
+    flex-direction: row;
+}
+
+.code-btn {
+    margin-left: 0.12rem;
+    width: 1.3rem;
+    background: #eef4ff;
+    opacity: 1;
+    border-radius: 4px;
+    .flex-center();
+    color: var(--color-primary);
+}
+
+.select-input {
+    width: auto !important;
+    min-width: 1.14rem;
+}
+
+// Table styles
+
+
+// Search styles
+.com-search {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0.2rem 0;
+}
+
+.msg-search {
+    .flex-between();
+    padding: 0.2rem 0;
+}
+
+.msgsearch-left {
+    display: flex;
+    align-items: center;
+
+    .el-button {
+        border-radius: 0.03rem;
+        border: 0.01rem solid var(--color-primary);
+        color: var(--color-primary);
+        font-size: 0.16rem;
+        margin-right: 0.1rem;
+    }
+}
+
+.msgsearch-right {
+    display: flex;
+
+    .el-select {
+        width: 2.4rem;
+        margin-right: 0.1rem;
+        border: none;
+    }
+
+    .search-btn {
+        margin-left: 0.1rem;
+        background: var(--color-primary);
+        font-size: 0.16rem;
+        color: rgba(255, 255, 255, 0.9);
+    }
+}
+
+// Link styles
+.a-text {
+    color: #171725;
+
+    &:hover {
+        color: var(--color-primary);
+        cursor: pointer;
+        text-decoration: underline;
+    }
+}
+
+.msg-status {
+    margin-right: 0.05rem;
+}
+
+.is-read {
+    color: @text-secondary;
+}
+
+.no-read {
+    color: var(--color-primary);
+}
+
+// Table cell styles
+tr>td {
+    padding-left: 20px !important;
+}
+
+th {
+    padding-left: 20px !important;
+}
+
+// Forget password styles
+.forget-pass {
+    display: flex;
+    justify-content: flex-end;
+    line-height: 0.14rem;
+    font-size: 0.14rem;
+    margin-top: 0.04rem;
+
+    >a {
+        color: var(--color-primary);
+        cursor: pointer;
+    }
+}
+
+// Login styles
+.login-top {
+    display: flex;
+    flex-direction: row;
+    margin-top: 0.3rem;
+}
+
+.login-email,
+.login-phone {
+    color: #666b80;
+    cursor: pointer;
+}
+
+.login-phone {
+    margin-left: 0.4rem;
+}
+
+.active {
+    color: var(--color-primary);
+    padding-bottom: 0.14rem;
+    border-bottom: 2px solid var(--color-primary);
+}
+
+.form-main {
+    margin-top: 0.3rem;
+}
+
+.form-item {
+    margin-top: 0.3rem;
+}
+
+.code-item {
+    display: flex;
+    flex-direction: row;
+}
+
+.rember-item {
+    margin-top: 0.2rem;
+    .flex-between();
+
+    a {
+        color: var(--color-primary);
+        cursor: pointer;
+    }
+}
+
+.login-btn {
+    width: 100%;
+    height: 0.46rem;
+    background: var(--color-primary);
+}
+
+.read-item {
+    margin-top: 0.2rem;
+
+    a {
+        color: var(--color-primary);
+        cursor: pointer;
+    }
+}
+
+.line-item {
+    margin-top: 0.4rem;
+
+    text {
+        font-size: 16px;
+        color: @text-color;
+    }
+}
+
+.type-btn {
+    width: 100%;
+    height: 0.46rem;
+    font-size: 0.16rem;
+}
+
+.code-pass-select {
+    width: auto;
+    height: 44px;
+    border: 1px solid @border-color;
+    border-right: none;
+}
+
+// Message box styles
+.el-message-box__btns {
+    display: flex;
+    flex-direction: row-reverse;
+
+    >.el-button {
+        display: inline-block;
+        margin-left: 10px;
+    }
+}
+
+// Mobile styles
+.mobel {
+    display: none;
+}
+
+@media screen and (max-width: 750px) {
+    .main-card-title {
+        font-size: 0.48rem;
+    }
+
+    .name-text {
+        font-size: 0.4rem;
+    }
+
+    .basic-title,
+    .account-title {
+        font-size: 0.36rem;
+        font-family: PingFang SC;
+        font-weight: 800;
+        line-height: 0.36rem;
+        color: var(--color-primary);
+        border-left: none;
+        padding-left: 0;
+    }
+
+    .box-item-t {
+        font-size: 0.28rem;
+        height: 0.28rem;
+    }
+
+    .el-row {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .el-col {
+        width: 100%;
+    }
+
+    .box-item-b {
+
+        >.el-input,
+        .el-select,
+        .el-textarea {
+            width: 100%;
+            margin-bottom: 0.4rem;
+        }
+    }
+
+    .el-input__inner {
+        font-size: 0.32rem;
+        height: auto;
+    }
+
+    .btn-save {
+        width: calc(100% - 0.6rem);
+        margin: 0 auto;
+        margin-top: 0.43rem;
+        height: 0.8rem;
+        font-size: 0.34rem;
+    }
+
+    .code-btn {
+        width: auto;
+        height: 0.8rem;
+        font-size: 0.32rem;
+    }
+
+    .dialog-footer {
+        flex-direction: column;
+
+        .btn-ok,
+        .btn-no {
+            width: 100%;
+            height: 0.8rem;
+            font-size: 0.34rem;
+        }
+
+        .btn-no {
+            margin-left: 0;
+            margin-top: 0.2rem;
+        }
+    }
+
+    .el-form-item__label {
+        font-size: 0.32rem;
+    }
+
+    .edit-icon {
+        font-size: 0.4rem;
+    }
+
+    .dialog-title {
+        font-size: 0.36rem;
+    }
+
+    .forget-pass {
+        font-size: 0.28rem;
+        line-height: 0.29rem;
+    }
+
+    .content_searchbar {
+        .left_tips .tips_item {
+            margin-right: 0.1rem;
+        }
+    }
+
+    .searchbar {
+        width: 100%;
+
+        .el-input {
+            margin-left: 0;
+            width: 100% !important;
+        }
+    }
+
+    .mob-searchbar {
+        margin-top: 0.53rem;
+    }
+
+    .mob-search-input {
+        height: 0.8rem;
+        background: rgba(134, 146, 176, 0.1);
+        border-radius: 3px 3px 0px 0px;
+
+        >input {
+            height: 0.8rem;
+            background: rgba(134, 146, 176, 0.1);
+            border-radius: 3px 3px 0px 0px;
+        }
+    }
+
+    .mob-tabledata {
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #d7d8db;
+        border-radius: 0px 0px 3px 3px;
+    }
+
+    .mob-tabledata-item {
+        height: auto;
+        border-bottom: 1px solid #d7d8db;
+        display: flex;
+        flex-direction: column;
+        padding: 0 0.3rem;
+    }
+
+    .mob-item-row {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 0.2rem;
+    }
+
+    .mob-item-row1,
+    .mob-item-row3,
+    .mob-item-row-notes {
+        font-size: 0.26rem;
+        line-height: 0.27rem;
+        color: @text-secondary;
+    }
+
+    .mob-item-row2-name {
+        font-size: 0.32rem;
+        line-height: 0.33rem;
+    }
+
+    .mob-item-row3 {
+        margin-bottom: 0.4rem;
+    }
+
+    .back-top-img {
+        width: 0.88rem;
+        position: fixed;
+        right: 0.3rem;
+        bottom: 1.17rem;
+    }
+
+    .bottom-text {
+        font-size: 0.26rem;
+        line-height: 0.27rem;
+        color: @text-secondary;
+        margin: 0.4rem 0;
+        display: flex;
+        justify-content: center;
+    }
+
+    .basic>.el-row:nth-child(3) {
+        margin-top: 0;
+    }
+
+    .select-input>.el-input--suffix {
+        width: 1.86rem;
+    }
+}

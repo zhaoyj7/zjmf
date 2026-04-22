@@ -1,0 +1,220 @@
+<link rel="stylesheet" href="/plugins/addon/promo_code/template/admin/css/promo_code.css" />
+<!-- =======内容区域======= -->
+
+<div id="content" class="promo-detail" v-cloak>
+  <com-config>
+    <t-card class="list-card-container">
+      <p class="com-inner-title">{{optTit}}</p>
+      <div class="box">
+        <t-form :data="formData" :rules="rules" :label-width="80" label-align="top" ref="formValidatorStatus"
+          @submit="onSubmit" reset-type="initial">
+          <t-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }">
+            <t-col :xs="12" :xl="6">
+              <t-form-item name="code" :label="lang.promo_code" ref="promo"
+                :help="optType === 'add' ? lang.promo_tip11 : ''"
+                :rules="optType ==='add' ? rules.code : [{required: true, message: lang.input + lang.promo_tip9, type:'error' }] ">
+                <t-input v-model=" formData.code" :disabled="optType ==='update'" :placeholder="lang.promo_tip9"
+                  @change="changePromo"></t-input>
+                <span class="random" @click="randomCode" v-if="optType ==='add'">{{lang.order_random}}</span>
+              </t-form-item>
+            </t-col>
+            <t-col :xs="12" :xl="6">
+              <t-form-item :label="lang.coupon_code_type" class="type-box" name="type">
+                <t-form-item label-align="left" class="type">
+                  <t-radio-group v-model="formData.type" :options="typeOptions" :disabled="optType ==='update'"
+                    @change="changeType">
+                  </t-radio-group>
+                </t-form-item>
+                <!-- 数值 -->
+                <t-form-item name="value" :label="calcLabel" class="type-lable" v-if="formData.type !== 'free'"
+                  :rules="formData.type === 'percent' ? rules.percentVal : rules.fixedVal">
+                  <t-input v-model="formData.value" :placeholder="calcPlaceholder" :disabled="optType ==='update'">
+                  </t-input>
+                  <span v-if="formData.type === 'percent'" style="margin-left: 10px">%</span>
+                </t-form-item>
+              </t-form-item>
+            </t-col>
+          </t-row>
+          <!-- 时间选择 -->
+          <t-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }">
+            <t-col :xs="12" :xl="4">
+              <t-form-item name="start_time" :label="lang.assert_time" :rules="[{ validator: checkTime}]">
+                <t-date-picker enable-time-picker allow-input v-model="formData.start_time" allow-input
+                  format="YYYY-MM-DD HH:mm:ss" :placeholder="`${lang.select}${lang.client_care_label44}`"
+                  :disable-date="{ before: moment().subtract(1, 'day').format() }" @change="changeStart" />
+              </t-form-item>
+            </t-col>
+            <t-col :xs="12" :xl="4">
+              <t-form-item :label="lang.quick_select">
+                <t-select v-model="curTime" :placeholder="lang.quick_select" @change="fastClick" clearable>
+                  <t-option v-for="item in timeOpt" :value="item.value" :label="item.label" :key="item.value">
+                  </t-option>
+                </t-select>
+              </t-form-item>
+            </t-col>
+            <t-col :xs="12" :xl="4">
+              <t-form-item name="end_time" :label="lang.deadline" :rules="[{ validator: checkTime1}]">
+                <template slot="label">
+                  <div class="custom-label">
+                    <span>{{lang.deadline}}</span>
+                    <span v-if="formData.end_time && time_diff"> {{lang.all_time}}：{{time_diff}} </span>
+                  </div>
+                </template>
+                <t-date-picker enable-time-picker allow-input clearable v-model="formData.end_time" @focus="chooseEnd"
+                  allow-input format="YYYY-MM-DD HH:mm:ss" @change="changeEnd"
+                  :disable-date="{ before: moment().subtract(1, 'day').format() }"
+                  :placeholder="`${lang.select}${lang.client_care_label44}`" />
+              </t-form-item>
+            </t-col>
+          </t-row>
+          <t-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }">
+            <!-- 产品选择 -->
+            <t-col :xs="12" :xl="4">
+              <t-form-item name="products" :label="lang.apply_products" v-if="productList.length > 0">
+                <template slot="label">
+                  {{lang.apply_products}}
+                  <t-tooltip placement="bottom" :content="lang.promo_tip7">
+                    <t-icon name="help-circle" size="16px" />
+                  </t-tooltip>
+                </template>
+                <com-tree-select :multiple="true" :value="formData.products" @choosepro="choosePro"
+                  :pre-placeholder="lang.select" :all-products="productList" :product="proList" :show-all="true">
+                </com-tree-select>
+              </t-form-item>
+            </t-col>
+            <t-col :xs="12" :xl="4">
+              <t-form-item name="need_products" :label="lang.need_products" v-if="productList.length > 0">
+                <template slot="label">
+                  {{lang.need_products}}
+                  <t-tooltip placement="bottom" :content="lang.promo_tip8">
+                    <t-icon name="help-circle" size="16px" />
+                  </t-tooltip>
+                </template>
+                <com-tree-select :multiple="true" :value="formData.need_products" @choosepro="chooseNeedPro"
+                  :pre-placeholder="lang.select" :all-products="productList" :product="proList" :show-all="true">
+                </com-tree-select>
+              </t-form-item>
+            </t-col>
+            <t-col :xs="12" :xl="4">
+              <!-- 次数限制 -->
+              <t-form-item name="max_times" :label="lang.max_times">
+                <t-input v-model="formData.max_times" :placeholder="lang.max_times_tip"></t-input>
+              </t-form-item>
+            </t-col>
+          </t-row>
+          <t-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }">
+            <t-col :xs="12" :xl="12">
+              <t-form-item name="client_type" :label="lang.user_type_limit">
+                <t-radio-group v-model="formData.client_type">
+                  <t-radio :value="item.value" v-for="item in useType" :key="item.value">{{item.label}}</t-radio>
+                  <t-radio value="not_have_client_level" v-if="hasClient">
+                    {{lang.not_have_client_level1}}
+                    <span style="color: var(--td-warning-color)">{{lang.not_have_client_level2}}</span>
+                    {{lang.not_have_client_level3}}
+                  </t-radio>
+                </t-radio-group>
+                <t-select v-if="formData.client_type === 'not_have_client_level' && leveList.length !== 0"
+                  v-model="formData.client_level" :placeholder="lang.not_have_client_level_tips" clearable multiple
+                  :min-collapsed-num="2">
+                  <t-option v-for="item in leveList" :value="item.id" :label="item.name" :key="item.id"> </t-option>
+                </t-select>
+              </t-form-item>
+            </t-col>
+          </t-row>
+          <!-- 功能开关 -->
+          <t-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }" class="switch">
+            <t-col :xs="12" :xl="12">
+              <t-form-item name="single_user_once" :label="lang.single_user_once" label-align="left">
+                <t-tooltip :content="lang.promo_tip" :show-arrow="false" theme="light" placement="top-left"
+                  class="data-tip">
+                  <t-icon name="help-circle" class="pack-tip"></t-icon>
+                </t-tooltip>
+                <t-switch size="medium" :custom-value="[1,0]" v-model="formData.single_user_once" size="large">
+                </t-switch>
+              </t-form-item>
+              <t-form-item name="upgrade" :label="lang.upgrade_discount" label-align="left"
+                v-if="formData.type !== 'fixed_amount' && formData.type !== 'replace_price'">
+                <t-tooltip :content="lang.promo_tip1" :show-arrow="false" theme="light" placement="top-left"
+                  class="data-tip">
+                  <t-icon name="help-circle" class="pack-tip"></t-icon>
+                </t-tooltip>
+                <t-switch size="medium" :custom-value="[1,0]" v-model="formData.upgrade" size="large"> </t-switch>
+              </t-form-item>
+              <t-form-item name="host_upgrade" :label="lang.host_upgrade" label-align="left"
+                v-if="formData.type === 'percent'">
+                <t-tooltip :content="lang.promo_tip2" :show-arrow="false" theme="light" placement="top-left"
+                  class="data-tip">
+                  <t-icon name="help-circle" class="pack-tip"></t-icon>
+                </t-tooltip>
+                <t-switch size="medium" :custom-value="[1,0]" v-model="formData.host_upgrade" size="large"> </t-switch>
+              </t-form-item>
+              <t-form-item name="renew" :label="lang.renew_discount" label-align="left"
+                v-if="formData.type !== 'fixed_amount' && formData.type !== 'replace_price'">
+                <t-tooltip :content="lang.promo_tip3" :show-arrow="false" theme="light" placement="top-left"
+                  class="data-tip">
+                  <t-icon name="help-circle" class="pack-tip"></t-icon>
+                </t-tooltip>
+                <t-switch size="medium" :custom-value="[1,0]" v-model="formData.renew" size="large"> </t-switch>
+              </t-form-item>
+              <t-form-item name="loop" :label="lang.loop_discount" label-align="left"
+                v-if="formData.type === 'percent'">
+                <t-tooltip :content="lang.promo_tip4" :show-arrow="false" theme="light" placement="top-left"
+                  class="data-tip">
+                  <t-icon name="help-circle" class="pack-tip"></t-icon>
+                </t-tooltip>
+                <t-switch size="medium" :custom-value="[1,0]" v-model="formData.loop" size="large"> </t-switch>
+              </t-form-item>
+              <t-form-item name="on_demand_to_recurring_prepayment" :label="lang.promo_tip14" label-align="left">
+                <t-tooltip :content="lang.promo_tip15" :show-arrow="false" theme="light" placement="top-left"
+                  class="data-tip">
+                  <t-icon name="help-circle" class="pack-tip"></t-icon>
+                </t-tooltip>
+                <t-switch size="medium" :custom-value="[1,0]" v-model="formData.on_demand_to_recurring_prepayment"
+                  size="large">
+                </t-switch>
+              </t-form-item>
+              <!-- 不与用户等级同享 -->
+              <t-form-item name="exclude_with_client_level" :label="lang.promo_tip16" label-align="left">
+                <t-tooltip :content="lang.promo_tip17" :show-arrow="false" theme="light" placement="top-left"
+                  class="data-tip">
+                  <t-icon name="help-circle" class="pack-tip"></t-icon>
+                </t-tooltip>
+                <t-switch size="medium" :custom-value="[1,0]" v-model="formData.exclude_with_client_level"
+                  size="large">
+                </t-switch>
+              </t-form-item>
+              <t-form-item name="cycle_limit" :label="lang.cycle_limit" label-align="left">
+                <t-tooltip :content="lang.promo_tip5" :show-arrow="false" theme="light" placement="top-left"
+                  class="data-tip">
+                  <t-icon name="help-circle" class="pack-tip"></t-icon>
+                </t-tooltip>
+                <t-switch size="medium" :custom-value="[1,0]" v-model="formData.cycle_limit" size="large"> </t-switch>
+              </t-form-item>
+              <t-form-item name="cycle" label-align="left" label="" v-if="formData.cycle_limit"
+                :rules=" formData.cycle_limit ? rules.cycle : [{required: false}]">
+                <t-checkbox-group v-model="formData.cycle" :options="cycleOpt" @change="chooseCycle">
+                </t-checkbox-group>
+              </t-form-item>
+              <!-- <t-form-item name="cycle_limit" :label="lang.flow_package_use" label-align="left" class="flow-packet">
+                <t-switch size="medium" :custom-value="[1,0]" v-model="formData.flow_packet" size="large"></t-switch>
+              </t-form-item> -->
+            </t-col>
+          </t-row>
+          <t-form-item name="notes" :label="lang.notes" style="margin-top: 24px">
+            <t-textarea :placeholder="lang.notes" v-model="formData.notes" />
+          </t-form-item>
+          <div class="com-is-fixed broaden" :class="{'has-shadow': !footerInView}">
+            <t-button theme="primary" type="submit" :loading="loading" style="margin-right: 15px">{{lang.hold}}
+            </t-button>
+            <t-button theme="default" variant="base" @click="back">{{lang.close}}</t-button>
+          </div>
+        </t-form>
+      </div>
+    </t-card>
+  </com-config>
+</div>
+
+<script src="/plugins/addon/promo_code/template/admin/js/lang.js"></script>
+<script src="/{$template_catalog}/template/{$themes}/components/comTreeSelect/comTreeSelect.js"></script>
+<script src="/plugins/addon/promo_code/template/admin/api/promo_code.js"></script>
+<script src="/plugins/addon/promo_code/template/admin/js/create_promo_code.js"></script>

@@ -1,0 +1,211 @@
+.tick-detail-page {
+  background: #F6F8FB;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+
+
+.top-nav {
+  position: relative;
+  border-bottom: 0.5px solid #E7E7E7;
+
+  .nav-title {
+    font-size: .48rem;
+    display: flex;
+    align-items: center;
+    column-gap: .1067rem;
+
+    .van-icon {
+      font-size: .3733rem;
+      color: rgba(0, 0, 0, 0.4);
+    }
+  }
+
+  .detail-box {
+    z-index: 2;
+    padding: .5333rem .4267rem;
+    box-sizing: border-box;
+    width: 100%;
+    background-color: #fff;
+    /* vant/Shadow-1 */
+    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.10);
+    position: absolute;
+    top: 100%;
+    left: 0;
+    font-size: .3733rem;
+
+    .info-item {
+      margin-bottom: .2133rem;
+      display: flex;
+      column-gap: .5333rem;
+
+      .info-item-label {
+        color: #878A99;
+        min-width: 2rem;
+      }
+
+      .info-item-text {
+        // 换行
+        word-break: break-all;
+        word-wrap: break-word;
+
+        color: #212529;
+      }
+
+      .status-tag {
+        padding: .0533rem .1067rem;
+        border-radius: .0267rem;
+      }
+    }
+  }
+}
+
+
+.ticket-content {
+  flex: 1;
+  padding: 10px 16px;
+
+  .reply-item {
+    margin-bottom: .7467rem;
+
+
+
+    .reply-head {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      column-gap: .1067rem;
+
+      .reply-name {
+        font-size: .4267rem;
+
+      }
+
+      .reply-time {
+        font-size: .32rem;
+        color: rgba(0, 0, 0, 0.4);
+      }
+    }
+
+    .reply-msg {
+      margin-top: .2133rem;
+
+      .reply-item-content {
+        max-width: 80%;
+        font-size: .3733rem;
+        display: inline-block;
+        padding: 10px 12px;
+        border-radius: 3px;
+        background: #EEF4FF;
+        // 换行
+        word-break: break-all;
+        // 英文数字换行
+        word-wrap: break-word;
+        font-size: 14px;
+
+        a {
+          color: var(--base-color-primary);
+        }
+
+        img {
+          max-width: 150px;
+          max-height: 150px;
+          cursor: pointer;
+        }
+      }
+
+      .reply-item-attachment {
+        margin-top: .2rem;
+
+        .reply-item-attachment-item {
+          font-size: .32rem;
+          color: var(--base-color-primary);
+          cursor: pointer;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+
+      .reply-time {
+        font-size: .32rem;
+        color: #878A99;
+        margin-top: 0.1rem;
+      }
+    }
+
+
+    &.is-user {
+      flex-direction: row-reverse;
+
+      .reply-msg {
+        text-align: right;
+      }
+
+      .reply-item-content {
+        background: #E3FBFA;
+        text-align: left;
+      }
+
+      .reply-head {
+        flex-direction: row-reverse;
+      }
+    }
+  }
+
+
+}
+
+.ticket-bottom {
+  background-color: #fff;
+  padding: 12px;
+
+  .bottom-top {
+    display: flex;
+    column-gap: .32rem;
+    justify-content: space-between;
+    font-size: .3733rem;
+
+    .van-field {
+      width: calc(100% - .8rem - .9867rem - 1rem);
+      padding: 0;
+
+      .van-field__body {
+        padding: .2133rem .32rem;
+        border-radius: 99px;
+        background: #F3F3F3;
+        border: 1px solid #DCDCDC;
+      }
+
+      &::after {
+        display: none;
+      }
+    }
+
+
+
+
+    .send-btn {
+      border-radius: 100px;
+    }
+  }
+
+  .file-box {
+    margin-top: .2rem;
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: .2667rem;
+  }
+}
+
+.close-btn {
+  padding: .2667rem .4267rem;
+  font-size: .4267rem;
+  line-height: .64rem;
+  color: var(--base-color-danger);
+  cursor: pointer;
+}

@@ -1,0 +1,260 @@
+// Variables
+@border-color: #E6E7EB;
+@text-primary: #1E2736;
+@text-secondary: #666B80;
+@white: #FFFFFF;
+
+
+.order-detail {
+  font-size: 0.14rem;
+}
+
+.page-top {
+  padding-bottom: 0.2rem;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid @border-color;
+  margin-bottom: 0.4rem;
+
+  .back-btn {
+    cursor: pointer;
+    width: 0.24rem;
+    height: 0.26rem;
+
+    img {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  .top-title {
+    margin-left: 0.25rem;
+    font-size: 0.28rem;
+    color: @text-primary;
+  }
+}
+
+.page-content {}
+
+.order-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 0.85rem;
+
+  .info-left {
+    .order-user {
+      font-size: 0.18rem;
+      color: @text-primary;
+    }
+  }
+
+  .info-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .order-status {
+      display: flex;
+      align-items: center;
+      font-size: 0.18rem;
+    }
+
+    .go-pay {
+      text-align: center;
+
+      .pay-text {
+        margin-top: 0.15rem;
+        cursor: pointer;
+        font-size: 0.14rem;
+        color: var(--color-primary);
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+
+      .pay-info {
+        margin-top: 0.1rem;
+        font-weight: bold;
+        font-size: 0.14rem;
+        color: @text-primary;
+      }
+
+    }
+
+  }
+
+  .pay-status {
+    border-radius: 0.03rem;
+    padding: 0.05rem 0.14rem;
+    font-size: 0.16rem;
+    color: @white;
+  }
+
+  .Unpaid-text {
+    background: var(--color-danger);
+  }
+
+  .Wait {
+    background: var(--color-warning);
+  }
+
+  .Unpaid {
+    background: var(--color-danger);
+  }
+
+  .Paid-text {
+    background: var(--color-primary);
+  }
+
+  .Refunded-text {
+    background: var(--color-danger);
+  }
+
+  .order-num {
+    margin-top: 0.13rem;
+    color: @text-primary;
+    font-size: 0.14rem;
+
+    .num-text {
+      color: @text-secondary;
+    }
+  }
+
+  .order-data {
+    margin-top: 0.04rem;
+  }
+}
+
+.self-field {
+  display: flex;
+  flex-direction: column;
+  row-gap: 0.04rem;
+
+  .self-num {
+    display: flex;
+    color: @text-primary;
+    font-size: 0.14rem;
+
+    .field-name {
+      flex-shrink: 0;
+    }
+
+    .self-text {
+      white-space: pre;
+      color: @text-secondary;
+    }
+  }
+}
+
+.order-table {
+  margin-top: 0.33rem;
+  border-radius: 0.03rem;
+  border: 0.01rem solid @border-color;
+
+  .table-title {
+    font-size: 0.14rem;
+    background: #FAFBFF;
+    height: 0.46rem;
+    line-height: 0.46rem;
+    padding-left: 0.2rem;
+    border-bottom: 0.01rem solid @border-color;
+  }
+
+  .table-item {
+    margin: 0 0.2rem;
+    min-height: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.14rem;
+
+    .des,
+    .money {
+      color: @text-primary;
+    }
+
+    .des-text {
+      margin-right: 0.5rem;
+      color: @text-secondary;
+    }
+
+    .money-text {
+      color: @text-secondary;
+    }
+  }
+
+  .order-item {
+    border-bottom: 0.01rem dashed @border-color;
+  }
+
+  .title-item {
+    border-bottom: 0.01rem solid @border-color;
+  }
+
+  .total-money {
+    color: @text-primary;
+    margin-right: 0.3rem;
+  }
+}
+
+.order-transaction {
+  margin-top: 0.4rem;
+
+  .table-top,
+  .table-bottom {
+    font-size: 0.14rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 0.01rem solid @border-color;
+  }
+
+  .table-top {
+    color: @text-primary;
+    padding: 0.13rem 0.2rem 0.14rem;
+  }
+
+  .table-bottom {
+    padding: 0.13rem 0.2rem;
+    color: @text-secondary;
+  }
+
+  .w-200 {
+    width: 2rem;
+  }
+
+  .flex-1 {
+    flex: 1;
+    text-align: center;
+  }
+
+  .text-r {
+    text-align: right;
+  }
+
+  .no-list {
+    height: 60px;
+    line-height: 60px;
+    border-bottom: 0.01rem solid @border-color;
+    text-align: center;
+    color: #909399;
+    font-size: 14px;
+  }
+}
+
+.down-pag {
+  margin-top: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .el-button {
+    height: 0.32rem;
+    border-radius: 0.03rem;
+    border: 0.01rem solid var(--color-primary);
+    font-size: 0.14rem;
+    color: var(--color-primary);
+  }
+}

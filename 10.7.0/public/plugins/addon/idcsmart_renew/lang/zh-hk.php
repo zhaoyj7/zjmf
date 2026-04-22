@@ -1,0 +1,48 @@
+<?php
+
+return [
+    'success_message' => '請求成功',
+    'host_is_not_exist' => '產品不存在',
+    'host_cannot_renew' => '產品不可續費',
+    'get_fail' => '獲取失敗',
+    'host_billing_cycle_is_invalid' => '無效週期',
+    'host_renew' => '產品續費',
+    'host_renew_description' => '續費-{product_name}({name}),購買時長:{billing_cycle_name}({time})',
+    'renew_success' => '續費成功',
+    'renew_fail' => '續費失敗',
+    'param_error' => '參數錯誤',
+    'renew' => '續費',
+    'renew_batch' => '批量續費',
+    'renew_promo' => '優惠碼',
+    'renew_client_renew' => '{client}續費產品:{host},續費金額:{currency_prefix}{amount}{currency_suffix}',
+    'renew_admin_renew' => '{admin}續費產品:{host},續費金額:{currency_prefix}{amount}{currency_suffix}',
+    'email_template_is_not_exist' => '郵件模板不存在',
+    'sms_template_is_not_exist' => '短信模板不存在',
+    'id_error' => 'ID錯誤',
+    'host_auto_renew_fail_send_email' => '自動續費扣款失敗提醒,發送郵件',
+    'host_auto_renew_fail_send_sms' => '自動續費扣款失敗提醒,發送短信',
+
+    'idcsmart_renew_configuration_log_renew_sms_template' => '續費短信模板',
+    'idcsmart_renew_configuration_log_renew_email_template' => '續費郵件模板',
+    'log_admin_configuration_idcsmart_renew' => '{admin}將續費設置的{description}',
+    'admin_old_to_new' => '{field}從{old}改為{new}',
+    'log_admin_open_auto_renew' => '{admin}開啟產品{host}自動續費',
+    'log_admin_close_auto_renew' => '{admin}關閉產品{host}自動續約',
+    'log_client_open_auto_renew' => '{client}開啟產品{host}自動續約',
+    'log_client_close_auto_renew' => '{client}關閉產品{host}自動續約',
+    'log_addon_renew_paid_fail' => '產品#host#{host}#支付後續費用({id})失敗，錯誤訊息:{msg}',
+
+    'host_renew_send_mail' => '產品續費,發送郵件',
+    'host_renew_send_sms' => '產品續費,發送短信',
+    'addon_renew_batch_renew' => '大量續費訂單(ID#{order_id}#),目前產品:#{host_id}#',
+    'addon_renew_batch_renew_upstream_error' => '上游回傳錯誤:',
+    'renew_credit_limit_auto_renew_success' => '產品#{host_id}#使用信用額自動續費成功，訂單#{order_id}#，金額{amount}',
+    'renew_credit_limit_auto_renew_fail' => '產品#{host_id}#使用信用額自動續費失敗，訂單#{order_id}#，原因:{msg}',
+    'renew_credit_limit_auto_renew_exception' => '產品#{host_id}#使用信用額自動續費異常，訂單#{order_id}#，異常:{msg}',
+    
+    // 自動續費複用訂單相關
+    'renew_auto_renew_reuse_order_success' => '產品#{host_id}#自動續費複用訂單#{order_id}#支付成功，金額{amount}',
+    'renew_auto_renew_reuse_order_fail' => '產品#{host_id}#自動續費複用訂單#{order_id}#支付失敗，金額{amount}，餘額不足',
+    'renew_auto_renew_fail_insufficient_balance' => '自動續費失敗，帳戶餘額不足',
+    'order_not_exist' => '訂單不存在或狀態異常',
+];

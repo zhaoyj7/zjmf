@@ -1,0 +1,179 @@
+<!-- 页面引入样式位置 -->
+<link rel="stylesheet" href="/plugins/addon/idcsmart_ticket/template/clientarea/mobile/mfm301/css/ticketDetails.css">
+</head>
+
+
+<body>
+  <div id="template" v-cloak class="tick-detail-page">
+    <van-nav-bar safe-area-inset-top left-arrow class="top-nav">
+      <template #left>
+        <div class="left-icon">
+          <van-icon @click="goBack" name="arrow-left"></van-icon>
+          <span style="margin-left: .24rem;"># {{ticketData.ticket_num}}</span>
+        </div>
+      </template>
+      <template #title>
+        <div class="nav-title" @click="isShowMore = !isShowMore">
+          {{lang.ticket_label17}}
+          <p class="more-text">
+            {{lang.ticket_text13}}
+            <van-icon :name="isShowMore ? 'arrow-up' : 'arrow-down'"></van-icon>
+          </p>
+        </div>
+        <div class="detail-box" v-show="isShowMore">
+          <div class="info-item">
+            <div class="info-item-label">{{lang.ticket_label9}}:</div>
+            <div class="info-item-text">{{baseMsg.title}}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-item-label">{{lang.ticket_label2}}:</div>
+            <div class="info-item-text">{{baseMsg.type}}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-item-label">{{lang.ticket_label10}}:</div>
+            <div class="info-item-text" v-time="baseMsg.create_time">{{baseMsg.create_time}}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-item-label">{{lang.ticket_label11}}:</div>
+            <div class="info-item-text status-tag" :style="{background:hexToRgb(baseMsg.color),color:baseMsg.color}">
+              {{baseMsg.status}}
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-item-label">{{lang.ticket_label7}}:</div>
+            <div class="info-item-text">
+              <template v-if="baseMsg.hosts[0]">
+                <a class="host-item a-text" v-for="(item,index) in baseMsg.hosts" :key="item.id"
+                  :href="`/productdetail.htm?id=${item.id}`">
+                  {{item.label}}
+                  <span v-if="index !== baseMsg.hosts.length - 1">、</span>
+                </a>
+              </template>
+              <div v-else>--</div>
+            </div>
+          </div>
+        </div>
+      </template>
+      <template #right>
+        <div class="close-btn" @click="showClose"
+          v-if="baseMsg.status != lang.ticket_text5 && ticketData.can_operate !== 0">{{lang.ticket_btn7}}</div>
+      </template>
+    </van-nav-bar>
+    <div class="ticket-content">
+      <div class="reply-item" v-for="item in ticketData.replies" :key="item.id + '-' + item.create_time"
+        :data-reply-id="item.id" :class="item.type === 'Client' ? 'is-user' : ''">
+        <div class="reply-head">
+          <div class="reply-name">
+            {{item.type == 'Client'? item.client_name : item.admin_name}}
+          </div>
+        </div>
+        <div class="reply-msg">
+          <div class="reply-item-content">
+            <div class="quoted-message" v-if="item.quote_reply_id && item.quote_info && !item.quote_info.is_deleted">
+              <div class="quoted-header">
+                <span class="quoted-label">{{lang.quote_reply_label}}</span>
+                <span class="quoted-user">{{ item.quote_info.sender_name }}</span>
+                <span class="quoted-time" v-time="item.quote_info.create_time"></span>
+              </div>
+              <div class="reply-item-content-quote"
+                v-html="getQuotedItemContent(item.quote_info.id) || getQuoteHtml(item.quote_info)"
+                @click="hanldeImage($event)">
+              </div>
+              <div class="reply-item-attachment" v-if="getQuotedItemAttachments(item.quote_info.id).length > 0">
+                <div class="reply-item-attachment-item van-ellipsis"
+                  v-for="(file, idx) in getQuotedItemAttachments(item.quote_info.id)" :key="idx"
+                  @click="downloadfile(file)">
+                  <span :title="file.name">
+                    <van-icon name="orders-o"></van-icon><span>{{file.name}}</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div v-html="item.content" @click="hanldeImage($event)"></div>
+            <div class="reply-time" v-time="item.create_time"></div>
+            <div class="reply-item-attachment" v-if="item.attachment.length > 0">
+              <div class="reply-item-attachment-item van-ellipsis" v-for="(f,i) in item.attachment" :key="i"
+                @click="downloadfile(f)">
+                <span :title="f.name">
+                  <van-icon name="orders-o"></van-icon><span>{{f.name}}</span>
+                </span>
+              </div>
+            </div>
+            <!-- 引用按钮 -->
+            <div class="reply-item-actions" v-if="item.id != 0">
+              <van-button size="mini" icon="chat-o" @click="replyItem(item)" type="text">
+                {{lang.quote_reply_button}}
+              </van-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ticket-bottom">
+      <!-- 引用回复悬浮块 -->
+      <div class="quote-reply-wrapper" v-if="quoteReplyItem">
+        <div class="quote-reply-header">
+          <span class="quote-title">{{lang.quote_reply_title}}</span>
+          <van-icon name="close" @click="cancelQuoteReply" size=".4rem">
+          </van-icon>
+        </div>
+        <div class="quote-reply-content-wrapper">
+          <div class="quote-user-info">
+            <span class="quote-user-name">
+              {{ quoteReplyItem.type === 'Client' ? quoteReplyItem.client_name : quoteReplyItem.admin_name }}
+            </span>
+            <span class="quote-time" v-time="quoteReplyItem.create_time"></span>
+          </div>
+          <div class="quote-text" v-html="getQuoteHtml(quoteReplyItem)" @click="hanldeImage($event)"></div>
+          <!-- 显示附件列表 -->
+          <div class="quote-attachments" v-if="quoteReplyItem.attachment && quoteReplyItem.attachment.length > 0">
+            <div class="quote-attachment-item" v-for="(file, index) in quoteReplyItem.attachment" :key="index">
+              <van-icon name="orders-o"></van-icon>
+              <span>{{ file.name }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bottom-top">
+        <van-icon name="plus" size=".5333rem" style="font-weight: 600;" @click="handeSelecFile"></van-icon>
+        <van-field type="textarea" rows="1" :autosize="sdasaasd" maxlength="3000" :placeholder="lang.ticket_label12"
+          v-model="replyData.content">
+        </van-field>
+        <van-button class="send-btn" @click="doReplyTicket" type="primary">
+          <img src="/plugins/addon/idcsmart_ticket/template/clientarea/mobile/mfm301/img/send.png" alt="">
+        </van-button>
+      </div>
+      <div class="file-box" v-if="fileList.length !==0">
+        <van-tag v-for="(item,index) in fileList" class="file-item" :show="true" closeable size="medium" type="primary"
+          @close="handeDelFile(item,index)">
+          {{item.file.name}}
+        </van-tag>
+      </div>
+    </div>
+    <van-uploader :after-read="afterRead" ref="uploadRef" multiple accept="*" v-show="false"></van-uploader>
+    <!-- 关闭工单弹窗 -->
+    <van-popup v-model:show="visible" round closeable :style="{ width: '90%' }">
+      <div class="common-pop-box">
+        <div class="common-pop-title" style="color: var(--base-color-danger);">
+          <van-icon name="warning-o"></van-icon>
+          {{lang.ticket_title6}}
+        </div>
+        <div class="common-pop-body">
+          {{lang.ticket_tips11}} {{baseMsg.title}}，{{lang.ticket_tips12}}
+        </div>
+        <div class="common-pop-fotter">
+          <van-button class="can-btn" @click="visible = false">{{lang.ticket_btn9}}</van-button>
+          <van-button class="sub-btn" type="danger" @click="doCloseTicket"
+            :loading="delLoading">{{ lang.ticket_btn6}}</van-button>
+        </div>
+      </div>
+    </van-popup>
+
+  </div>
+
+
+  <!-- =======页面引入js和相关组件位置======= -->
+  <script src="/plugins/addon/idcsmart_ticket/template/clientarea/mobile/mfm301/api/ticket.js"></script>
+  <script src="/plugins/addon/idcsmart_ticket/template/clientarea/mobile/mfm301/lang/index.js"></script>
+  <script src="/{$template_catalog}/template/{$themes}/lib/xss.js"></script>
+  <script src="/plugins/addon/idcsmart_ticket/template/clientarea/mobile/mfm301/js/ticketDetails.js"></script>

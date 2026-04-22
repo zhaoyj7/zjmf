@@ -1,0 +1,144 @@
+.contract-info-dialog .dialog-title {
+  font-size: 0.24rem;
+  font-weight: 400;
+  color: #171725;
+}
+.contract-info-dialog .certification-info {
+  margin-top: 0.1rem;
+  margin-bottom: 0.3rem;
+  padding: 0.2rem 0.16rem;
+  border: 0.01rem solid #e6e7eb;
+}
+.contract-info-dialog .certification-info .kd-item {
+  margin-bottom: 0.1rem;
+  font-size: 0.14rem;
+}
+.contract-info-dialog .certification-info .kd-item:nth-last-of-type(1) {
+  margin-bottom: 0;
+}
+.contract-info-dialog .certification-info .kd-item .kd-label {
+  color: #8692b0;
+}
+.contract-info-dialog .certification-info .kd-item .kd-value {
+  margin-left: 0.3rem;
+  color: #4E5259;
+}
+.contract-info-dialog .dialog-dec {
+  font-size: 0.14rem;
+  padding: 0.12rem 0.16rem;
+  margin-top: 0.4rem;
+  color: var(--color-danger);
+  border-radius: 0.03rem 0.03rem 0.03rem 0.03rem;
+  background: #FDE6E9;
+}
+.contract-info-dialog .dialog-dec p {
+  margin: 0;
+}
+.contract-info-dialog .el-dialog__body {
+  padding: 0.24rem;
+  font-size: 0.16rem;
+}
+.contract-info-dialog .dialog-fotter {
+  display: flex;
+  justify-content: end;
+  margin-top: 0.4rem;
+}
+.contract-info-dialog .info-form .el-form-item__label {
+  padding: 0 !important;
+}
+.contract-info-dialog .save-btn,
+.contract-info-dialog .cancel-btn {
+  width: 1.12rem;
+  height: 0.46rem;
+  font-size: 0.16rem;
+  border-radius: 0.03rem;
+  border: none;
+}
+.contract-info-dialog .save-btn {
+  background: var(--color-primary);
+  color: rgba(255, 255, 255, 0.9);
+}
+.contract-info-dialog .cancel-btn {
+  margin-left: 0.12rem;
+  background: #E7E7E7;
+  color: #1e2736;
+}
+.contract-info-dialog .first-save-tip {
+  font-size: 0.14rem;
+  color: var(--color-danger);
+}
+/* 签章上传样式 */
+.seal-upload .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+.seal-upload .el-upload:hover {
+  border-color: var(--color-primary);
+}
+.seal-upload-content {
+  width: 150px;
+  height: 150px;
+  position: relative;
+}
+.seal-upload-content .seal-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.seal-upload-content .seal-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.seal-upload-content:hover .seal-mask {
+  opacity: 1;
+}
+.seal-mask-actions {
+  display: flex;
+  gap: 20px;
+}
+.seal-mask-actions i {
+  font-size: 20px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.seal-upload-placeholder {
+  width: 150px;
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #8c939d;
+}
+.seal-upload-placeholder i {
+  font-size: 32px;
+  color: #8c939d;
+}
+.seal-upload-text {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #606266;
+}
+.seal-upload-tip {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #909399;
+  text-align: center;
+  line-height: 1.4;
+}

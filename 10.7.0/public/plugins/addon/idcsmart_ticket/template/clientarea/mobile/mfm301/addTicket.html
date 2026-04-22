@@ -1,0 +1,73 @@
+<!-- 页面引入样式位置 -->
+<link rel="stylesheet" href="/plugins/addon/idcsmart_ticket/template/clientarea/mobile/mfm301/css/ticket.css">
+</head>
+
+
+<body>
+  <div id="template" class="create-box" v-cloak>
+    <van-sticky>
+      <van-nav-bar :title="lang.ticket_title2" safe-area-inset-top left-arrow @click-left="goBack">
+      </van-nav-bar>
+    </van-sticky>
+    <div class="ticket-create">
+      <van-form ref="ticketForm" class="ticket-form">
+        <van-select input-align="right" :label="lang.ticket_label2" cur-class="form-select"
+          v-model:firpick="ticketData.ticket_type_id" :columns="ticketType" :rules="rules.ticket_type_id"
+          :placeholder="lang.ticket_tips2" :columns-names=" { text: 'name', value: 'id' }" right-icon="arrow">
+        </van-select>
+        <van-field input-align="right" class="form-select" v-model="ticketData.title" :rules="rules.title"
+          :label="lang.ticket_label6" :placeholder="lang.ticket_tips9 ">
+        </van-field>
+        <van-select :text="calcHostName" input-align="right" :label="lang.ticket_label7" cur-class="form-select"
+          @change="chooseItem" v-model:firpick="ticketData.host_ids" :columns="hostList" :rules="rules.host_ids"
+          :placeholder="lang.ticket_tips10" :columns-names=" { text: 'name', value: 'id' }" right-icon="arrow">
+          <template #option="option">
+            <div style="text-align: center;">
+              <span v-if="!hasApp">
+                {{option.product_name}}
+                <template v-if="option.dedicate_ip || option.name">
+                  ({{ option.dedicate_ip ? option.dedicate_ip : option.name ? option.name : "--"}})
+                </template>
+              </span>
+              <span v-else :class="{'dis-item': option.isDue}">{{option.product_name + calcProductName(option)}}</span>
+              <span v-if="calcShowRenew(option) && hasApp" class="renew"
+                @click="handleRenew(option)">{{lang.ticket_label20}}
+              </span>
+            </div>
+          </template>
+        </van-select>
+        <van-field type="textarea" input-align="right" class="form-select" v-model="ticketData.content"
+          :rules="rules.content" :label="lang.ticket_label8" :placeholder="lang.ticket_label12" maxlength="3000">
+        </van-field>
+        <van-field class="wai-filed" input-align="right" :label="lang.ticket_label13" readonly>
+          <template #input>
+            <div class="code-select" @click="handeSelecFile">
+              <van-icon name="plus"></van-icon>
+            </div>
+            <van-uploader :after-read="afterRead" ref="uploadRef" multiple accept="*" v-show="false">
+            </van-uploader>
+          </template>
+        </van-field>
+        <div class="file-box">
+          <van-tag v-for="(item,index) in fileList" class="file-item" :show="true" closeable size="medium"
+            type="primary" @close="handeDelFile(item,index)">
+            {{item.file.name}}
+          </van-tag>
+        </div>
+      </van-form>
+
+    </div>
+    <van-sticky position="bottom">
+      <div class="create-btn">
+        <van-button class="sub-btn" block type="primary" @click="onSubmit" :loading="loading">
+          {{lang.ticket_btn1}}
+        </van-button>
+      </div>
+    </van-sticky>
+  </div>
+
+
+  <!-- =======页面引入js和相关组件位置======= -->
+  <script src="/plugins/addon/idcsmart_ticket/template/clientarea/mobile/mfm301/api/ticket.js"></script>
+  <script src="/plugins/addon/idcsmart_ticket/template/clientarea/mobile/mfm301/lang/index.js"></script>
+  <script src="/plugins/addon/idcsmart_ticket/template/clientarea/mobile/mfm301/js/addTicket.js"></script>

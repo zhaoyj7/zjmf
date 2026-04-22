@@ -1,0 +1,937 @@
+<?php 
+namespace server\mf_cloud\model;
+
+use think\Model;
+use app\common\model\HostModel;
+use app\common\model\OrderModel;
+use server\mf_cloud\logic\ToolLogic;
+use app\common\model\HostAdditionModel;
+use app\common\model\ProductModel;
+use app\common\model\LocalImageModel;
+use app\common\model\LocalImageGroupModel;
+use app\common\logic\DownstreamProductLogic;
+use app\admin\model\PluginModel;
+use addon\idcsmart_client_level\model\IdcsmartClientLevelClientLinkModel;
+
+/**
+ * @title 镜像模型
+ * @use server\mf_cloud\model\ImageModel
+ */
+class ImageModel extends Model
+{
+	protected $name = 'module_mf_cloud_image';
+
+    // 设置字段信息
+    protected $schema = [
+        'id'                => 'int',
+        'product_id'        => 'int',
+        'image_group_id'    => 'int',
+        'name'              => 'string',
+        'enable'            => 'int',
+        'charge'            => 'int',
+        'price'             => 'float',
+        'rel_image_id'      => 'int',
+        'order'             => 'int',
+        'upstream_id'       => 'int',
+        'is_market'         => 'int',
+    ];
+
+    /**
+     * 时间 2023-02-01
+     * @title 添加操作系统
+     * @desc 添加操作系统
+     * @author hh
+     * @version v1
+     * @param   int param.image_group_id - 操作系统分类ID require
+     * @param   string param.name - 系统名称 require
+     * @param   int param.charge - 是否收费(0=不收费,1=收费) require
+     * @param   float param.price - 价格 requireIf,charge=1
+     * @param   int param.enable - 是否可用(0=禁用,1=启用) require
+     * @param   int param.rel_image_id - 操作系统ID require
+     * @param   int param.is_market - 是否镜像市场(0=普通镜像,1=镜像市场镜像)
+     * @return  int status - 状态(200=成功,400=失败)
+     * @return  string msg - 信息
+     * @return  int data.id - 操作系统ID
+     */
+    public function imageCreate($param)
+    {
+        $imageGroup = ImageGroupModel::find($param['image_group_id']);
+        if(empty($imageGroup)){
+            return ['status'=>400, 'msg'=>lang_plugins('mf_cloud_image_group_not_found')];
+        }
+        $param['product_id'] = $imageGroup['product_id'];
+        
+        if(!isset($param['is_market'])){
+            $param['is_market'] = 0;
+        }
+
+        $image = $this->create($param, ['product_id','image_group_id','name','charge','price','enable','rel_image_id','is_market']);
+
+        $productName = ProductModel::where('id', $imageGroup['product_id'])->value('name');
+
+        $description = lang_plugins('log_mf_cloud_add_image_success', [
+            '{product}' => 'product#'.$param['product_id'].'#'.$productName.'#',
+            '{name}'    => $param['name'],
+        ]);
+        active_log($description, 'product', $param['product_id']);
+
+        $result = [
+            'status' => 200,
+            'msg'    => lang_plugins('create_success'),
+            'data'   => [
+                'id' => (int)$image->id,
+            ],
+        ];
+        return $result;
+    }
+
+    /**
+     * 时间 2023-02-01
+     * @title 操作系统列表
+     * @desc 操作系统列表
+     * @author hh
+     * @version v1
+     * @param   int param.page - 页数
+     * @param   int param.limit - 每页条数
+     * @param   int param.product_id - 商品ID
+     * @param   int param.image_group_id - 搜索操作系统分类ID
+     * @param   string param.keywords - 搜索:操作系统名称
+     * @param   int param.is_market - 是否镜像市场(0=普通镜像,1=镜像市场镜像)
+     * @return  int list[].id - 操作系统分类ID
+     * @return  int list[].image_group_id - 操作系统分类ID
+     * @return  string list[].name - 操作系统名称
+     * @return  int list[].charge - 是否收费(0=否,1=是)
+     * @return  string list[].price - 价格
+     * @return  int list[].enable - 是否启用(0=否,1=是)
+     * @return  int list[].rel_image_id - 魔方云操作系统ID
+     * @return  string list[].image_group_name - 操作系统分类名称
+     * @return  string list[].icon - 操作系统分类图标
+     * @return  int list[].is_market - 是否镜像市场(0=普通镜像,1=镜像市场镜像)
+     * @return  int count - 总条数
+     */
+    public function imageList($param)
+    {
+        bcscale(2);
+        $param['page'] = isset($param['page']) ? ($param['page'] ? (int)$param['page'] : 1) : 1;
+        $param['limit'] = isset($param['limit']) ? ($param['limit'] ? (int)$param['limit'] : config('idcsmart.limit')) : config('idcsmart.limit');
+        
+        // $param['sort'] = 'desc';
+        // $param['orderby'] = 'i.id';
+
+        $where = [];
+        if(isset($param['product_id']) && is_numeric($param['product_id'])){
+            $where[] = ['i.product_id', '=', $param['product_id']];
+        }
+        if(isset($param['image_group_id']) && !empty($param['image_group_id']) ){
+            $where[] = ['i.image_group_id', '=', $param['image_group_id']];
+        }
+        if(isset($param['keywords']) && $param['keywords'] !== ''){
+            $where[] = ['i.name', 'LIKE', '%'.$param['keywords'].'%'];
+        }
+        if(isset($param['is_market']) && $param['is_market'] !== ''){
+            $where[] = ['i.is_market', '=', $param['is_market']];
+        }
+        
+        $isDownstream = isset($param['is_downstream']) && $param['is_downstream'] == 1;
+        $param['product_id'] = $param['product_id'] ?? 0;
+        // 下游
+        $clientLevel = [];
+        if($isDownstream){
+            $DurationModel = new DurationModel();
+
+            $clientLevel = $DurationModel->getClientLevel([
+                'product_id'    => $param['product_id'],
+                'client_id'     => get_client_id(),
+            ]);
+        }
+
+        $list = $this
+            ->alias('i')
+            ->field('i.id,i.image_group_id,i.name,i.charge,i.price,i.enable,i.rel_image_id,i.is_market,ig.name image_group_name,ig.icon')
+            ->where($where)
+            ->leftJoin('module_mf_cloud_image_group ig', 'i.image_group_id=ig.id')
+            ->withAttr('price', function($val) use ($isDownstream, $clientLevel) {
+                if($isDownstream && !empty($clientLevel) && $val > 0){
+                    $discount = bcdiv($val * $clientLevel['discount_percent'], 100, 2);
+                    if($discount > 0){
+                        $val = bcsub($val, $discount);
+                    }
+                }
+                return $val;
+            })
+            ->page($param['page'], $param['limit'])
+            ->order('i.order', 'asc')
+            ->order('i.id', 'desc')
+            ->select()
+            ->toArray();
+
+        $count = $this
+            ->alias('i')
+            ->where($where)
+            ->count();
+
+        return ['list'=>$list, 'count'=>$count];
+    }
+
+    /**
+     * 时间 2023-02-01
+     * @title 修改操作系统
+     * @desc 修改操作系统
+     * @author hh
+     * @version v1
+     * @param   int param.id - 操作系统ID require
+     * @param   string param.image_group_id - 操作系统分类ID require
+     * @param   string param.name - 系统名称 require
+     * @param   int param.charge - 是否收费(0=不收费,1=收费) require
+     * @param   float param.price - 价格 requireIf,charge=1
+     * @param   int param.enable - 是否可用(0=禁用,1=启用) require
+     * @param   int param.rel_image_id - 操作系统ID require
+     * @param   int param.is_market - 是否镜像市场(0=普通镜像,1=镜像市场镜像)
+     * @return  int status - 状态(200=成功,400=失败)
+     * @return  string msg - 信息
+     */
+    public function imageUpdate($param)
+    {
+        $image = $this->find($param['id']);
+        if(empty($image)){
+            return ['status'=>400, 'msg'=>lang_plugins('mf_cloud_os_not_found')];
+        }
+        $imageGroup = ImageGroupModel::find($param['image_group_id']);
+        if(empty($imageGroup) || $image['product_id'] != $imageGroup['product_id']){
+            return ['status'=>400, 'msg'=>lang_plugins('mf_cloud_image_group_not_found')];
+        }
+        
+        if(!isset($param['is_market'])){
+            $param['is_market'] = 0;
+        }
+
+        $this->update($param, ['id'=>$image->id], ['image_group_id','name','charge','price','enable','rel_image_id','is_market']);
+
+        $switch = [lang_plugins('switch_off'), lang_plugins('switch_on')];
+
+        $des = [
+            'image_group_id' => lang_plugins('mf_cloud_image_group'),
+            'name' => lang_plugins('mf_cloud_image_name'),
+            'charge' => lang_plugins('mf_cloud_image_charge'),
+            'price' => lang_plugins('price'),
+            'enable' => lang_plugins('mf_cloud_image_enable'),
+            'rel_image_id' => lang_plugins('mf_cloud_image_rel_image_id'),
+            'is_market' => lang_plugins('mf_cloud_image_is_market'),
+        ];
+
+        $old = $image->toArray();
+        $old['image_group_id'] = ImageGroupModel::where('id', $image['image_group_id'])->value('name');
+        $old['charge'] = $switch[ $old['charge'] ];
+        $old['enable'] = $switch[ $old['enable'] ];
+        $old['is_market'] = $switch[ $old['is_market'] ?? 0 ];
+
+        $param['image_group_id'] = $imageGroup['name'];
+        $param['charge'] = $switch[ $param['charge'] ];
+        $param['enable'] = $switch[ $param['enable'] ];
+        $param['is_market'] = $switch[ $param['is_market'] ];
+
+        $description = ToolLogic::createEditLog($old, $param, $des);
+        if(!empty($description)){
+            $productName = ProductModel::where('id', $image['product_id'])->value('name');
+
+            $description = lang_plugins('log_mf_cloud_modify_image_success', [
+                '{product}' => 'product#'.$image['product_id'].'#'.$productName.'#',
+                '{detail}'  => $description,
+            ]);
+            active_log($description, 'product', $image['product_id']);
+        }
+
+        // 变更名称分组后,同步修改附加信息表
+        if($old['name'] != $param['name'] || $old['image_group_id'] != $param['image_group_id']){
+            $hostId = HostLinkModel::where('image_id', $image['id'])->column('host_id');
+            if(!empty($hostId)){
+                HostAdditionModel::whereIn('host_id', $hostId)->update([
+                    'image_icon' => $imageGroup['icon'],
+                    'image_name' => $param['name'],
+                    'update_time'=> time(),
+                ]);
+            }
+        }
+
+        $result = [
+            'status' => 200,
+            'msg'    => lang_plugins('update_success'),
+        ];
+        return $result;
+    }
+
+    /**
+     * 时间 2023-02-01
+     * @title 删除操作系统
+     * @desc 删除操作系统
+     * @author hh
+     * @version v1
+     * @param   int id - 操作系统ID require
+     * @return  int status - 状态(200=成功,400=失败)
+     * @return  string msg - 信息
+     */
+    public function imageDelete($id)
+    {
+        $image = $this->find($id);
+        if(empty($image)){
+            return ['status'=>400, 'msg'=>lang_plugins('mf_cloud_os_not_found')];
+        }
+        $this->startTrans();
+        try{
+            $this->where('id', $id)->delete();
+
+            $this->commit();
+        }catch(\Exception $e){
+            $this->rollback();
+            return ['status'=>400, 'msg'=>lang_plugins('delete_fail')];
+        }
+
+        $productName = ProductModel::where('id', $image['product_id'])->value('name');
+
+        $description = lang_plugins('log_mf_cloud_delete_image_success', [
+            '{product}' => 'product#'.$image['product_id'].'#'.$productName.'#',
+            '{name}'    => $image['name'],
+        ]);
+        active_log($description, 'product', $image['product_id']);
+
+        $result = [
+            'status' => 200,
+            'msg'    => lang_plugins('delete_success'),
+        ];
+        return $result;
+    }
+    
+    /**
+     * 时间 2023-02-06
+     * @title 切换是否可用
+     * @desc 切换是否可用
+     * @author hh
+     * @version v1
+     * @param   int param.id - 操作系统ID require
+     * @param   int param.enable - 是否启用(0=禁用,1=启用) require
+     * @return  int status - 状态(200=成功,400=失败)
+     * @return  string msg - 信息
+     */
+    public function toggleImageEnable($param)
+    {
+        $image = $this->find($param['id']);
+        if(empty($image)){
+            return ['status'=>400, 'msg'=>lang_plugins('mf_cloud_os_not_found')];
+        }
+        if($image['enable'] == $param['enable']){
+            return ['status'=>200, 'msg'=>lang_plugins('success_message')];
+        }
+
+        $act = [lang_plugins('mf_cloud_disable'), lang_plugins('mf_cloud_enable')];
+
+        $this->update(['enable'=>$param['enable']], ['id'=>$image['id']]);
+
+        $productName = ProductModel::where('id', $image['product_id'])->value('name');
+
+        $description = lang_plugins('log_mf_cloud_toggle_image_enable_success', [
+            '{product}' => 'product#'.$image['product_id'].'#'.$productName.'#',
+            '{act}'     => $act[ $param['enable'] ],
+            '{name}'    => $image['name'],
+        ]);
+        active_log($description, 'product', $image['product_id']);
+
+        return ['status'=>200, 'msg'=>lang_plugins('success_message')];
+    }
+
+    /**
+     * 时间 2023-02-06
+     * @title 获取操作系统列表
+     * @desc 获取操作系统列表
+     * @author hh
+     * @version v1
+     * @param   int param.product_id - 商品ID require
+     * @param   int param.is_downstream 0 是否下游发起(0=否,1=是)
+     * @param   int param.is_market - 是否镜像市场(0=普通镜像,1=镜像市场镜像)
+     * @return  int status - 状态(200=成功,400=失败)
+     * @return  string msg - 信息
+     * @return  int data.list[].id - 操作系统分类ID
+     * @return  string data.list[].name - 操作系统分类名称
+     * @return  string data.list[].icon - 操作系统分类图标
+     * @return  int data.list[].image[].id - 操作系统ID
+     * @return  int data.list[].image[].image_group_id - 操作系统分类ID
+     * @return  string data.list[].image[].name - 操作系统名称
+     * @return  int data.list[].image[].charge - 是否收费(0=否,1=是)
+     * @return  string data.list[].image[].price - 价格
+     * @return  int data.list[].image[].is_market - 是否镜像市场(0=普通镜像,1=镜像市场镜像)
+     * @return  int data.market_image_count - 镜像市场镜像数量
+     */
+    public function homeImageList($param)
+    {
+        $isDownstream = isset($param['is_downstream']) && $param['is_downstream'] == 1;
+        $priceBasis = $param['price_basis'] ?? 'agent';
+        $priceAgent = $priceBasis=='agent';
+        $DurationModel = new DurationModel();
+
+        $where = [];
+        $where[] = ['product_id', '=', $param['product_id'] ?? 0];
+
+        // 操作系统
+        $imageGroup = ImageGroupModel::field('id,name,icon')->where($where)->order('order', 'asc')->order('id', 'desc')->select()->toArray();
+
+        $imageWhere = $where;
+        $imageWhere[] = ['enable', '=', 1];
+        if(isset($param['is_market']) && $param['is_market'] !== ''){
+            $imageWhere[] = ['is_market', '=', $param['is_market']];
+        }
+        
+        $image = $this
+                ->field('id,image_group_id,name,charge,price,is_market')
+                ->where($imageWhere)
+                ->order('order', 'asc')
+                ->order('id', 'desc')
+                ->select()
+                ->toArray();
+        $imageArr = [];
+        foreach($image as $v){
+            if($isDownstream && $priceAgent){
+                $v['price'] = $DurationModel->downstreamSubClientLevelPrice([
+                    'product_id' => $param['product_id'] ?? 0,
+                    'client_id'  => get_client_id(),
+                    'price'      => $v['price'],
+                ]);
+            }
+            $imageArr[ $v['image_group_id'] ][] = $v;
+        }
+        foreach($imageGroup as $k=>$v){
+            if(isset($imageArr[$v['id']])){
+                $imageGroup[$k]['image'] = $imageArr[ $v['id'] ];
+            }else{
+                unset($imageGroup[$k]);
+            }
+        }
+
+        // 统计镜像市场镜像数量
+        $marketImageCount = $this
+            ->where($where)
+            ->where('enable', 1)
+            ->where('is_market', 1)
+            ->count();
+
+        $result = [
+            'status' => 200,
+            'msg'    => lang_plugins('success_message'),
+            'data'   => [
+                'list' => array_values($imageGroup),
+                'market_image_count' => $marketImageCount
+            ]
+        ];
+        return $result;
+
+    }
+    
+    /**
+     * 时间 2022-07-29
+     * @title 检查产品是够购买过镜像
+     * @desc 检查产品是够购买过镜像
+     * @author hh
+     * @version v1
+     * @param   int param.id - 产品ID require
+     * @param   int param.image_id - 镜像ID require
+     * @param   int param.is_downstream 0 是否下游(0=不是,1=是)
+     * @return  int status - 状态码(200=成功,400=失败)
+     * @return  string msg - 提示信息
+     * @return  string data.price - 需要支付的金额(0.00表示镜像免费或已购买)
+     * @return  string data.description - 描述
+     */
+    public function checkHostImage($param)
+    {
+        $result = [
+            'status' => 200,
+            'msg'    => lang_plugins('success_message'),
+            'data'   => []
+        ];
+
+        // 验证产品和用户
+        $host = HostModel::find($param['id']);
+        if(empty($host) || !in_array($host['status'], ['Active','Grace']) || $host['is_delete']){
+            return ['status'=>400, 'msg'=>lang_plugins('host_not_create')];
+        }
+        // 前台判断
+        $app = app('http')->getName();
+        if($app == 'home'){
+            if($host['client_id'] != get_client_id()){
+                return ['status'=>400, 'msg'=>lang_plugins('host_is_not_exist')];
+            }
+        }
+        $hostLink = HostLinkModel::where('host_id', $param['id'])->find();
+        if(empty($hostLink)){
+            return ['status'=>400, 'msg'=>lang_plugins('host_not_create')];
+        }
+        $image = ImageModel::find($param['image_id'] ?? 0);
+        if(empty($image) || $image['enable'] == 0 || $host['product_id'] != $image['product_id']){
+            return ['status'=>400, 'msg'=>lang_plugins('image_not_found')];
+        }
+        if(isset($param['check_limit_rule']) && $param['check_limit_rule'] == 1){
+            $HostLinkModel = new HostLinkModel();
+            $currentConfig = $HostLinkModel->currentConfig($param['id']);
+            $currentConfig['image_id'] = $param['image_id'];
+
+            $productId = HostModel::where('id', $param['id'])->value('product_id');
+
+            $LimitRuleModel = new LimitRuleModel();
+            $checkLimitRule = $LimitRuleModel->checkLimitRule($productId, $currentConfig, ['image']);
+            if($checkLimitRule['status'] == 400){
+                return ['status'=>400, 'msg'=>lang_plugins('mf_cloud_cannot_reinstall_for_limit_rule')];
+            }
+        }
+
+        $orderItem = [];
+
+        $isOnDemand = $host['billing_cycle'] == 'on_demand';
+        $configData = json_decode($hostLink['config_data'], true);
+        if($isOnDemand){
+            
+        }else{
+            $duration = DurationModel::where('product_id', $host['product_id'])->where('num', $configData['duration']['num'] ?? 0)->where('unit', $configData['duration']['unit'] ?? 'month')->find();
+        }
+        
+        $result['data']['price'] = '0.00';
+        if($host['billing_cycle'] != 'free' && $image['charge'] == 1){
+            $res = HostImageLinkModel::where('host_id', $param['id'])->where('image_id', $param['image_id'])->find();
+            if(empty($res)){
+                bcscale(2);
+                // if($isOnDemand){
+
+                // }else{
+                    $image['price'] = bcmul($image['price'], $duration['price_factor'] ?? 1);
+                // }
+                $discountPrice = $image['price'];
+
+                $isDownstream = isset($param['is_downstream']) && $param['is_downstream'] == 1;
+                $priceBasis = $param['price_basis'] ?? 'agent';
+                $priceAgent = $priceBasis=='agent';
+                
+                // 计算用户等级折扣（仅非下游）
+                $clientLevel = $this->getClientLevel([
+                    'product_id'    => $image['product_id'],
+                    'client_id'     => get_client_id(),
+                ]);
+                if (($isDownstream) && !$priceAgent){
+                    $clientLevel = [];
+                }
+                if(!empty($clientLevel)){
+                    // 应用价格因子
+                    if(!empty($duration['price_factor']) && $duration['price_factor'] != 1){
+                        $discountPrice = bcmul($discountPrice, $duration['price_factor'], 4);
+                    }
+                    
+                    // 计算实际折扣金额
+                    $discount = bcdiv($discountPrice*$clientLevel['discount_percent'], 100, 2);
+                    
+                    $orderItem[] = [
+                        'type'          => 'addon_idcsmart_client_level',
+                        'rel_id'        => $clientLevel['id'],
+                        'amount'        => min(-$discount, 0),
+                        'description'   => lang_plugins('mf_cloud_client_level', [
+                            '{name}'    => $clientLevel['name'],
+                            '{value}'   => $clientLevel['discount_percent'],
+                        ]),
+                    ];
+                    
+                    // 只有升级时才扣除折扣
+                    // if($priceDifference > 0){
+                        $image['price'] = bcsub($image['price'], $discount);
+                    // }
+                    
+                    // 续费差价根据升降级处理
+                    // if($priceDifference > 0){
+                        // $priceDifference = bcsub($priceDifference, $oriDiscount);
+                    // }
+                } 
+
+                $result['data']['price'] = amount_format($image['price']);
+                $result['data']['description'] = lang_plugins('mf_cloud_buy_image') . $image['name'];
+            }
+        }
+
+        $result['data']['price_difference'] = $result['data']['price'];
+        $result['data']['renew_price_difference'] = 0;
+        $result['data']['base_price'] = $image['price'];
+        $result['data']['order_item'] = $orderItem ?? [];
+        $result['data']['discount'] = $discount ?? '0.00';
+
+        return $result;
+    }
+
+    public function getClientLevel($param)
+    {
+        $PluginModel = new PluginModel();
+        $plugin = $PluginModel->where('status',1)->where('name','IdcsmartClientLevel')->find();
+        $discount = [];
+        if(!empty($plugin) && class_exists('addon\idcsmart_client_level\model\IdcsmartClientLevelClientLinkModel')){
+            try{
+                if(class_exists('addon\idcsmart_client_level\model\IdcsmartClientLevelProductGroupModel')){
+                    $IdcsmartClientLevelModel = new \addon\idcsmart_client_level\model\IdcsmartClientLevelModel();
+                    $discount = $IdcsmartClientLevelModel->clientDiscount(['client_id' => $param['client_id'], 'product_id' => $param['product_id']]);
+                }else{
+                    $discount = IdcsmartClientLevelClientLinkModel::alias('aiclcl')
+                        ->field('aicl.id,aicl.name,aiclpl.product_id,aiclpl.discount_percent')
+                        ->leftJoin('addon_idcsmart_client_level aicl', 'aiclcl.addon_idcsmart_client_level_id=aicl.id')
+                        ->leftJoin('addon_idcsmart_client_level_product_link aiclpl', 'aiclpl.addon_idcsmart_client_level_id=aicl.id')
+                        ->where('aiclcl.client_id', $param['client_id'])
+                        ->where('aiclpl.product_id', $param['product_id'])
+                        ->where('aicl.discount_status', 1)
+                        ->find();
+                }
+            }catch(\Exception $e){
+
+            }
+        }
+        return $discount;
+    }
+
+    /**
+     * 时间 2022-07-29
+     * @title 生成购买镜像订单
+     * @desc 生成购买镜像订单
+     * @author hh
+     * @version v1
+     * @param   int param.id - 产品ID require
+     * @param   int param.image_id - 镜像ID require
+     * @return  int status - 状态码(200=成功,400=失败)
+     * @return  string msg - 提示信息
+     * @return  string data.id - 订单ID
+     */
+    public function createImageOrder($param)
+    {
+        if(isset($param['is_downstream'])){
+            unset($param['is_downstream']);
+        }
+        $param['check_limit_rule'] = 1;
+        $res = $this->checkHostImage($param);
+        if($res['status'] == 400){
+            return $res;
+        }
+        if($res['data']['price'] == 0){
+            return ['status'=>400, 'msg'=>lang_plugins('no_need_to_buy_this_image')];
+        }
+
+        $image = ImageModel::find($param['image_id']);
+        $description = lang_plugins("mf_cloud_buy_image", ['name'=>$image['name']]);
+
+        // foreach($res['data']['order_item'] as $v){
+        //     $res['data']['price'] = bcadd($res['data']['price'], $v['amount'],2);
+        // }
+
+        $OrderModel = new OrderModel();
+
+        $data = [
+            'host_id'     => $param['id'],
+            'client_id'   => get_client_id(),
+            'type'        => 'upgrade_config',
+            'amount'      => $res['data']['price'],
+            'description' => $description,
+            'price_difference' => $res['data']['price_difference'],
+            'renew_price_difference' => $res['data']['renew_price_difference'],
+            'base_price' => $res['data']['base_price'],
+            'upgrade_refund' => 0,
+            'config_options' => [
+                'type'          => 'buy_image',
+                'image_id'      => $param['image_id'],
+            ],
+            'customfield' => $param['customfield'] ?? [],
+            'order_item'  => $res['data']['order_item'],
+            'discount'  => $res['data']['discount'],
+        ];
+        return $OrderModel->createOrder($data);
+    }
+
+    /**
+     * 时间 2024-02-18
+     * @title 获取镜像默认用户名端口
+     * @desc  获取镜像默认用户名端口
+     * @author hh
+     * @version v1
+     * @param   int ImageModel.image_group_id - 镜像分组ID
+     * @return  string username - 用户名
+     * @return  int port - 端口
+     */
+    public function getDefaultUserInfo($ImageModel = null)
+    {
+        $ImageModel = $ImageModel ?? $this;
+
+        $imageGroup = ImageGroupModel::where('id', $ImageModel['image_group_id'] ?? 0)->value('name');
+
+        if(stripos($imageGroup, 'windows') === 0){
+            $result = [
+                'username' => 'administrator',
+                'port'     => 3306, 
+            ];
+        }else{
+            $result = [
+                'username' => 'root',
+                'port'     => 22, 
+            ];
+        }
+        return $result;
+    }
+
+    /**
+     * 时间 2024-04-30
+     * @title 批量删除操作系统
+     * @desc  批量删除操作系统
+     * @author hh
+     * @version v1
+     * @param   array id - 操作系统ID require
+     * @return  int status - 状态码(200=成功,400=失败)
+     * @return  string msg - 提示信息 
+     */
+    public function imageBatchDelete($id)
+    {
+        $image = $this
+                ->field('id,product_id,name')
+                ->whereIn('id', $id)
+                ->select()
+                ->toArray();
+        if(empty($image)){
+            return ['status'=>400, 'msg'=>lang_plugins('mf_cloud_os_not_found')];
+        }
+        $id = array_column($image, 'id');
+
+        $this->startTrans();
+        try{
+            $this->whereIn('id', $id)->delete();
+
+            $this->commit();
+        }catch(\Exception $e){
+            $this->rollback();
+            return ['status'=>400, 'msg'=>lang_plugins('delete_fail')];
+        }
+        $imageName = array_column($image, 'name');
+        $imageName = implode(',', $imageName);
+
+        $productName = ProductModel::where('id', $image[0]['product_id'])->value('name');
+
+        $description = lang_plugins('log_mf_cloud_delete_image_success', [
+            '{product}' => 'product#'.$image[0]['product_id'].'#'.$productName.'#',
+            '{name}'    => $imageName,
+        ]);
+        active_log($description, 'product', $image[0]['product_id']);
+
+        $result = [
+            'status' => 200,
+            'msg'    => lang_plugins('delete_success'),
+        ];
+        return $result;
+    }
+
+    /**
+     * 时间 2024-08-08
+     * @title 拖动排序
+     * @desc  拖动排序
+     * @author hh
+     * @version v1
+     * @param   int prev_id - 前一个镜像ID(0=表示置顶) require
+     * @param   int id - 当前镜像ID require
+     * @return  int status - 状态码(200=成功,400=失败)
+     * @return  string msg - 提示信息
+     */
+    public function dragToSort($param){
+        $image = $this->find($param['id']);
+        if(empty($image)){
+            return ['status'=>400, 'msg'=>lang_plugins('image_not_found')];
+        }
+        
+        // 获取当前镜像的is_market值，用于限制只在同类型镜像间排序
+        $isMarket = $image['is_market'] ?? 0;
+        
+        if($param['prev_id'] == 0){
+            $preOrder = -1;
+            $order = 0;
+        }else{
+            $preImage = $this->find($param['prev_id']);
+            if(empty($preImage)){
+                return ['status'=>400, 'msg'=>lang_plugins('image_not_found')];
+            }
+            // 检查前一个镜像是否与当前镜像类型相同
+            if(($preImage['is_market'] ?? 0) != $isMarket){
+                return ['status'=>400, 'msg'=>lang_plugins('mf_cloud_image_type_not_match')];
+            }
+            $preOrder = $preImage['order'];
+            $order = $preImage['order'] + 1;
+        }
+        
+        // 往后移动,只影响同类型的镜像
+        if($param['prev_id'] == 0){
+            // 所有同类型镜像向后移
+            $this->where('product_id', $image['product_id'])
+                ->where('is_market', $isMarket)
+                ->where('order', '>=', $preOrder)
+                ->inc('order', 1)
+                ->update();
+        }else{
+            // 前一个之后的所有同类型镜像后移
+            $this
+            ->where('product_id', $image['product_id'])
+            ->where('is_market', $isMarket)
+            ->where(function($query) use ($preOrder,$param) {
+                $query->whereOr('order', '>', $preOrder);
+                $query->whereOr('`order`='.$preOrder.' AND `id`<'.$param['prev_id']);
+            })
+            ->inc('order', 2)
+            ->update();
+        }
+        $this->where('id', $param['id'])->update(['order'=>$order]);
+
+        return ['status'=>200, 'msg'=>lang_plugins('success_message') ];
+    }
+
+    /**
+     * 时间 2024-08-27
+     * @title 名称获取器
+     * @desc  名称获取器
+     * @author hh
+     * @version v1
+     * @param   string value - 名称 require
+     * @return  string
+     */
+    public function getNameAttr($value)
+    {
+        if(app('http')->getName() == 'home'){
+            $multiLanguage = hook_one('multi_language', [
+                'replace' => [
+                    'name' => $value,
+                ],
+            ]);
+            if(isset($multiLanguage['name'])){
+                $value = $multiLanguage['name'];
+            }
+        }
+        return $value;
+    }
+
+    /**
+     * 时间 2024-10-24
+     * @title 拉取本地操作系统
+     * @desc 拉取本地操作系统
+     * @author theworld
+     * @version v1
+     * @param   int productId - 商品ID require
+     */
+    public function localImageSync($productId)
+    {
+        $ProductModel = ProductModel::find($productId);
+        if(empty($ProductModel)){
+            return ['status'=>400, 'msg'=>lang_plugins('product_id_error')];
+        }
+        if($ProductModel->getModule() != 'mf_cloud'){
+            return ['status'=>400, 'msg'=>lang_plugins('product_not_link_idcsmart_cloud_module')];
+        }
+
+        $DownstreamProductLogic = new DownstreamProductLogic($ProductModel);
+        if($DownstreamProductLogic->isDownstreamSync){
+            return ['status'=>400, 'msg'=>lang_plugins('product_is_downstream_sync_cannot_sync_local_image')];
+        }
+
+        $ConfigModel = new ConfigModel();
+        $config = $ConfigModel->indexConfig(['product_id'=>$productId]);
+
+        $this->startTrans();
+        try{
+            $time = time();
+            if($config['data']['manual_manage']==1){
+                $ImageGroupModel = new ImageGroupModel();
+                $imageGroup = $ImageGroupModel->where('product_id', $productId)->column('name');
+
+                $localImageGroup = LocalImageGroupModel::select()->toArray();
+
+                $data = [];
+                foreach ($localImageGroup as $key => $value) {
+                    if(!in_array($value['name'], $imageGroup)){
+                        $data[] = [
+                            'product_id' => $productId,
+                            'name' => $value['name'],
+                            'icon' => $value['icon'],
+                            'order' => $value['order'],
+                            'create_time' => $time,
+                        ];
+                    }
+                }
+                if(!empty($data)){
+                    $ImageGroupModel->insertAll($data);
+                }
+
+                $imageGroup = $ImageGroupModel->where('product_id', $productId)->select()->toArray();
+                $imageGroup = array_column($imageGroup, 'id', 'name');
+                $image = $this->where('product_id', $productId)
+                    ->column('name');
+
+                $localImage = LocalImageModel::alias('a')->field('a.id,a.name,a.order,b.name group_name')->leftJoin('local_image_group b','b.id=a.group_id')->select()->toArray();
+
+                $data = [];
+                foreach ($localImage as $key => $value) {
+                    if(!in_array($value['name'], $image)){
+                        $data[] = [
+                            'image_group_id'    => $imageGroup[ $value['group_name'] ],
+                            'name'              => $value['name'],
+                            'enable'            => 1,
+                            'charge'            => 0,
+                            'price'             => 0.00,
+                            'product_id'        => $productId,
+                            'rel_image_id'      => $value['id'],
+                            'order'             => $value['order'],
+                        ];
+                    }
+                }
+                if(!empty($data)){
+                    $this->insertAll($data);
+                }
+
+            }else{
+                $ImageGroupModel = new ImageGroupModel();
+                $this->where('product_id', $productId)->delete();
+                $ImageGroupModel->where('product_id', $productId)->delete();
+
+                $localImageGroup = LocalImageGroupModel::select()->toArray();
+
+                $data = [];
+                foreach ($localImageGroup as $key => $value) {
+                    $data[] = [
+                        'product_id' => $productId,
+                        'name' => $value['name'],
+                        'icon' => $value['icon'],
+                        'order' => $value['order'],
+                        'create_time' => $time,
+                    ];
+                }
+                if(!empty($data)){
+                    $ImageGroupModel->insertAll($data);
+                }
+                $imageGroup = $ImageGroupModel->where('product_id', $productId)->select()->toArray();
+                $imageGroup = array_column($imageGroup, 'id', 'name');
+                $localImage = LocalImageModel::alias('a')->field('a.id,a.name,a.order,b.name group_name')->leftJoin('local_image_group b','b.id=a.group_id')->select()->toArray();
+
+                $data = [];
+                foreach ($localImage as $key => $value) {
+                    $data[] = [
+                        'image_group_id'    => $imageGroup[ $value['group_name'] ],
+                        'name'              => $value['name'],
+                        'enable'            => 1,
+                        'charge'            => 0,
+                        'price'             => 0.00,
+                        'product_id'        => $productId,
+                        'rel_image_id'      => $value['id'],
+                        'order'             => $value['order'],
+                    ];
+                }
+                if(!empty($data)){
+                    $this->insertAll($data);
+                }
+
+                $ConfigModel->where('product_id', $productId)->update(['manual_manage' => 1]);
+
+            }
+            $this->commit();
+        }catch(\Exception $e){
+            $this->rollback();
+            return ['status'=>400, 'msg'=>$e->getMessage()];
+        }
+
+        return ['status'=>200, 'msg'=>lang_plugins('success_message')];
+    }
+}

@@ -1,0 +1,111 @@
+.el-pagination .el-select .el-input {
+    margin: 0;
+}
+
+
+
+.el-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.el-table__fixed-right::before,
+.el-table__fixed::before {
+    height: 0;
+}
+
+.el-slider__button-wrapper {
+    z-index: 2;
+}
+
+.el-tabs__nav-wrap::after {
+    height: 1px;
+}
+
+.el-notification__content {
+    overflow-y: auto;
+    padding-right: 5px;
+    max-height: 80vh;
+
+    &::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background-color: rgba(255, 255, 255, 0.4);
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 0.5rem;
+    }
+}
+
+
+/* 提示弹窗 */
+.el-message-box {
+    width: 5.2rem;
+}
+
+.el-message {
+    z-index: 99999999999 !important;
+}
+
+.el-tooltip__popper {
+    max-width: 50%;
+}
+
+/* 表格 表头和每一行 的统一高度 */
+thead tr {
+    height: 0.56rem;
+    color: #2B2B2B;
+}
+
+.el-table th.el-table__cell {
+    background-color: #F9FAFC;
+}
+
+tbody .el-table__row {
+    height: 0.6rem;
+}
+
+.el-table .el-table__cell {
+    padding: 0;
+}
+
+.el-container:nth-child(2) {
+    flex-direction: column;
+    background: #f6f6fa;
+
+    &>.el-main {
+        background: #fff;
+        margin: 0.24rem;
+        margin-top: calc(40px + 0.24rem);
+        border-radius: 0.08rem;
+        padding: 0.24rem;
+    }
+
+}
+
+
+/* el弹窗自带底部按钮 */
+.el-message-box__btns>.el-button {
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.el-message-box__btns {
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.list-table-border {
+    border: none;
+
+    &::after,
+    &::before {
+        display: none;
+    }
+}

@@ -1,0 +1,42 @@
+.supplier_list {
+  flex-direction: column;
+}
+.supplier_list .add-btn {
+  margin-top: 26px;
+  margin-bottom: 18px;
+}
+.supplier_list .t-icon-help-circle {
+  margin-left: 0;
+}
+.supplier_list .credit-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+}
+.isEn .config-dialog .t-form .t-form__label {
+  width: 160px !important;
+}
+.tip {
+  margin: 0;
+}
+.s-tip {
+  color: #666;
+}
+.t-input-number {
+  width: 100%;
+}
+.status-btn {
+  display: flex;
+  align-items: center;
+  column-gap: 5px;
+}
+.status-btn .dot-box {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #ccc;
+}
+.status-btn .dot-box.active {
+  background-color: var(--td-brand-color);
+}

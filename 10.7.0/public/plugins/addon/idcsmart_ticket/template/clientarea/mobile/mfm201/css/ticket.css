@@ -1,0 +1,99 @@
+.ticket-box {
+  background: #F3F3F3;
+  padding: 10px;
+}
+.ticket-box .ticket-item {
+  padding: 0.32rem 0.4267rem;
+  margin-bottom: 0.2667rem;
+  border-radius: 3px;
+  background: #FFF;
+  /* vant/Shadow-2 */
+  box-shadow: 0px 2px 12px 0px rgba(100, 101, 102, 0.12);
+  font-size: 0.3733rem;
+}
+.ticket-box .ticket-item .ticket-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  font-size: 0.4267rem;
+  line-height: 0.64rem;
+  column-gap: 0.2667rem;
+  margin-bottom: 0.2667rem;
+}
+.ticket-box .ticket-item .ticket-title .title-box {
+  display: flex;
+  column-gap: 5px;
+  flex-wrap: wrap;
+}
+.ticket-box .ticket-item .op-box {
+  display: flex;
+  align-items: center;
+  column-gap: 0.2667rem;
+  font-size: 0.3733rem;
+  flex-shrink: 0;
+}
+.ticket-box .ticket-item .op-box .op-text {
+  cursor: pointer;
+  color: var(--base-color-primary);
+}
+.ticket-box .ticket-item .op-box .op-text.danger {
+  color: var(--base-color-danger);
+}
+.ticket-box .ticket-item .status-text {
+  font-size: 0.3733rem;
+  line-height: 0.5867rem;
+  padding: 0.08rem 0.2667rem;
+  border-radius: 0.08rem;
+}
+.ticket-box .ticket-item .ticket-des {
+  font-size: 0.3733rem;
+  line-height: 0.5867rem;
+}
+.ticket-box .ticket-item .ticket-lebal {
+  color: rgba(0, 0, 0, 0.4);
+}
+.all-btn-box {
+  padding: 0.5333rem 0.4267rem;
+  background-color: #fff;
+}
+.all-btn-box .van-button {
+  border-radius: 0.16rem;
+}
+.form-select {
+  padding: 0;
+  margin-bottom: 0.5333rem;
+}
+.form-select .van-field__body {
+  border: 1px solid #CED4DA;
+  border-radius: 3px;
+  padding: 0.2667rem 0.4rem;
+}
+.form-select::after {
+  display: none;
+}
+.dis-item {
+  color: rgba(0, 0, 0, 0.4);
+}
+.renew {
+  margin-left: 0.08rem;
+  color: var(--base-color-primary);
+}
+.wai-filed {
+  padding: 0;
+}
+.wai-filed .code-select {
+  padding: 0.6933rem;
+  background-color: #F3F3F3;
+  font-size: 28px;
+  color: rgba(0, 0, 0, 0.4);
+}
+.wai-filed::after {
+  display: none;
+}
+.file-box {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 0.2667rem;
+  column-gap: 0.2667rem;
+  row-gap: 0.1333rem;
+}

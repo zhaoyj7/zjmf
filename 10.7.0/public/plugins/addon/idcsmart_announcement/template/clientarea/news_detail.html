@@ -1,0 +1,75 @@
+<!-- 页面独有样式 -->
+<link rel="stylesheet" href="/plugins/addon/idcsmart_announcement/template/clientarea/css/news.css">
+</head>
+
+<body>
+  <!-- mounted之前显示 -->
+  <div id="mainLoading">
+    <div class="ddr ddr1"></div>
+    <div class="ddr ddr2"></div>
+    <div class="ddr ddr3"></div>
+    <div class="ddr ddr4"></div>
+    <div class="ddr ddr5"></div>
+  </div>
+  <div class="news news_detail" v-cloak>
+    <el-container>
+      <aside-menu></aside-menu>
+      <el-container>
+        <top-menu></top-menu>
+        <el-main>
+          <!-- 自己的东西 -->
+          <div class="main-card">
+            <div class="main-card-title">
+              <svg t="1749023272025" class="back" viewBox="0 0 1024 1024" version="1.1" @click="back"
+                style="cursor: pointer;" xmlns="http://www.w3.org/2000/svg" p-id="20485" width="0.26rem"
+                height="0.26rem">
+                <path
+                  d="M672.426667 209.92H455.68v-136.533333l-295.253333 170.666666 295.253333 170.666667v-136.533333h215.04C819.2 278.186667 938.666667 397.653333 938.666667 546.133333s-119.466667 267.946667-267.946667 267.946667H52.906667c-18.773333 0-34.133333 15.36-34.133334 34.133333s15.36 34.133333 34.133334 34.133334h619.52c186.026667 0 336.213333-150.186667 336.213333-336.213334s-151.893333-336.213333-336.213333-336.213333z"
+                  p-id="20486" fill="var(--color-primary)"></path>
+              </svg>
+              {{lang.news_text1}}
+            </div>
+            <!-- pc端 -->
+            <div class="new-box" v-if="newDetail">
+              <p class="tit">{{newDetail.title}}</p>
+              <p class="time">
+                {{lang.news_text6}}：{{newDetail.create_time | formateTime}} &nbsp;&nbsp;
+                {{lang.news_text3}}：{{newDetail.keywords}}
+              </p>
+              <div class="content" v-html="calStr(newDetail.content)"></div>
+              <div class="news_annex" v-if="newDetail.attachment.length > 0">
+                <p>{{lang.news_text8}}： </p>
+                <p v-for="(item,index) in newDetail.attachment" :key="index">
+                  <a :href="item.url" target="_blank">
+                    {{item.name}}
+                  </a>
+                </p>
+              </div>
+              <div class="page">
+                <div class="link">
+                  <a :href="`news_detail.htm?id=${newDetail.prev?.id}`" class="prev"
+                    v-if="JSON.stringify(newDetail.prev) !== '{}' ">
+                    <i class="el-icon-arrow-left" class="icon"></i>
+                    <span><span class="txt">{{lang.news_text9}}：</span>{{newDetail.prev.title}}</span>
+                  </a>
+                </div>
+                <div class="link">
+                  <a :href="`news_detail.htm?id=${newDetail.next?.id}`" class="prev"
+                    v-if="JSON.stringify(newDetail.next) !== '{}'">
+                    <span v-if="newDetail.next"><span
+                        class="txt">{{lang.news_text10}}：</span>{{newDetail.next.title}}</span>
+                    <i class="el-icon-arrow-right" class="icon"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </el-main>
+      </el-container>
+    </el-container>
+  </div>
+
+  <!-- =======页面独有======= -->
+  <script src="/plugins/addon/idcsmart_announcement/template/clientarea/api/news.js"></script>
+  <script src="/plugins/addon/idcsmart_announcement/template/clientarea/lang/index.js"></script>
+  <script src="/plugins/addon/idcsmart_announcement/template/clientarea/js/news_detail.js"></script>

@@ -1,0 +1,545 @@
+[v-cloak] {
+  display: none;
+}
+.common-config .pro-tit {
+  line-height: 1;
+  color: #171725;
+  font-size: 28px;
+}
+.common-config .common-box {
+  padding-bottom: 1.3rem;
+}
+.common-config .common-box .el-slider__button-wrapper {
+  z-index: 3;
+}
+.common-config .common-box ul,
+.common-config .common-box li {
+  list-style: none;
+}
+.common-config .common-box .zf-dialog .el-input__inner {
+  width: 100%;
+}
+.common-config .common-box .l-config .config-item .config-way {
+  display: flex;
+  align-items: center;
+}
+.common-config .common-box .l-config .config-item .required {
+  color: var(--color-danger);
+}
+.common-config .common-box .cycle {
+  display: flex;
+  flex-wrap: wrap;
+}
+.common-config .common-box .cycle .item {
+  min-width: 1.4rem;
+  margin-right: 0.2rem;
+  border: 1px solid #E6E7EB;
+  border-radius: 0.03rem;
+  text-align: center;
+  padding: 0.11rem 0;
+  font-size: 0.15rem;
+  margin-bottom: 0.2rem;
+  cursor: pointer;
+  position: relative;
+}
+.common-config .common-box .cycle .item .name {
+  color: #1E2736;
+}
+.common-config .common-box .cycle .item .price {
+  margin-top: 0.1rem;
+  color: var(--color-primary);
+}
+.common-config .common-box .el-icon-check {
+  display: none;
+}
+.common-config .common-box .com-active .el-icon-check {
+  display: block;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  color: #fff;
+  z-index: 10;
+}
+.common-config .common-box .com-active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  z-index: 2;
+  width: 0;
+  height: 0;
+  border-bottom: 0.24rem solid var(--color-primary);
+  border-left: 0.24rem solid transparent;
+}
+.common-config .common-box .el-slider__bar {
+  background: var(--color-primary);
+}
+.common-config .common-box .el-slider__button {
+  width: 12px;
+  height: 24px;
+  border: 0;
+  border-radius: 0;
+  background: var(--color-primary);
+  position: relative;
+}
+.common-config .common-box .el-slider__button:hover,
+.common-config .common-box .el-slider__button.hover,
+.common-config .common-box .el-slider__button.dragging {
+  transform: scale(1) !important;
+  transition: all 0s !important;
+}
+.common-config .common-box .el-slider__button::after {
+  content: '';
+  width: 1px;
+  height: 10px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+}
+.common-config .common-box .config-tit {
+  position: relative;
+  padding-left: 0.15rem;
+  font-size: 0.18rem;
+  color: #1E2736;
+  line-height: 1;
+  margin-bottom: 0.2rem;
+}
+.common-config .common-box .config-tit::before {
+  content: '';
+  width: 3px;
+  height: 18px;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  margin-top: -9px;
+  background: var(--color-primary);
+}
+.common-config .common-box .description {
+  padding: 0.2rem;
+  border: 1px solid #E6E7EB;
+  border-radius: 3px;
+  margin-top: 0.4rem;
+  line-height: 1.5;
+  color: #8692B0;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+}
+.common-config .common-box .config-item {
+  margin-top: 0.6rem;
+}
+.common-config .common-box .config-item.host .el-input {
+  width: 3.2rem;
+}
+.common-config .common-box .config-item .des {
+  font-size: 0.14rem;
+  color: #8692B0;
+  margin-top: 0.1rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+.common-config .common-box .config-item .unit {
+  font-size: 0.15rem;
+  color: #1E2736;
+  margin-left: 0.05rem;
+}
+.common-config .common-box .config-item .slider {
+  display: flex;
+  align-items: center;
+}
+.common-config .common-box .config-item .slider .el-slider {
+  width: 4.34rem;
+  margin: 0 0.3rem;
+}
+.common-config .common-box .config-item .slider .el-input-number {
+  width: auto;
+}
+.common-config .common-box .config-item .slider .el-input-number .el-input__inner {
+  padding: 0 !important;
+}
+.common-config .common-box .config-item .slider .el-input-number .el-input-number__decrease,
+.common-config .common-box .config-item .slider .el-input-number .el-input-number__increase {
+  display: none;
+}
+.common-config .common-box .config-item .slider .el-input {
+  width: 0.7rem;
+  margin-left: 0.2rem;
+}
+.common-config .common-box .el-select input {
+  line-height: 0.46rem;
+  height: 0.46rem;
+  width: 3.2rem;
+}
+.common-config .common-box .area-box .tit {
+  font-size: 0.16rem;
+  color: #1E2736;
+  margin-bottom: 0.1rem;
+}
+.common-config .common-box .area-box .country,
+.common-config .common-box .area-box .city {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 0.2rem;
+}
+.common-config .common-box .area-box .country .item,
+.common-config .common-box .area-box .city .item {
+  width: 2.05rem;
+  height: 0.52rem;
+  line-height: 0.52rem;
+  padding: 0 0.16rem;
+  margin-bottom: 0.2rem;
+  border: 1px solid #E6E7EB;
+  border-radius: 0.03rem;
+  margin-right: 0.2rem;
+  position: relative;
+  cursor: pointer;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+.common-config .common-box .area-box .country .item img,
+.common-config .common-box .area-box .city .item img {
+  width: 0.3rem;
+  height: 0.2rem;
+  margin-right: 0.2rem;
+}
+.common-config .common-box .area-box .country .item img,
+.common-config .common-box .area-box .city .item img,
+.common-config .common-box .area-box .country .item span,
+.common-config .common-box .area-box .city .item span {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 0.15rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.common-config .common-box .area-box .country .item span,
+.common-config .common-box .area-box .city .item span {
+  max-width: 70%;
+}
+.common-config .common-box .click-select {
+  margin-top: -20px;
+  width: 100%;
+  overflow: hidden;
+}
+.common-config .common-box .click-select .item {
+  width: 2.55rem;
+  line-height: 0.46rem;
+  height: 0.46rem;
+  border: 1px solid #E6E7EB;
+  border-radius: 0.03rem;
+  margin-top: 0.2rem;
+  text-align: center;
+  margin-right: 0.2rem;
+  cursor: pointer;
+  position: relative;
+  float: left;
+}
+.common-config .common-box .click-select.area .item {
+  text-align: left;
+  padding: 0 0.16rem;
+}
+.common-config .common-box .click-select.area .item img {
+  width: 0.3rem;
+  height: 0.2rem;
+  margin-right: 0.2rem;
+  display: inline-block;
+  vertical-align: middle;
+}
+.common-config .common-box .op-sysyem .el-input {
+  display: flex;
+  align-items: center;
+}
+.common-config .common-box .op-sysyem .system {
+  width: 2rem;
+}
+.common-config .common-box .op-sysyem .system .el-input__inner {
+  padding-left: 0.4rem;
+  width: 100%;
+}
+.common-config .common-box .op-sysyem .el-input__prefix {
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  margin-left: 0.1rem;
+}
+.common-config .common-box .op-sysyem .el-input__prefix img {
+  width: 0.2rem;
+  height: 0.2rem;
+  display: inline-block;
+}
+.common-config .common-box .el-icon-refresh {
+  cursor: pointer;
+  font-size: 0.16rem;
+  color: #666;
+}
+.system-icon {
+  width: 0.2rem;
+  height: 0.2rem;
+  display: inline-block;
+  vertical-align: middle;
+}
+/* 购物车弹窗 */
+.cartDialog {
+  width: 4.9rem;
+  background: #fff;
+}
+.cartDialog .tit {
+  font-size: 0.28rem;
+  color: #171725;
+}
+.cartDialog .el-dialog__body {
+  text-align: center;
+  line-height: 1;
+}
+.cartDialog .dialog-footer {
+  padding-bottom: 0.6rem;
+  justify-content: center;
+}
+.cartDialog .dialog-footer .el-button {
+  width: 1.44rem;
+  height: 0.46rem;
+  border-radius: 0.04rem;
+  text-align: center;
+  margin: 0 5px;
+}
+.cartDialog .dialog-footer .el-button span {
+  padding: 0;
+  font-size: 0.16rem;
+}
+.cartDialog .dialog-footer .el-button:first-child {
+  background: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  color: #fff;
+}
+.cartDialog .dialog-footer .el-button:last-child {
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+}
+.discount-pop {
+  white-space: nowrap;
+}
+.original-price {
+  text-decoration: line-through;
+  font-size: 0.2rem;
+  font-weight: 500;
+  color: #999999;
+}
+/* f-order */
+.f-order {
+  width: 100%;
+  height: 1.2rem;
+  left: 0;
+  bottom: 0;
+  position: fixed;
+  background: transparent;
+  display: flex;
+  font-size: 0.14rem;
+  color: rgba(0, 0, 0, 0.9);
+  z-index: 4;
+}
+.f-order.finance_login .el-main {
+  padding: 0 0.6rem !important;
+}
+.f-order .l-empty {
+  height: 1.2rem;
+  width: 190px;
+}
+.f-order .el-main {
+  background: #fff;
+  padding-top: 0;
+  padding-bottom: 0;
+  box-shadow: 0px -0.03rem 0.12rem rgba(0, 0, 0, 0.08);
+}
+.f-order .main-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.f-order .main-card .left {
+  display: flex;
+  align-items: center;
+}
+.f-order .time {
+  margin-right: 0.6rem;
+}
+.f-order .duration-select {
+  width: 1.6rem;
+}
+.f-order .el-input-number {
+  width: 1.5rem;
+}
+.f-order .l-txt {
+  margin-right: 0.14rem;
+}
+.f-order .el-input.is-focus .el-input__inner {
+  border-color: var(--color-primary);
+}
+.f-order .el-select .el-input__inner:focus {
+  border-color: var(--color-primary);
+}
+.f-order .num {
+  line-height: 0.34rem;
+}
+.f-order .num .el-input__inner:focus {
+  border-color: var(--color-primary);
+}
+.f-order .num .is-disabled {
+  background: #e8e7e5;
+}
+.f-order .link {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.9);
+  color: rgba(0, 0, 0, 0.9);
+  cursor: pointer;
+}
+.f-order .mid {
+  display: flex;
+}
+.f-order .line-empty {
+  width: 1px;
+  height: 0.24rem;
+  border-left: 1px dashed #d6d6d6;
+  margin: 0 0.5rem;
+}
+.f-order .bot-price {
+  font-size: 0.14rem;
+  line-height: 1;
+  margin-left: 0.1rem;
+}
+.f-order .bot-price .new {
+  color: var(--color-price-text);
+}
+.f-order .bot-price .new span {
+  font-size: 0.24rem;
+  font-weight: bold;
+  margin-left: 0.08rem;
+  font-family: "PingFang SC";
+}
+.f-order .bot-price .total-icon {
+  font-size: 0.14rem;
+  color: #999;
+}
+.f-order .bot-price .old {
+  margin-top: 0.1rem;
+  display: flex;
+  align-items: center;
+  column-gap: 0.02rem;
+}
+.f-order .bot-price .old .show {
+  text-decoration: line-through;
+  color: #999;
+}
+.f-order .bot-price .old > span {
+  display: flex;
+}
+.f-order .bot-price .use {
+  line-height: 0.2rem;
+  border-radius: 0.03rem;
+  padding: 0 0.04rem;
+  border: 1px solid #e6eaed;
+  font-size: 0.12rem;
+  color: rgba(0, 0, 0, 0.9);
+  cursor: pointer;
+}
+.f-order .bot-price .used {
+  background: #e6eaed;
+  border-radius: 0.03rem;
+  display: flex;
+  align-items: center;
+  padding: 0.03rem 0.05rem 0.03rem 0.01rem;
+}
+.f-order .bot-price .used span {
+  background: #fff;
+  line-height: 1;
+  font-size: 0.12rem;
+  color: rgba(0, 0, 0, 0.9);
+  padding: 0.02rem 0.1rem 0.02rem 0.01rem;
+}
+.f-order .bot-price .used i {
+  background: #fff;
+  border-radius: 50%;
+  font-size: 0.16rem;
+  cursor: pointer;
+  margin-left: 0.05rem;
+}
+.f-order .right {
+  display: flex;
+  align-items: center;
+}
+.f-order .right .add-cart {
+  width: 0.6rem;
+  height: 0.45rem;
+  border-radius: 0.03rem;
+  border: 1px solid var(--color-primary);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.f-order .right .buy {
+  width: 1.6rem;
+  line-height: 0.46rem;
+  background: var(--color-primary);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.16rem;
+  text-align: center;
+  cursor: pointer;
+  margin-left: 0.1rem;
+}
+.cur-content {
+  width: 5.2rem;
+  box-sizing: border-box;
+  padding: 0 0.24rem;
+  z-index: 30000 !important;
+}
+.cur-content .tit {
+  padding: 0.2rem 0 0.16rem;
+  border-bottom: 1px solid #e6eaed;
+}
+.cur-content .con {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0.05rem 0 0.1rem;
+}
+.cur-content .c-item {
+  width: 50%;
+  line-height: 0.28rem;
+  font-size: 0.13rem;
+  color: rgba(0, 0, 0, 0.9);
+}
+.cur-content .c-item .l-txt {
+  color: rgba(0, 0, 0, 0.6);
+}
+/* free-content */
+.free-content {
+  width: 3.3rem;
+  box-sizing: border-box;
+  padding: 0 0.24rem;
+  z-index: 30000 !important;
+}
+.free-content .tit {
+  padding: 0.2rem 0 0.16rem;
+  border-bottom: 1px solid #e6eaed;
+}
+.free-content .c-item {
+  display: flex;
+  line-height: 0.28rem;
+  justify-content: space-between;
+  font-size: 0.13rem;
+  color: rgba(0, 0, 0, 0.9);
+}
+.free-content .con {
+  padding: 0.1rem 0;
+  border-bottom: 1px solid #e6eaed;
+}
+.free-content .bot {
+  padding: 0.1rem 0 0.15rem;
+}
+/* custom-filed-box */
+.custom-filed-box .el-input,
+.custom-filed-box .el-textarea {
+  width: 3.2rem;
+}

@@ -1,0 +1,367 @@
+.tick-detail-page {
+  background: #F4F4F4;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+
+
+.top-nav {
+  position: relative;
+  box-shadow: 0px 4px 10px 0px rgba(0, 0, 0, 0.1);
+
+  .left-icon {
+    color: #333333;
+    font-weight: 600;
+    font-size: .4rem;
+  }
+
+  .close-btn {
+    font-size: .32rem;
+    line-height: .64rem;
+    color: var(--base-color-danger);
+    cursor: pointer;
+  }
+
+
+  .nav-title {
+    display: flex;
+    align-items: center;
+    column-gap: .1067rem;
+    font-size: .4rem;
+  }
+
+  .detail-box {
+    z-index: 2;
+    padding: .5333rem .4267rem;
+    box-sizing: border-box;
+    width: 100%;
+    background-color: #fff;
+    /* vant/Shadow-1 */
+    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.10);
+    position: absolute;
+    top: 100%;
+    left: 0;
+    font-size: .32rem;
+
+    .info-item {
+      margin-bottom: .2133rem;
+      display: flex;
+      column-gap: .5333rem;
+
+      .info-item-label {
+        color: #878A99;
+        min-width: 2rem;
+        text-align: right;
+      }
+
+      .info-item-text {
+        // 换行
+        word-break: break-all;
+        word-wrap: break-word;
+
+        color: #212529;
+      }
+
+      .status-tag {
+        padding: .0533rem .1067rem;
+        border-radius: .0267rem;
+      }
+    }
+  }
+}
+
+
+.ticket-content {
+  flex: 1;
+  padding: .4rem;
+  overflow-y: auto;
+
+  .reply-item {
+    margin-bottom: .5333rem;
+
+
+    .reply-head {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      column-gap: .1067rem;
+
+      .reply-name {
+        font-size: .3733rem;
+        font-weight: 600;
+        color: #333333;
+
+      }
+
+      .reply-time {
+        font-size: .32rem;
+        color: rgba(0, 0, 0, 0.4);
+      }
+    }
+
+    .reply-msg {
+      margin-top: .2133rem;
+
+      .reply-item-content {
+        max-width: 80%;
+        font-size: .3733rem;
+        display: inline-block;
+        padding: .2667rem;
+        border-radius: 0 .2133rem .2133rem .2133rem;
+        background: #fff;
+        color: #0F1828;
+        // 换行
+        word-break: break-all;
+        // 英文数字换行
+        word-wrap: break-word;
+
+        a {
+          color: var(--base-color-primary);
+        }
+
+        img {
+          max-width: 150px;
+          max-height: 150px;
+          cursor: pointer;
+        }
+      }
+
+      .reply-item-attachment {
+        margin-top: .2rem;
+
+        .reply-item-attachment-item {
+          font-size: .32rem;
+          color: var(--base-color-primary);
+          cursor: pointer;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+
+      .reply-time {
+        font-size: .2667rem;
+        color: #ADB5BD;
+        margin-top: .1333rem;
+      }
+
+      .quoted-message {
+        margin-bottom: .2933rem;
+        padding: .2rem .16rem;
+        border-left: .1067rem solid var(--base-color-primary);
+        border-radius: 0 .1333rem .1333rem .1333rem;
+        background-color: #EDEDED;
+
+        .quoted-header {
+          font-size: .2667rem;
+          color: #333;
+          display: flex;
+          align-items: baseline;
+          column-gap: .1333rem;
+
+          .quoted-label {
+            color: #333;
+          }
+
+          .quoted-user {
+            color: var(--base-color-primary);
+          }
+
+          .quoted-time {
+            color: #ADB5BD;
+          }
+        }
+
+        .reply-item-content-quote {
+          margin-top: .1333rem;
+          font-size: .32rem;
+          display: inline-block;
+          color: #666;
+          // 换行
+          word-break: break-all;
+          // 英文数字换行
+          word-wrap: break-word;
+
+          a {
+            color: var(--base-color-primary);
+          }
+
+          img {
+            max-width: 150px;
+            max-height: 150px;
+            cursor: pointer;
+          }
+        }
+      }
+
+      .reply-item-actions {
+        color: var(--base-color-primary);
+        text-align: right;
+      }
+    }
+
+
+    &.is-user {
+      flex-direction: row-reverse;
+
+      .reply-msg {
+        text-align: right;
+
+
+        .reply-item-attachment {
+
+          .reply-item-attachment-item {
+            color: #fff;
+          }
+        }
+
+      }
+
+      .reply-item-content {
+        border-radius: .2133rem 0 .2133rem .2133rem;
+        background: var(--base-color-primary);
+        color: #fff;
+        text-align: left;
+      }
+
+
+      .reply-head {
+        flex-direction: row-reverse;
+      }
+
+      .reply-time {
+        color: #fff;
+        text-align: right;
+      }
+
+      .reply-item-actions {
+        text-align: left;
+        color: #fff;
+      }
+
+      .quoted-message {
+        .reply-item-attachment {
+          .reply-item-attachment-item {
+            color: var(--base-color-primary);
+          }
+        }
+
+
+      }
+    }
+  }
+
+
+}
+
+.ticket-bottom {
+  background-color: #fff;
+
+  .bottom-top {
+    padding: .2667rem .4rem;
+    display: flex;
+    column-gap: .32rem;
+    justify-content: space-between;
+    align-items: center;
+
+    .van-field {
+      flex: 1;
+      padding: 0;
+
+      .van-field__body {
+        padding: .2133rem .32rem;
+        border-radius: 8px;
+        background: #F3F3F3;
+      }
+
+      &::after {
+        display: none;
+      }
+    }
+
+
+
+
+    .send-btn {
+      padding: 0;
+      background-color: #fff;
+      border: none;
+
+      img {
+        width: .56rem;
+        height: .48rem;
+      }
+    }
+  }
+
+  .file-box {
+    padding: .2667rem .4rem;
+    margin-top: .2rem;
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: .2667rem;
+  }
+}
+
+.quote-reply-wrapper {
+  background-color: #fff;
+  padding: .2667rem .4rem;
+  border-bottom: 1px solid #E9ECEF;
+
+  .quote-reply-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--base-color-primary);
+    font-size: .32rem;
+  }
+
+  .quote-reply-content-wrapper {
+    .quote-user-info {
+      display: flex;
+      align-items: center;
+      column-gap: .1333rem;
+      font-size: .32rem;
+      margin: .08rem 0;
+    }
+
+    .quote-time {
+      font-size: .2667rem;
+      color: #ADB5BD;
+    }
+  }
+
+  .quote-text {
+    font-size: .32rem;
+    color: #666;
+    // 换行
+    word-break: break-all;
+    // 英文数字换行
+    word-wrap: break-word;
+
+    a {
+      color: var(--base-color-primary);
+    }
+
+    img {
+      max-width: 150px;
+      max-height: 150px;
+      cursor: pointer;
+    }
+  }
+
+  .quote-attachments {
+    font-size: .2667rem;
+    color: var(--base-color-primary);
+  }
+
+  .quote-attachment-item {
+    display: flex;
+    align-items: center;
+    column-gap: .1333rem;
+  }
+}

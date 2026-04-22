@@ -1,0 +1,84 @@
+<!-- 页面引入样式位置 -->
+<link rel="stylesheet"
+  href="/plugins/addon/idcsmart_certification/template/clientarea/mobile/mfm301/css/authentication_select.css">
+</head>
+
+<body>
+  <div id="template" v-cloak class="authentication-select">
+    <van-nav-bar class="nav-bar" :border="false" :title="lang.realname_text1" safe-area-inset-top left-arrow
+      @click-left="goBack">
+    </van-nav-bar>
+    <div class="main-page">
+      <div class="type-top">
+        <div class="type-text1">{{lang.realname_text86}}</div>
+        <div class="title-text2">{{lang.realname_text87}}</div>
+      </div>
+      <div class="check-type">
+        <div class="type-title">{{lang.realname_text88}}</div>
+        <div class="type-des">{{lang.realname_text89}}</div>
+        <div class="check-box">
+          <div class="check-item" @click="clickType('1')">
+            <div class="check-title">
+              <img src="/plugins/addon/idcsmart_certification/template/clientarea/mobile/mfm301/img/select_preson.svg"
+                alt="">
+              <span>{{lang.realname_text25}}</span>
+              <van-tag size="small" color="var(--van-success-color)" plain
+                v-if="certificationInfoObj.person.status === 1">
+                {{lang.realname_text27}}
+              </van-tag>
+              <van-tag v-if="certificationInfoObj.person.status === 3 || certificationInfoObj.person.status === 4"
+                color="var(--van-warning-color)" plain size="small">
+                {{lang.realname_text28}}
+              </van-tag>
+            </div>
+            <div class="check-select">
+              <van-radio icon-size=".3733rem" :checked="authenticationType === '1'"></van-radio>
+            </div>
+          </div>
+          <div class="check-item" @click="clickType('2')" v-if="certificationInfoObj?.certification_company_open">
+            <div class="check-title">
+              <img src="/plugins/addon/idcsmart_certification/template/clientarea/mobile/mfm301/img/select_preson.svg"
+                alt="">
+              <span>{{lang.realname_text29}}</span>
+            </div>
+            <div class="check-select">
+              <van-radio icon-size=".3733rem" :checked="authenticationType === '2'"></van-radio>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="check-mode">
+        <van-select v-model:firpick="checkedVlue" :label="lang.realname_text31" :placeholder="lang.realname_text32"
+          cur-class="select-field" @change="selectChange" :columns="custom_fieldsList"
+          :columns-names="{ text: 'label', value: 'value' }" input-align="right" right-icon="arrow" :border="false">
+        </van-select>
+        <div class="config-tip" v-if="isShowPay">
+          {{lang.realname_text83}}<span class="amount-num">{{configInfo.amount}}</span>{{commonData.currency_suffix}}
+        </div>
+        <div class="config-tip" v-if="configInfo.order && configInfo.order.status === 'Paid'">
+          {{lang.realname_text83}}<span class="amount-num">{{configInfo.amount}}</span>{{commonData.currency_suffix}}
+          <span style="color: #3dd598;">({{lang.realname_text85}})</span>
+        </div>
+      </div>
+    </div>
+    <div class="next-box">
+      <van-button v-if="isShowPay" block type="primary" @click="goUploadPage" :loading="configLoading">
+        {{lang.realname_text84}}
+      </van-button>
+      <van-button v-else type="primary" block @click="goUploadPage" :loading="configLoading">{{lang.realname_text33}}
+      </van-button>
+    </div>
+    <pay-dialog ref="payDialog" @payok="paySuccess" @paycancel="payCancel"></pay-dialog>
+  </div>
+
+
+
+  <!-- =======页面引入js和相关组件位置======= -->
+
+  <script src="/{$template_catalog}/template/{$themes}/components/payDialog/payDialog.js"></script>
+
+  <script src="/plugins/addon/idcsmart_certification/template/clientarea/mobile/mfm301/lang/index.js"></script>
+  <script src="/plugins/addon/idcsmart_certification/template/clientarea/mobile/mfm301/api/certification.js"></script>
+
+  <script
+    src="/plugins/addon/idcsmart_certification/template/clientarea/mobile/mfm301/js/authentication_select.js"></script>

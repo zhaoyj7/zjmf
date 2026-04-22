@@ -1,0 +1,133 @@
+<!-- 页面引入样式位置 -->
+<link rel="stylesheet" href="/plugins/addon/idcsmart_ticket/template/clientarea/mobile/mfm201/css/ticketDetails.css">
+</head>
+
+
+<body>
+  <div id="template" v-cloak class="tick-detail-page">
+    <top-menu onlynav class="top-nav">
+      <template #left>
+        <van-icon @click="goBack" class="left-icon" name="arrow-left"></van-icon>
+      </template>
+      <template #center>
+        <div class="nav-title" @click="isShowMore = !isShowMore">
+          {{lang.ticket_label17}}
+          <p class="more-text">
+            {{lang.ticket_text13}}
+            <van-icon :name="isShowMore ? 'arrow-up' : 'arrow-down'"></van-icon>
+          </p>
+        </div>
+        <div class="detail-box" v-show="isShowMore">
+          <div class="info-item">
+            <div class="info-item-label">{{lang.ticket_label9}}:</div>
+            <div class="info-item-text">{{baseMsg.title}}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-item-label">{{lang.ticket_label2}}:</div>
+            <div class="info-item-text">{{baseMsg.type}}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-item-label">{{lang.ticket_label10}}:</div>
+            <div class="info-item-text" v-time="baseMsg.create_time">{{baseMsg.create_time}}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-item-label">{{lang.ticket_label11}}:</div>
+            <div class="info-item-text status-tag" :style="{background:hexToRgb(baseMsg.color),color:baseMsg.color}">
+              {{baseMsg.status}}
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-item-label">{{lang.ticket_label7}}:</div>
+            <div class="info-item-text">
+              <template v-if="baseMsg.hosts[0]">
+                <a class="host-item a-text" v-for="(item,index) in baseMsg.hosts" :key="item.id"
+                  :href="`/productdetail.htm?id=${item.id}`">
+                  {{item.label}}
+                  <span v-if="index !== baseMsg.hosts.length - 1">、</span>
+                </a>
+              </template>
+              <div v-else>--</div>
+            </div>
+          </div>
+        </div>
+      </template>
+      <template #right>
+        <van-popover placement="bottom-end">
+          <template #reference>
+            <van-icon name="ellipsis"
+              v-if="baseMsg.status != lang.ticket_text5 && ticketData.can_operate !== 0"></van-icon>
+          </template>
+          <div class="close-btn" @click="showClose">{{lang.ticket_btn7}}</div>
+        </van-popover>
+      </template>
+    </top-menu>
+    <div class="ticket-content">
+      <div class="reply-item" v-for="item in ticketData.replies" :key="item.create_time"
+        :class="item.type === 'Client' ? 'is-user' : ''">
+        <div class="reply-head">
+          <div class="reply-name">
+            {{item.type == 'Client'? item.client_name : item.admin_name}}
+          </div>
+          <div class="reply-time" v-time="item.create_time"></div>
+        </div>
+        <div class="reply-msg">
+          <div class="reply-item-content">
+            <div v-html="item.content" @click="hanldeImage($event)"></div>
+          </div>
+          <div class="reply-item-attachment" v-if="item.attachment.length > 0">
+            <div class="reply-item-attachment-item van-ellipsis" v-for="(f,i) in item.attachment" :key="i"
+              @click="downloadfile(f)">
+              <span :title="f.name">
+                <van-icon name="orders-o"></van-icon><span>{{f.name}}</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <van-sticky position="bottom" :offset-bottom="0.00001">
+      <div class="ticket-bottom">
+        <div class="bottom-top">
+          <van-uploader :after-read="afterRead" ref="uploadRef" multiple accept="*" v-show="false"></van-uploader>
+          <van-field type="textarea" rows="1" :autosize="sdasaasd" maxlength="3000" :placeholder="lang.ticket_label12"
+            v-model="replyData.content">
+          </van-field>
+          <van-button icon="plus" plain type="primary" @click="handeSelecFile"></van-button>
+          <van-button class="send-btn" @click="doReplyTicket" type="primary"
+            :loading="sendBtnLoading">{{lang.ticket_btn8}}
+          </van-button>
+        </div>
+        <div class="file-box" v-if="fileList.length !==0">
+          <van-tag v-for="(item,index) in fileList" class="file-item" :show="true" closeable size="medium"
+            type="primary" @close="handeDelFile(item,index)">
+            {{item.file.name}}
+          </van-tag>
+        </div>
+      </div>
+    </van-sticky>
+    <!-- 关闭工单弹窗 -->
+    <van-popup v-model:show="visible" round closeable :style="{ width: '90%' }">
+      <div class="common-pop-box">
+        <div class="common-pop-title" style="color: var(--base-color-danger);">
+          <van-icon name="warning-o"></van-icon>
+          {{lang.ticket_title6}}
+        </div>
+        <div class="common-pop-body">
+          {{lang.ticket_tips11}} {{baseMsg.title}}，{{lang.ticket_tips12}}
+        </div>
+        <div class="common-pop-fotter">
+          <van-button class="can-btn" @click="visible = false">{{lang.ticket_btn9}}</van-button>
+          <van-button class="sub-btn" type="danger" @click="doCloseTicket"
+            :loading="delLoading">{{ lang.ticket_btn6}}</van-button>
+        </div>
+      </div>
+    </van-popup>
+  </div>
+
+
+  <!-- =======页面引入js和相关组件位置======= -->
+  <script src="/plugins/addon/idcsmart_ticket/template/clientarea/mobile/mfm201/api/ticket.js"></script>
+  <script src="/plugins/addon/idcsmart_ticket/template/clientarea/mobile/mfm201/lang/index.js"></script>
+
+  <script src="/{$template_catalog}/template/{$themes}/lib/xss.js"></script>
+  <script src="/plugins/addon/idcsmart_ticket/template/clientarea/mobile/mfm201/js/ticketDetails.js"></script>

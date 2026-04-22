@@ -1,0 +1,162 @@
+.tick-detail-page {
+  background: #F6F8FB;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.top-nav {
+  position: relative;
+  border-bottom: 0.5px solid #E7E7E7;
+}
+.top-nav .nav-title {
+  font-size: 0.48rem;
+  display: flex;
+  align-items: center;
+  column-gap: 0.1067rem;
+}
+.top-nav .nav-title .van-icon {
+  font-size: 0.3733rem;
+  color: rgba(0, 0, 0, 0.4);
+}
+.top-nav .detail-box {
+  z-index: 2;
+  padding: 0.5333rem 0.4267rem;
+  box-sizing: border-box;
+  width: 100%;
+  background-color: #fff;
+  /* vant/Shadow-1 */
+  box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  top: 100%;
+  left: 0;
+  font-size: 0.3733rem;
+}
+.top-nav .detail-box .info-item {
+  margin-bottom: 0.2133rem;
+  display: flex;
+  column-gap: 0.5333rem;
+}
+.top-nav .detail-box .info-item .info-item-label {
+  color: #878A99;
+  min-width: 2rem;
+}
+.top-nav .detail-box .info-item .info-item-text {
+  word-break: break-all;
+  word-wrap: break-word;
+  color: #212529;
+}
+.top-nav .detail-box .info-item .status-tag {
+  padding: 0.0533rem 0.1067rem;
+  border-radius: 0.0267rem;
+}
+.ticket-content {
+  flex: 1;
+  padding: 10px 16px;
+}
+.ticket-content .reply-item {
+  margin-bottom: 0.7467rem;
+}
+.ticket-content .reply-item .reply-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  column-gap: 0.1067rem;
+}
+.ticket-content .reply-item .reply-head .reply-name {
+  font-size: 0.4267rem;
+}
+.ticket-content .reply-item .reply-head .reply-time {
+  font-size: 0.32rem;
+  color: rgba(0, 0, 0, 0.4);
+}
+.ticket-content .reply-item .reply-msg {
+  margin-top: 0.2133rem;
+}
+.ticket-content .reply-item .reply-msg .reply-item-content {
+  max-width: 80%;
+  font-size: 0.3733rem;
+  display: inline-block;
+  padding: 10px 12px;
+  border-radius: 3px;
+  background: #EEF4FF;
+  word-break: break-all;
+  word-wrap: break-word;
+  font-size: 14px;
+}
+.ticket-content .reply-item .reply-msg .reply-item-content a {
+  color: var(--base-color-primary);
+}
+.ticket-content .reply-item .reply-msg .reply-item-content img {
+  max-width: 150px;
+  max-height: 150px;
+  cursor: pointer;
+}
+.ticket-content .reply-item .reply-msg .reply-item-attachment {
+  margin-top: 0.2rem;
+}
+.ticket-content .reply-item .reply-msg .reply-item-attachment .reply-item-attachment-item {
+  font-size: 0.32rem;
+  color: var(--base-color-primary);
+  cursor: pointer;
+}
+.ticket-content .reply-item .reply-msg .reply-item-attachment .reply-item-attachment-item:hover {
+  text-decoration: underline;
+}
+.ticket-content .reply-item .reply-msg .reply-time {
+  font-size: 0.32rem;
+  color: #878A99;
+  margin-top: 0.1rem;
+}
+.ticket-content .reply-item.is-user {
+  flex-direction: row-reverse;
+}
+.ticket-content .reply-item.is-user .reply-msg {
+  text-align: right;
+}
+.ticket-content .reply-item.is-user .reply-item-content {
+  background: #E3FBFA;
+  text-align: left;
+}
+.ticket-content .reply-item.is-user .reply-head {
+  flex-direction: row-reverse;
+}
+.ticket-bottom {
+  background-color: #fff;
+  padding: 12px;
+}
+.ticket-bottom .bottom-top {
+  display: flex;
+  column-gap: 0.32rem;
+  justify-content: space-between;
+  font-size: 0.3733rem;
+}
+.ticket-bottom .bottom-top .van-field {
+  width: calc(100% - 0.8rem - 0.9867rem - 1rem);
+  padding: 0;
+}
+.ticket-bottom .bottom-top .van-field .van-field__body {
+  padding: 0.2133rem 0.32rem;
+  border-radius: 99px;
+  background: #F3F3F3;
+  border: 1px solid #DCDCDC;
+}
+.ticket-bottom .bottom-top .van-field::after {
+  display: none;
+}
+.ticket-bottom .bottom-top .send-btn {
+  border-radius: 100px;
+}
+.ticket-bottom .file-box {
+  margin-top: 0.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 0.2667rem;
+}
+.close-btn {
+  padding: 0.2667rem 0.4267rem;
+  font-size: 0.4267rem;
+  line-height: 0.64rem;
+  color: var(--base-color-danger);
+  cursor: pointer;
+}

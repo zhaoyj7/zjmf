@@ -1,0 +1,55 @@
+.supplier_list {
+  flex-direction: column;
+
+  .add-btn {
+    margin-top: 26px;
+    margin-bottom: 18px;
+  }
+
+  .t-icon-help-circle {
+    margin-left: 0;
+  }
+  .credit-right{
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
+  }
+}
+
+.isEn {
+  .config-dialog {
+    .t-form .t-form__label {
+      width: 160px !important;
+    }
+  }
+}
+
+.tip {
+  margin: 0;
+}
+
+.s-tip {
+  color: #666;
+}
+
+.t-input-number {
+  width: 100%;
+}
+
+.status-btn {
+  display: flex;
+  align-items: center;
+  column-gap: 5px;
+
+  .dot-box {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #ccc;
+
+    &.active {
+      background-color: var(--td-brand-color);
+    }
+  }
+}

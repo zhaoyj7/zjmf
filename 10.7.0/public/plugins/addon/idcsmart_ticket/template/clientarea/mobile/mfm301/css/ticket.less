@@ -1,0 +1,216 @@
+.tick-top-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .32rem .4rem;
+    color: #333333;
+    background: #fff;
+    font-weight: 600;
+
+    .tick-top-title-left {
+        font-size: .3733rem;
+    }
+
+    .tick-top-title-right {
+        display: flex;
+        align-items: center;
+        font-weight: 600;
+        font-size: .5067rem;
+
+        .van-button {
+            border: none;
+            font-size: .4267rem;
+            font-weight: 600;
+        }
+    }
+}
+
+.ticket-box {
+    padding-bottom: 2.1333rem;
+
+    .ticket-item {
+        display: flex;
+        align-items: center;
+        column-gap: .4267rem;
+        padding: .2667rem .4rem;
+        margin-bottom: .4rem;
+
+        .ticket-header {
+            overflow: hidden;
+            flex-shrink: 0;
+
+            img {
+                border-radius: .2667rem;
+                width: 1.3333rem;
+                height: 1.3333rem;
+            }
+        }
+
+        .ticket-info {
+            flex: 1;
+
+            .ticket-title-num {
+                font-size: .4267rem;
+                font-weight: 600;
+                color: #333333;
+                display: flex;
+                align-items: baseline;
+                justify-content: space-between;
+                column-gap: .2rem;
+
+                .ticket-time {
+                    flex-shrink: 0;
+                    font-size: .2933rem;
+                    color: #DEDEDE;
+                    font-weight: 400;
+                }
+            }
+
+            .ticket-title {
+                margin-top: .1333rem;
+                font-size: .3733rem;
+                color: #666666;
+            }
+        }
+
+    }
+}
+
+
+
+
+
+.create-box {
+    min-height: 100vh;
+    background-color: #F4F4F4;
+    display: flex;
+    flex-direction: column;
+
+    .ticket-create {
+        flex: 1;
+
+        .dis-item {
+            color: rgba(0, 0, 0, 0.4);
+
+        }
+
+        .renew {
+            margin-left: .08rem;
+            color: var(--base-color-primary);
+        }
+
+
+        .wai-filed {
+
+            .code-select {
+                padding: .6933rem;
+                background-color: #F3F3F3;
+                font-size: 28px;
+                color: rgba(0, 0, 0, 0.4);
+            }
+
+            &::after {
+                display: none;
+            }
+        }
+
+        .file-box {
+            display: flex;
+            flex-wrap: wrap;
+            padding: .2667rem;
+            column-gap: .2667rem;
+            row-gap: .1333rem;
+            background-color: #fff;
+        }
+
+    }
+
+    .create-btn {
+        padding: .32rem .4rem;
+        background-color: #fff;
+    }
+}
+
+.menu-select-box {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    .menu-box {
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+
+        .menu-first {
+            flex-shrink: 0;
+            height: 100%;
+            overflow-y: auto;
+            background-color: #F5F5F5;
+        }
+
+        .menu-item {
+            color: #333333;
+            font-size: .3733rem;
+            padding: .32rem .6667rem;
+            max-width: 4rem;
+
+            &.active {
+                font-weight: 600;
+                color: var(--base-color-primary);
+            }
+        }
+
+        .menu-radio-box {
+            margin-top: .32rem;
+            margin-left: .5333rem;
+            height: fit-content;
+            display: flex;
+            flex-wrap: wrap;
+            gap: .32rem;
+            background-color: #fff;
+
+            .menu-radio-item {
+                box-sizing: border-box;
+                font-size: .32rem;
+                padding: .1333rem .32rem;
+                border-radius: .1067rem;
+                background-color: #F5F5F5;
+                border: 1px solid #F5F5F5;
+
+                &.active {
+                    overflow: hidden;
+                    position: relative;
+                    color: var(--base-color-primary);
+                    border: 1px solid var(--base-color-primary);
+                    background-color: var(--base-color-primary-bg);
+
+                    // 右下角对号
+                    &::after {
+                        position: absolute;
+                        content: "✔";
+                        display: block;
+                        width: .3733rem;
+                        height: .32rem;
+                        background-color: var(--base-color-primary);
+                        clip-path: polygon(0 100%, 100% 0, 100% 100%); // 裁剪为三角形
+                        color: #fff;
+                        font-size: .2133rem;
+                        line-height: 2;
+                        text-align: right;
+                        right: 0;
+                        bottom: 0;
+                    }
+                }
+            }
+        }
+    }
+
+    .menu-footer {
+        display: flex;
+        column-gap: .4267rem;
+        padding: .32rem .4rem;
+        background-color: #fff;
+    }
+
+
+}

@@ -1,0 +1,277 @@
+.help-page {
+    background: #F6FAFF;
+
+    .page-nav,
+    .van-tabs__nav {
+        background: #F6FAFF;
+    }
+
+    .search-input {
+        background: inherit;
+    }
+
+    .search-input {
+        .van-search__content {
+            background-color: #fff;
+            border-radius: 6px;
+            border: 1px solid #E7E7E7;
+            overflow: hidden;
+        }
+
+        .van-dropdown-menu {
+            .van-dropdown-menu__bar {
+                background: #fff;
+            }
+        }
+
+
+    }
+
+    .fillter-search {
+
+        .van-search__content {
+            background-color: #fff;
+            border-radius: 6px;
+            border: none;
+            overflow: hidden;
+        }
+
+        .van-dropdown-menu {
+            .van-dropdown-menu__bar {
+                background: #fff;
+            }
+        }
+
+    }
+
+    .help-main {
+        background-color: #fff;
+        padding: .96rem .8rem 1.8667rem .8rem;
+
+        .help-item {
+            margin-bottom: .8rem;
+
+            .content-item-title {
+                display: flex;
+                align-items: center;
+                column-gap: .2133rem;
+                font-size: .48rem;
+                line-height: .6933rem;
+
+                img {
+                    width: .5867rem;
+                    height: .5867rem;
+                }
+            }
+
+            .content-item-link {
+                margin-top: .32rem;
+                display: flex;
+                flex-direction: column;
+                row-gap: .1067rem;
+
+                .link-item {
+                    font-size: .4267rem;
+                    line-height: .64rem;
+                    position: relative;
+                    padding-left: .32rem;
+                    cursor: pointer;
+
+                    &:before {
+                        content: '';
+                        position: absolute;
+                        left: 0;
+                        top: 50%;
+                        transform: translate(-50%, -50%);
+                        width: .1067rem;
+                        height: .1067rem;
+                        background: #C5C5C5;
+                        border-radius: 50%;
+                    }
+                }
+            }
+        }
+    }
+
+    .all-help-box {
+        background-color: #fff;
+        padding: 0 .4267rem .8rem .4267rem;
+
+        .menu-icon {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 50px;
+        }
+
+        .van-collapse-item__content {
+            >.help-item {
+                padding: .2133rem .32rem;
+                border-bottom: 0.5px solid #E7E7E7;
+                font-size: 14px;
+                color: rgba(0, 0, 0, 0.9);
+                line-height: .5867rem;
+
+                &:nth-last-of-type(1) {
+                    border-bottom: none;
+                }
+
+                &.active {
+                    background-color: #F3F3F3;
+                }
+            }
+
+        }
+
+        .bread-box {
+            display: flex;
+            align-items: center;
+            column-gap: 6px;
+            font-size: 12px;
+
+            .bread-text {
+                color: rgba(0, 0, 0, 0.6);
+            }
+        }
+
+        .news-main {
+            margin-top: .8rem;
+
+            .news-title {
+                font-size: 24px;
+                line-height: 32px;
+            }
+
+            .news-time {
+                font-size: 12px;
+                color: rgba(0, 0, 0, 0.4);
+                line-height: 20px;
+
+                .time-keyworld {
+                    margin-left: 10px;
+                }
+            }
+
+            .news-content {
+                width: 100%;
+                overflow-x: auto;
+                padding: 12px 0;
+                font-size: 14px;
+            }
+
+            .right-attachment {
+                margin-top: .4rem;
+                font-size: 14px;
+                display: flex;
+                align-items: flex-start;
+
+                .attachment-box {
+                    display: flex;
+                    flex-direction: column;
+                    row-gap: 6px;
+                }
+
+                .right-attachment-item {
+
+                    .van-icon {
+                        color: var(--base-color-primary);
+                    }
+                }
+
+            }
+
+        }
+    }
+
+    .new-main {
+        padding: .5333rem .4267rem;
+
+        .new-item {
+            display: flex;
+            align-items: center;
+            column-gap: .5333rem;
+            border-radius: 3px;
+            background: #FFF;
+            box-shadow: 0px 2px 12px 0px rgba(100, 101, 102, 0.12);
+            margin-bottom: .2667rem;
+            padding: .4267rem;
+            font-size: 14px;
+
+            .item-left {
+                width: 2.6667rem;
+                height: 1.6rem;
+                flex-shrink: 0;
+                border-radius: 6px;
+                overflow: hidden;
+
+                .item-img {
+                    width: 100%;
+                    height: 100%;
+                    border-radius: 6px;
+                }
+            }
+
+            .item-right {
+                .title {
+                    font-size: 16px;
+                    line-height: 26px
+                }
+
+                .info {
+                    margin-top: .16rem;
+                    font-size: 12px;
+                    color: rgba(0, 0, 0, 0.4);
+                    line-height: 20px;
+
+                    .el-icon-time {
+                        margin-right: .1333rem;
+                    }
+                }
+            }
+        }
+    }
+
+    .down-main {
+        padding: .5333rem .4267rem;
+
+        .file-item {
+            display: flex;
+            flex-direction: column;
+            row-gap: .2667rem;
+            border-radius: 3px;
+            background: #FFF;
+            box-shadow: 0px 2px 12px 0px rgba(100, 101, 102, 0.12);
+            margin-bottom: .2667rem;
+            padding: .32rem .4267rem;
+            font-size: 14px;
+
+            .file-title {
+                color: var(--base-color-primary);
+                display: flex;
+                align-items: center;
+                column-gap: .1333rem;
+                font-size: .4267rem;
+                line-height: .64rem;
+
+                .van-icon {
+                    transform: rotate(180deg);
+                }
+            }
+
+            .file-type {
+                display: flex;
+                justify-content: space-between;
+                column-gap: .4rem;
+            }
+
+            .file-lebal {
+                font-size: .32rem;
+            }
+
+            .file-value {
+                font-size: .32rem;
+                color: rgba(0, 0, 0, 0.40);
+            }
+        }
+    }
+}

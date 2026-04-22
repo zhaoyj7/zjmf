@@ -1,0 +1,135 @@
+<link rel="stylesheet" href="/plugins/addon/idcsmart_refund/template/admin/css/refund.css" />
+<!-- =======内容区域======= -->
+<div id="content" class="template add_refund_product" v-cloak>
+  <com-config>
+    <t-card class="list-card-container">
+      <p class="com-first-title">{{lang.basic_info}}</p>
+      <t-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }">
+        <!-- 退款类型 -->
+        <t-col :xs="12" :xl="4">
+          <!-- 选择商品 -->
+          <span class="poduct-form-label">{{lang.product_name}}</span>
+          <!-- <t-select v-model="fromData.product_id" @change="productChange" clearable filterable style="width:20%">
+          <t-option v-for="(item, index) in productOptions" :value="item.id" :label="item.name" :key="index">
+            {{ item.name }}
+          </t-option>
+        </t-select> -->
+          <com-tree-select v-if="!isEdit" :multiple="true" :value="fromData.product_ids" :need="true"
+            @choosepro="productChange">
+          </com-tree-select>
+          <com-tree-select v-else :value="fromData.product_id" :need="true" @choosepro="productChange">
+          </com-tree-select>
+        </t-col>
+      </t-row>
+
+      <!-- 商品配置 -->
+      <!-- <span class="poduct-form-label" style="margin-top:30px">{{lang.product_configuration}}</span>
+    <t-card shadow class="table-card">
+      <div v-html="fromData.config_option"></div>
+    </t-card> -->
+      <p class="com-first-title">{{lang.refund_info}}</p>
+
+
+
+
+      <t-row :gutter="{ xs: 8, sm: 16, md: 24, lg: 24, xl: 24, xxl: 24 }">
+        <!-- 退款类型 -->
+        <t-col :xs="12" :xl="4">
+          <div>
+            <span class="poduct-form-label">{{lang.refund_type}}</span>
+            <t-select v-model="fromData.type" clearable style="width:100%">
+              <t-option v-for="(item, index) in typeOptions" :value="item.id" :label="item.name" :key="index">
+                {{ item.name }}
+              </t-option>
+            </t-select>
+          </div>
+        </t-col>
+        <!-- 退款规则 -->
+        <t-col :xs="12" :xl="4">
+          <div>
+            <span class="poduct-form-label">{{lang.refund_rule}}</span>
+            <t-select v-model="fromData.rule" clearable style="width:100%">
+              <t-option value="Day" :label="lang.refund_rule_day"></t-option>
+              <t-option value="Month" :label="lang.refund_rule_month"></t-option>
+              <t-option value="Ratio" :label="lang.refund_rule_ratio"></t-option>
+            </t-select>
+          </div>
+        </t-col>
+        <!-- 退款比例 -->
+        <t-col :xs="12" :xl="4">
+          <div v-if="fromData.rule==='Ratio'">
+            <span class="poduct-form-label">{{lang.refund_rate}}</span>
+            <t-input-number theme="normal" v-model="fromData.ratio_value" style="width:calc(100% - 22px);margin: 0 3px;"
+              @change="changere_fundRate"></t-input-number>%
+          </div>
+        </t-col>
+        <t-col :xs="12" :xl="4"></t-col>
+        <!-- 退款要求 -->
+        <t-col :span="12" style="margin-top:30px">
+          <div class="add-refund-require">
+            <span class="poduct-form-label">{{lang.refund_require}}</span>
+            <div class="add-refund-require-content">
+              <t-radio :allow-uncheck="true" @change="checkChange($event,'First')" :checked="fromData.require=='First'"
+                value="First" style="display: block;margin-bottom: 10px;">{{lang.first_order}}</t-radio>
+              <t-radio :allow-uncheck="true" @change="checkChange($event,'Same')" :checked="fromData.require=='Same'"
+                value="Same" style="display: block;margin-bottom: 10px;">{{lang.refund_op_text5}}</t-radio>
+              <div class="range-check">
+                <t-radio :allow-uncheck="true" @change="checkChange($event,'range')"
+                  :checked="fromData.require=='range'" value="range">
+                </t-radio>
+                <div class="require-content-range">
+                  <span @click="handleClick">{{lang.refund_range1}}</span>
+                  <t-input-number theme="normal" v-model="fromData.range" :min="0" @focus="checkChange(true,'range')"
+                    style="width:100px;margin: 0 3px;"></t-input-number>
+                  <span @click="handleClick">{{lang.refund_range2}}</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </t-col>
+        <t-col :span="12" style="margin-top:30px">
+          <div class="add-refund-require">
+            <span class="poduct-form-label">{{lang.refund_op_text1}}</span>
+            <div class="add-refund-require-content">
+              <t-radio-group v-model="fromData.action">
+                <t-radio value="Suspend">{{lang.refund_op_text11}}</t-radio>
+                <t-radio value="Terminate">{{lang.refund_op_text12}}</t-radio>
+              </t-radio-group>
+            </div>
+          </div>
+        </t-col>
+        <t-col :span="12" style="margin-top:30px">
+          <div class="add-refund-require">
+            <span class="refund-require-label">{{lang.refund_op_text17}}</span>
+            <div class="add-refund-require-content">
+              {{lang.refund_range1}}
+              <t-input-number theme="normal" v-model="fromData.full_refund_days" :min="0"
+               style="width:100px;margin: 0 3px;" @change="fullRefundDaysChange"></t-input-number>
+              </t-input-number>
+              {{lang.refund_op_text18}}<span class="red">{{lang.refund_op_text19}}</span>，{{lang.refund_op_text20}}
+            </div>
+          </div>
+        </t-col>
+        <t-col :span="12" style="margin-top:30px">
+          <div class="add-refund-require">
+            <span class="refund-require-label">{{lang.refund_op_text22}}</span>
+            <div class="add-refund-require-content">
+              <t-switch size="large" :custom-value="[1,0]" v-model="fromData.api_refund_allow"></t-switch>
+            </div>
+          </div>
+        </t-col>
+      </t-row>
+      <div class="add-refund-btn">
+        <t-button theme="primary" @click="addEdit" style="margin-right: 15px;"
+          :loading="submitLoading">{{lang.submit}}</t-button>
+        <t-button theme="default" @click="goback(true)">{{lang.cancel}}</t-button>
+      </div>
+    </t-card>
+  </com-config>
+</div>
+<!-- =======页面独有======= -->
+<script src="/plugins/addon/idcsmart_refund/template/admin/js/lang.js"></script>
+<script src="/{$template_catalog}/template/{$themes}/components/comTreeSelect/comTreeSelect.js"></script>
+<script src="/plugins/addon/idcsmart_refund/template/admin/api/refund.js"></script>
+<script src="/plugins/addon/idcsmart_refund/template/admin/js/addEditrefund.js"></script>

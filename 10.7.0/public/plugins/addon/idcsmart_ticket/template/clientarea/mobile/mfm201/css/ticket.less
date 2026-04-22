@@ -1,0 +1,128 @@
+.ticket-box {
+    background: #F3F3F3;
+    padding: 10px;
+
+    .ticket-item {
+        padding: .32rem .4267rem;
+        margin-bottom: .2667rem;
+        border-radius: 3px;
+        background: #FFF;
+        /* vant/Shadow-2 */
+        box-shadow: 0px 2px 12px 0px rgba(100, 101, 102, 0.12);
+        font-size: .3733rem;
+
+        .ticket-title {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            font-size: .4267rem;
+            line-height: .64rem;
+            column-gap: .2667rem;
+            margin-bottom: .2667rem;
+
+            .title-box {
+                display: flex;
+                column-gap: 5px;
+                flex-wrap: wrap;
+            }
+        }
+
+        .op-box {
+            display: flex;
+            align-items: center;
+            column-gap: .2667rem;
+            font-size: .3733rem;
+            flex-shrink: 0;
+
+            .op-text {
+                cursor: pointer;
+                color: var(--base-color-primary);
+
+                &.danger {
+                    color: var(--base-color-danger);
+                }
+            }
+        }
+
+
+
+        .status-text {
+            font-size: .3733rem;
+            line-height: .5867rem;
+            padding: .08rem .2667rem;
+            border-radius: .08rem;
+        }
+
+        .ticket-des {
+            font-size: .3733rem;
+            line-height: .5867rem;
+        }
+
+        .ticket-lebal {
+            color: rgba(0, 0, 0, 0.4);
+        }
+    }
+}
+
+.all-btn-box {
+    padding: .5333rem .4267rem;
+    background-color: #fff;
+
+    .van-button {
+        border-radius: .16rem;
+    }
+}
+
+
+
+
+.form-select {
+    padding: 0;
+    margin-bottom: .5333rem;
+
+    .van-field__body {
+        border: 1px solid #CED4DA;
+        border-radius: 3px;
+        padding: 0.2667rem 0.4rem;
+    }
+
+    &::after {
+        display: none;
+    }
+
+}
+
+.dis-item {
+    color: rgba(0, 0, 0, 0.4);
+
+}
+
+.renew {
+    margin-left: .08rem;
+    color: var(--base-color-primary);
+}
+
+
+.wai-filed {
+    padding: 0;
+
+
+    .code-select {
+        padding: .6933rem;
+        background-color: #F3F3F3;
+        font-size: 28px;
+        color: rgba(0, 0, 0, 0.4);
+    }
+
+    &::after {
+        display: none;
+    }
+}
+
+.file-box {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: .2667rem;
+    column-gap: .2667rem;
+    row-gap: .1333rem;
+}

@@ -1,0 +1,182 @@
+
+@text-primary: #1e2736;
+@text-secondary: #8692b0;
+@border-color: #e6e7eb;
+@background-light: #f8f9fd;
+@background-hover: #eef4ff;
+
+.contract-info-dialog {
+  .dialog-title {
+    font-size: 0.24rem;
+    font-weight: 400;
+    color: #171725;
+  }
+
+  .certification-info {
+    margin-top: 0.1rem;
+    margin-bottom: 0.3rem;
+    padding: 0.2rem 0.16rem;
+    border: 0.01rem solid @border-color;
+
+    .kd-item {
+      margin-bottom: 0.1rem;
+      font-size: 0.14rem;
+
+      &:nth-last-of-type(1) {
+        margin-bottom: 0;
+      }
+
+      .kd-label {
+        color: @text-secondary;
+      }
+
+      .kd-value {
+        margin-left: 0.3rem;
+        color: #4E5259;
+      }
+    }
+  }
+
+  .dialog-dec {
+    font-size: 0.14rem;
+    padding: 0.12rem 0.16rem;
+    margin-top: 0.4rem;
+    color: var(--color-danger);
+    border-radius: 0.03rem 0.03rem 0.03rem 0.03rem;
+    background: #FDE6E9;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  .el-dialog__body {
+    padding: 0.24rem;
+    font-size: 0.16rem;
+  }
+
+  .dialog-fotter {
+    display: flex;
+    justify-content: end;
+    margin-top: 0.4rem;
+  }
+
+  .info-form {
+    .el-form-item__label {
+      padding: 0 !important;
+    }
+  }
+
+  .save-btn,
+  .cancel-btn {
+    width: 1.12rem;
+    height: 0.46rem;
+    font-size: 0.16rem;
+    border-radius: 0.03rem;
+    border: none;
+  }
+
+  .save-btn {
+    background: var(--color-primary);
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .cancel-btn {
+    margin-left: 0.12rem;
+    background: #E7E7E7;
+    color: @text-primary;
+  }
+  .first-save-tip{
+    font-size:.14rem;
+    color: var(--color-danger);
+  }
+}
+
+/* 签章上传样式 */
+.seal-upload {
+  .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+
+    &:hover {
+      border-color: var(--color-primary);
+    }
+  }
+}
+
+.seal-upload-content {
+  width: 150px;
+  height: 150px;
+  position: relative;
+
+  .seal-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .seal-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  &:hover .seal-mask {
+    opacity: 1;
+  }
+}
+
+.seal-mask-actions {
+  display: flex;
+  gap: 20px;
+
+  i {
+    font-size: 20px;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+}
+
+.seal-upload-placeholder {
+  width: 150px;
+  height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #8c939d;
+
+  i {
+    font-size: 32px;
+    color: #8c939d;
+  }
+}
+
+.seal-upload-text {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #606266;
+}
+
+.seal-upload-tip {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #909399;
+  text-align: center;
+  line-height: 1.4;
+}
